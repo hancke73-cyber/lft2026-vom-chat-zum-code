@@ -9,6 +9,8 @@
   Kopie von teil2-mitbauen.html (Chat/Projekt-Fassung). Das Original und die Chat-Fassung bleiben unverändert.
   Belegt durch Screenshots der deutschen Claude-Desktop-App (design/screenshots/claude-desktop-collage.webp, NACHTRAG 2): Umschalter Chat / Code oben links,
   Menü „Berechtigungen“ mit Auto, Manuell, Plan und weiteren, „Umgebung auswählen“ mit Lokal, Cloud, „Opus 5.5 Mittel“.
+  Prüfbefunde CC-1 bis CC-9 (design/tests/pruefung-claude-code-2026-11-11.md) eingearbeitet: CC-1 Plan mit Kartenlogik, Freigabe manuell; CC-2 Auswahlkarten; CC-3 Ordner vor der ersten Nachricht, Pfadkontrolle;
+  CC-4 keine feste Dateiliste als Kontrolle; CC-5 Wortliste per Prompt; CC-6/CC-7 Prüfliste; CC-8 mehrere Erlauben-Abfragen; CC-9 Formulierungen angeglichen.
   UNGEPRÜFT: Ordnerauswahl, Aufbau der Code-Ansicht, Erlauben-Abfrage, Dateiliste. Jede Schrittseite trägt deshalb den Hinweis „Ungeprüft“.
   Mockups sind vereinfachte Nachzeichnungen ohne Original-Logos.
 -->
@@ -218,6 +220,13 @@ h1 em{font-style:normal;color:var(--acc)}
 .mock .tool{font:12.5px ui-monospace,Consolas,"Courier New",monospace;color:var(--green);border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin-top:12px;align-self:flex-start}
 .mock .perm{border:1px solid var(--acc);border-radius:8px;padding:10px 12px;font-size:13.5px;color:var(--ink);line-height:1.45}
 /* MOCK-ENDE */
+.getbar{position:absolute;left:160px;top:300px;width:1600px;height:240px;display:flex;align-items:center;justify-content:space-between;gap:30px;border:2px solid #F5E6D2;border-radius:8px;padding:22px 30px;background:#14006E}
+.getbar .gk{font-size:16px;font-weight:700;letter-spacing:4px;color:var(--gold)}
+.getbar .gs{font-size:21px;color:#E6F0FF;margin-top:14px}
+.getbar .gq{background:#FFFFFF;border-radius:8px;padding:8px;width:206px;height:206px;flex:none;line-height:0}
+a.biglink{display:inline-block;margin-top:14px;background:#FFFFFF;color:#14006E;font-size:35px;font-weight:700;border-radius:8px;padding:14px 26px;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:6px}
+a.biglink span{margin-left:14px;text-decoration:none;display:inline-block}
+a.biglink:hover{background:#E6F0FF}
 /* Markierungsring */
 .tgt{position:relative}
 .ring{position:absolute;inset:-7px;border:3px solid var(--gold);border-radius:13px;pointer-events:none;opacity:0;z-index:4;animation:ringIn .5s cubic-bezier(.3,1.6,.5,1) var(--rd,.8s) forwards,pulse 1.8s ease-out calc(var(--rd,.8s) + .5s) infinite}
@@ -324,17 +333,22 @@ a{text-decoration:underline;text-underline-offset:4px}
   </section>
 
   <!-- 1 · Unterlagen besorgen -->
-  <section class="page" id="pGet" data-hint="&lt;kbd&gt;→&lt;/kbd&gt; weiter">
+  <section class="page" id="pGet" data-hint="Link anklicken oder QR-Code scannen &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
     <div class="head">
       <div class="kick rise">10 · MITBAUEN MIT CLAUDE CODE · VORBEREITUNG</div>
       <h1 class="rise" style="--d:.12s">Unterlagen <em>besorgen.</em></h1>
     </div>
-    <div class="grid" style="top:340px;grid-template-columns:1.25fr 1fr 1fr;grid-auto-rows:470px">
-      <div class="tile rise" style="--d:.3s;cursor:default"><span class="grp">1 · SEITE ÖFFNEN</span><h3 style="font-size:32px;margin-top:34px">GitHub-Seite öffnen</h3><p style="font-size:21px">Alles liegt auf einer Seite. Adresse eintippen oder den QR-Code scannen:</p><p class="mono" style="font-size:21px;color:var(--acc2);margin-top:12px;word-break:break-all">hancke73-cyber.github.io/<br>lft2026-vom-chat-zum-code</p><div style="margin-top:18px;background:#FFFFFF;border-radius:8px;padding:8px;width:190px;height:190px"><svg role="img" aria-label="QR-Code zur Seite" xmlns="http://www.w3.org/2000/svg" width="174" height="174" class="segno"><g transform="scale(8)"><path fill="#fff" d="M0 0h37v37h-37z"/><path class="qrline" stroke="#07003d" d="M2 2.5h7m2 0h2m2 0h5m1 0h1m1 0h3m2 0h7m-33 1h1m5 0h1m6 0h6m1 0h2m1 0h2m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h3m2 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h5m3 0h1m2 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h1m2 0h1m3 0h1m4 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h2m4 0h3m2 0h2m1 0h2m-25 1h1m2 0h1m1 0h2m1 0h1m1 0h5m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m-27 1h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h3m1 0h4m3 0h2m-33 1h2m2 0h3m1 0h1m1 0h1m2 0h2m1 0h1m2 0h3m3 0h4m1 0h1m1 0h1m-33 1h1m2 0h2m2 0h2m1 0h4m1 0h2m1 0h1m1 0h4m1 0h1m2 0h2m-30 1h2m3 0h3m1 0h2m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h2m1 0h1m1 0h1m-32 1h6m3 0h2m2 0h4m2 0h4m1 0h5m1 0h3m-33 1h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m9 0h1m1 0h1m1 0h2m1 0h4m-32 1h1m1 0h1m1 0h2m2 0h2m1 0h3m2 0h2m3 0h2m1 0h1m1 0h2m3 0h1m-32 1h1m1 0h3m1 0h2m7 0h3m2 0h2m1 0h2m1 0h1m1 0h1m2 0h1m-32 1h2m1 0h2m9 0h1m1 0h1m5 0h4m1 0h1m1 0h1m1 0h1m-31 1h1m2 0h1m1 0h3m1 0h3m3 0h3m3 0h1m1 0h3m3 0h1m1 0h1m-30 1h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h4m2 0h2m1 0h1m1 0h2m3 0h2m-33 1h2m3 0h3m1 0h1m2 0h1m1 0h3m2 0h3m2 0h1m2 0h1m3 0h2m-32 1h1m2 0h2m3 0h3m1 0h1m3 0h1m2 0h2m2 0h4m3 0h2m-33 1h3m1 0h1m1 0h1m3 0h1m3 0h1m1 0h2m1 0h1m1 0h1m2 0h2m2 0h1m3 0h1m-32 1h3m3 0h3m1 0h1m2 0h3m1 0h2m1 0h7m1 0h1m-30 1h1m1 0h2m1 0h4m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h6m-22 1h3m8 0h6m3 0h2m2 0h1m-33 1h7m2 0h2m5 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h4m-32 1h1m5 0h1m1 0h1m3 0h1m2 0h4m2 0h2m1 0h1m3 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h4m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m2 0h1m1 0h2m-30 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m1 0h1m1 0h1m-33 1h1m5 0h1m2 0h4m2 0h1m1 0h2m1 0h2m2 0h3m2 0h1m-30 1h7m1 0h1m2 0h1m1 0h1m7 0h1m2 0h2m2 0h1m2 0h1"/></g></svg></div></div>
-      <div class="tile rise" style="--d:.45s;cursor:default"><span class="grp">2 · HERUNTERLADEN</span><h3 style="font-size:32px;margin-top:34px">Das laden Sie herunter</h3><p style="font-size:21px">Im Abschnitt <b style="color:var(--amber)">Material</b> bei jeder Datei auf <b style="color:var(--amber)">Herunterladen</b> klicken:</p><ul style="margin:14px 0 0;padding:0;list-style:none;font-size:21px;line-height:1.55;color:#E6F0FF"><li>● <b style="color:#FFFFFF">wortliste.txt</b> (nötig)</li><li>● <b style="color:#FFFFFF">Prompt-Baukasten</b> (Formular, als Hilfe für die Regeln)</li><li>● <b style="color:#FFFFFF">CLAUDE.md</b> (Vorlage, optional)</li></ul><p style="font-size:19px;margin-top:14px">Oder alles auf einmal: <b style="color:var(--amber)">Gesamtpaket als ZIP</b>.</p></div>
-      <div class="tile rise" style="--d:.6s;cursor:default"><span class="grp">3 · ORDNER ANLEGEN</span><h3 style="font-size:32px;margin-top:34px">Ein Ordner für Claude</h3><p style="font-size:21px">Legen Sie im Datei-Explorer einen leeren Ordner an:</p><p class="mono" style="font-size:24px;color:var(--acc2);margin-top:12px">vokabeltrainer</p><p style="font-size:21px;margin-top:14px">zum Beispiel unter Dokumente. Legen Sie <b style="color:var(--amber)">wortliste.txt</b> hinein. In diesem Ordner arbeitet Claude Code später und legt dort alle Dateien an.</p></div>
+    <div class="getbar rise" style="--d:.3s">
+      <div class="gl"><div class="gk">1 · DIESE SEITE ÖFFNEN</div>
+        <a class="biglink" href="https://hancke73-cyber.github.io/lft2026-vom-chat-zum-code/" target="_blank" rel="noopener">hancke73-cyber.github.io/lft2026-vom-chat-zum-code/<span>↗</span></a>
+        <div class="gs">Adresse eintippen, den Link anklicken oder den QR-Code scannen.</div></div>
+      <div class="gq"><svg role="img" aria-label="QR-Code zur Seite" xmlns="http://www.w3.org/2000/svg" width="190" height="190" class="segno"><g transform="scale(8)"><path fill="#fff" d="M0 0h37v37h-37z"/><path class="qrline" stroke="#07003d" d="M2 2.5h7m2 0h2m2 0h5m1 0h1m1 0h3m2 0h7m-33 1h1m5 0h1m6 0h6m1 0h2m1 0h2m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h3m2 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h5m3 0h1m2 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h1m2 0h1m3 0h1m4 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h2m4 0h3m2 0h2m1 0h2m-25 1h1m2 0h1m1 0h2m1 0h1m1 0h5m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m-27 1h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h3m1 0h4m3 0h2m-33 1h2m2 0h3m1 0h1m1 0h1m2 0h2m1 0h1m2 0h3m3 0h4m1 0h1m1 0h1m-33 1h1m2 0h2m2 0h2m1 0h4m1 0h2m1 0h1m1 0h4m1 0h1m2 0h2m-30 1h2m3 0h3m1 0h2m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h2m1 0h1m1 0h1m-32 1h6m3 0h2m2 0h4m2 0h4m1 0h5m1 0h3m-33 1h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m9 0h1m1 0h1m1 0h2m1 0h4m-32 1h1m1 0h1m1 0h2m2 0h2m1 0h3m2 0h2m3 0h2m1 0h1m1 0h2m3 0h1m-32 1h1m1 0h3m1 0h2m7 0h3m2 0h2m1 0h2m1 0h1m1 0h1m2 0h1m-32 1h2m1 0h2m9 0h1m1 0h1m5 0h4m1 0h1m1 0h1m1 0h1m-31 1h1m2 0h1m1 0h3m1 0h3m3 0h3m3 0h1m1 0h3m3 0h1m1 0h1m-30 1h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h4m2 0h2m1 0h1m1 0h2m3 0h2m-33 1h2m3 0h3m1 0h1m2 0h1m1 0h3m2 0h3m2 0h1m2 0h1m3 0h2m-32 1h1m2 0h2m3 0h3m1 0h1m3 0h1m2 0h2m2 0h4m3 0h2m-33 1h3m1 0h1m1 0h1m3 0h1m3 0h1m1 0h2m1 0h1m1 0h1m2 0h2m2 0h1m3 0h1m-32 1h3m3 0h3m1 0h1m2 0h3m1 0h2m1 0h7m1 0h1m-30 1h1m1 0h2m1 0h4m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h6m-22 1h3m8 0h6m3 0h2m2 0h1m-33 1h7m2 0h2m5 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h4m-32 1h1m5 0h1m1 0h1m3 0h1m2 0h4m2 0h2m1 0h1m3 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h4m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m2 0h1m1 0h2m-30 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m1 0h1m1 0h1m-33 1h1m5 0h1m2 0h4m2 0h1m1 0h2m1 0h2m2 0h3m2 0h1m-30 1h7m1 0h1m2 0h1m1 0h1m7 0h1m2 0h2m2 0h1m2 0h1"/></g></svg></div>
     </div>
-    <div class="lead rise" style="--d:.9s;position:absolute;left:160px;top:850px;font-size:23px;max-width:1600px;line-height:1.4"><b style="color:var(--amber);font-weight:600">Wichtig:</b> Nur Beispieldaten in den Ordner legen, keine Schülerdaten. Den Prompt-Baukasten brauchen Sie erst bei Schritt 3, die Seite finden Sie dort wieder verlinkt.</div>
+    <div class="grid" style="top:570px;grid-template-columns:1fr 1fr;grid-auto-rows:270px">
+      <div class="tile rise" style="--d:.45s;cursor:default"><span class="grp">2 · HERUNTERLADEN</span><h3 style="font-size:30px;margin-top:30px">Das laden Sie herunter</h3><p style="font-size:21px">Im Abschnitt <b style="color:var(--amber)">Material</b> bei jeder Datei auf <b style="color:var(--amber)">Herunterladen</b> klicken:</p><ul style="margin:10px 0 0;padding:0;list-style:none;font-size:21px;line-height:1.5;color:#E6F0FF"><li>● <b style="color:#FFFFFF">wortliste.txt</b> (nötig)</li><li>● <b style="color:#FFFFFF">Prompt-Baukasten</b> (Formular, Hilfe für die Regeln)</li><li>● <b style="color:#FFFFFF">CLAUDE.md</b> (Vorlage, optional)</li></ul><p style="font-size:19px;margin-top:8px">Oder alles auf einmal: <b style="color:var(--amber)">Gesamtpaket als ZIP</b>.</p></div>
+      <div class="tile rise" style="--d:.6s;cursor:default"><span class="grp">3 · ORDNER ANLEGEN</span><h3 style="font-size:30px;margin-top:30px">Ein Ordner für Claude</h3><p style="font-size:21px">Legen Sie im Datei-Explorer einen leeren Ordner <b class="mono" style="color:var(--acc2)">vokabeltrainer</b> an, zum Beispiel unter Dokumente.</p><p style="font-size:21px;margin-top:10px">Legen Sie <b style="color:var(--amber)">wortliste.txt</b> hinein. In diesem Ordner arbeitet Claude Code später und legt dort alle Dateien an.</p></div>
+    </div>
+    <div class="lead rise" style="--d:.9s;position:absolute;left:160px;top:870px;font-size:22px;max-width:1600px;line-height:1.4"><b style="color:var(--amber);font-weight:600">Wichtig:</b> Nur Beispieldaten in den Ordner legen, keine Schülerdaten. Den Prompt-Baukasten brauchen Sie erst bei Schritt 3, dort ist die Seite wieder verlinkt.</div>
   </section>
 
   <!-- 1 · Auswahl -->
@@ -344,7 +358,7 @@ a{text-decoration:underline;text-underline-offset:4px}
       <h1 class="rise" style="--d:.12s">Was <em>brauchen Sie?</em></h1>
     </div>
     <div class="grid" id="gPick" style="top:350px;grid-template-columns:1fr;grid-auto-rows:400px"></div>
-    <div class="lead rise" style="--d:.7s;position:absolute;left:160px;top:820px;font-size:23px;max-width:1600px;line-height:1.4"><b style="color:var(--amber);font-weight:600">Vorher erledigen:</b> Claude-Desktop-App installieren und anmelden. Prüfen Sie vorab, ob Ihr Zugang die Code-Ansicht einschließt. Nur Beispieldaten, keine Schülerdaten. Mit Privatkonto nicht dienstlich arbeiten. <b style="color:var(--amber);font-weight:600">Tipp:</b> Die App in einem zweiten Fenster neben dieser Präsentation öffnen, wechseln mit <kbd>Alt</kbd>+<kbd>Tab</kbd>.</div>
+    <div class="lead rise" style="--d:.7s;position:absolute;left:160px;top:820px;font-size:23px;max-width:1600px;line-height:1.4"><b style="color:var(--amber);font-weight:600">Vorher erledigen:</b> Claude-Desktop-App installieren und anmelden. Prüfen Sie vorab, ob Ihr Zugang die Code-Ansicht einschließt. Keine Schülerdaten. Mit Privatkonto nur Beispieldaten, nichts Dienstliches. <b style="color:var(--amber);font-weight:600">Tipp:</b> Die App in einem zweiten Fenster neben dieser Präsentation öffnen, wechseln mit <kbd>Alt</kbd>+<kbd>Tab</kbd>.</div>
   </section>
 
   <!-- 2–8 · Schritte (werden per Skript gefüllt) -->
@@ -434,17 +448,14 @@ Klasse 7, Englisch, Wörter aus wortliste.txt
 - Oberfläche auf Deutsch, einfache Sprache, große Knöpfe, gut lesbar auf dem Tablet.
 - Vor dem ersten Bauen: erst einen Plan zeigen und auf mein OK warten. Kleine Korrekturen danach direkt umsetzen.`;
 
-const MKRULES=`Lege in diesem Ordner die Datei CLAUDE.md an. Der Inhalt soll genau so lauten:
+const MKWORDS=`Lege in diesem Ordner die Datei wortliste.txt an. Inhalt genau so:
+
+${WORDS}`;
+
+const MKRULES=`Sag mir zuerst den vollständigen Pfad des Ordners, in dem du arbeitest.
+Lege dann in diesem Ordner die Datei CLAUDE.md an. Der Inhalt soll genau so lauten:
 
 ${RULES}`;
-
-const PLAN=`Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts.
-Nutze die Wörter aus wortliste.txt.
-Zeig mir kurz:
-- welche Bildschirme es gibt
-- wie eine Übungsrunde abläuft
-- wie der Lernstand angezeigt wird
-- welche Fragen du an mich hast (höchstens drei)`;
 
 /* Antworthilfe für die Rückfragen nach dem Plan (Profi-Test, Befund 7) */
 const ANSWER=`Englisch vorne, Deutsch hinten. Reihenfolge zufällig.
@@ -460,6 +471,15 @@ const LOGIC=`So soll er funktionieren:
 - Fortschritt: gewusste Wörter von allen, z. B. 3/10, mit Balken.
 - Sind alle gewusst, erscheint „Geschafft“. Ist nur noch eine Karte offen, darf sie nach „Nochmal“ sofort wiederkommen.
 - „Neu starten“ fragt nach und beginnt bei 0. Abbrechen behält den Lernstand.`;
+
+const PLAN=`Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts.
+Nutze die Wörter aus wortliste.txt.
+${LOGIC}
+Zeig mir kurz:
+- welche Bildschirme es gibt
+- wie eine Übungsrunde abläuft
+- wie der Lernstand angezeigt wird
+- welche Fragen du an mich hast (höchstens drei)`;
 const BUILD=`Der Plan passt. Baue jetzt den Vokabeltrainer als eine einzige Datei vokabeltrainer.html in diesem Ordner (kein React, keine Bibliotheken).
 Lies die Wörter aus wortliste.txt und baue sie fest in die Datei ein.
 ${LOGIC}
@@ -497,7 +517,7 @@ function cc(o={}){
   <div class="lab" style="letter-spacing:0;font-size:13px">Letzte Elemente ›</div>${ph(80)}${ph(62)}${ph(70)}</div>`;
  const files=o.files&&o.files.length?o.files.map(n=>T(`<span class="file">${mi(n.endsWith('.html')?'code':'file')}${n}</span>`,fr[n],'','display:inline-block;border-radius:8px;margin-bottom:8px')).join('<br>'):'<div class="mt" style="color:var(--dim);font-size:13.5px">Noch keine Dateien</div>';
  const body=o.pick
-  ?`<div style="flex:1;display:grid;place-items:center;text-align:center"><div><div style="font-size:24px;font-weight:600;margin-bottom:8px">Woran arbeiten wir?</div><div style="color:var(--mute);font-size:15px;margin-bottom:18px">Wählen Sie einen Ordner für diese Sitzung.</div>${T('<span class="btn pri">Ordner auswählen</span>',o.fo,'','display:inline-block;border-radius:9px')}</div></div>`
+  ?`<div style="flex:1;display:grid;place-items:center;text-align:center"><div><div style="font-size:24px;font-weight:600;margin-bottom:8px">Woran arbeiten wir?</div><div style="color:var(--mute);font-size:15px;margin-bottom:18px">Wählen Sie zuerst den Ordner.</div>${T('<span class="btn pri">Ordner auswählen</span>',o.fo,'','display:inline-block;border-radius:9px')}</div></div>`
   :`<div style="flex:1;display:flex;flex-direction:column;min-height:0;padding-right:8px">${o.u?`<div class="bub">${o.u}</div>`:''}${o.a?`<div class="ans">${o.a}</div>`:''}${o.tool?`<div class="tool">${o.tool}</div>`:''}
    ${o.ask?T(`<div class="perm">Claude möchte <b>vokabeltrainer.html</b> anlegen.<div style="margin-top:8px;display:flex;gap:8px"><span class="btn">Ablehnen</span><span class="btn pri">Erlauben</span></div></div>`,o.ask,'','display:block;border-radius:8px;margin-top:12px'):''}</div>`;
  const inp=`<div class="inp g"><div class="tx${o.txt?' f':''}">${o.txt||'Beschreiben Sie, was Claude tun soll …'}</div><div class="tl2"><span class="ib">${mi('plus')}</span>${T(`<span class="gx">Berechtigungen: ${o.perm||'Manuell'} ⌄</span>`,o.pm,'','display:inline-block;border-radius:8px')}<span class="mdl">Opus 5.5 <i>Mittel ⌄</i></span>${T(`<span class="snd">${mi('send')}</span>`,o.snd,'','display:inline-block;border-radius:10px')}</div></div>`;
@@ -515,28 +535,28 @@ const UNCHK='Ungeprüft: vor dem Workshop in der eigenen App prüfen';
 const STEPS=[
  {h:'Die Code-Ansicht <em>öffnen.</em>',
   C:{path:['Claude-App','Umschalter Chat / Code','Code','Ordner auswählen'],chk:1,
-     txt:'Legen Sie im Datei-Explorer Ihres Rechners einen leeren Ordner <b>vokabeltrainer</b> an, zum Beispiel unter Dokumente. Öffnen Sie die Claude-App, schalten Sie oben links von <b>Chat</b> auf <b>Code</b> und wählen Sie den Ordner aus. Die Umgebung bleibt auf <b>Lokal</b>.',
+     txt:'Legen Sie im Datei-Explorer Ihres Rechners einen leeren Ordner <b>vokabeltrainer</b> an, zum Beispiel unter Dokumente. Öffnen Sie die Claude-App, schalten Sie oben links von <b>Chat</b> auf <b>Code</b> und wählen Sie den Ordner aus. Die Umgebung bleibt auf <b>Lokal</b>. Wählen Sie den Ordner <b>vor</b> der ersten Nachricht aus: Ohne gewählten Ordner landen die Dateien in einem versteckten App-Ordner.',
      mock:()=>cc({sw:1,pick:1,fo:2}),
-     note:['VORAB PRÜFEN','In der Code-Ansicht arbeitet Claude <b class="in">direkt in Ihrem Ordner</b> und legt dort Dateien an. Wählen Sie deshalb nur einen eigenen Übungsordner ohne Schülerdaten. Kostenlose Konten haben meist keine Code-Ansicht: dann bei der Nachbarin oder dem Nachbarn mitarbeiten.'],
-     alt:['Kein Umschalter „Code“?','Die Code-Ansicht gibt es je nach Tarif und App-Version nicht überall. Aktualisieren Sie die App und prüfen Sie Ihren Tarif. Sonst nutzen Sie die Chat-Fassung (Mitbauen im Chat).','Kontrolle: Oben steht „Code“ und der Ordnername vokabeltrainer.','Ändern Sie später die Umgebung nur bewusst. Lokal heißt: Claude arbeitet auf Ihrem Rechner.']}},
- {h:'Die Wortliste <em>ablegen.</em>',words:1,
+     note:['VORAB PRÜFEN','In der Code-Ansicht arbeitet Claude <b class="in">direkt in Ihrem Ordner</b> und legt dort Dateien an. Wählen Sie deshalb nur einen eigenen Übungsordner ohne Schülerdaten. Mit einem kostenlosen Konto gibt es die Code-Ansicht nicht: dann bei der Nachbarin oder dem Nachbarn mitarbeiten.'],
+     alt:['Kein Umschalter „Code“?','Die Code-Ansicht gibt es je nach Tarif und App-Version nicht überall. Aktualisieren Sie die App und prüfen Sie Ihren Tarif. Sonst nutzen Sie die Chat-Fassung (Mitbauen im Chat).','Kontrolle: Oben steht „Code“ und der Ordnername vokabeltrainer. Sicher prüfen Sie es in Schritt 3: Claude nennt dort den Ordnerpfad.','Ändern Sie später die Umgebung nur bewusst. Lokal heißt: Claude arbeitet auf Ihrem Rechner.']}},
+ {h:'Die Wortliste <em>ablegen.</em>',words:1,x:['Prompt für Claude',()=>MKWORDS],
   C:{path:['Datei-Explorer','Ordner vokabeltrainer','wortliste.txt'],chk:1,
-     txt:'Klicken Sie unten auf <b>Als .txt herunterladen</b>. Verschieben Sie die Datei aus <b>Downloads</b> in Ihren Ordner <b>vokabeltrainer</b>. Danach erscheint sie rechts in der Dateiliste der App.',
+     txt:'Zwei Wege. <b>Einfach:</b> unten auf <b>Prompt für Claude</b> klicken, in die App einfügen und senden, Claude legt die Datei an. <b>Oder:</b> <b>Als .txt herunterladen</b> und die Datei aus <b>Downloads</b> in Ihren Ordner <b>vokabeltrainer</b> verschieben. Kontrolle: Fragen Sie Claude „Welche Dateien liegen im Ordner?“',
      mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt'],fr:{'wortliste.txt':1}}),
-     alt:['Die Datei erscheint nicht?','Prüfen Sie im Datei-Explorer, ob wortliste.txt wirklich im Ordner liegt. Heißt sie wortliste.txt.txt, benennen Sie sie um.','Kontrolle: Zehn Zeilen im Format englisch;deutsch.','Später ersetzen Sie die Liste durch Ihre Unit-Wörter, im selben Format. Keine Namen oder Noten.']}},
+     alt:['Die Datei erscheint nicht?','Prüfen Sie im Datei-Explorer, ob wortliste.txt wirklich im Ordner liegt. Heißt sie wortliste.txt.txt, benennen Sie sie um.','Kontrolle: Zehn Zeilen im Format englisch;deutsch. Keine Dateiliste zu sehen? Das ist je nach App-Version normal.','Später ersetzen Sie die Liste durch Ihre Unit-Wörter, im selben Format. Keine Namen oder Noten.']}},
  {h:'Die Regeln <em>festlegen.</em>',prompt:()=>MKRULES,plab:'PROMPT',pnote:'legt CLAUDE.md an',
   C:{help:HELP,path:['Eingabefeld','Einfügen','Senden','Erlauben'],chk:1,
-     txt:'Kopieren Sie den Prompt in das Eingabefeld und senden Sie ihn. Claude legt die Datei <b>CLAUDE.md</b> im Ordner an. Fragt die App vor dem Anlegen, klicken Sie auf <b>Erlauben</b>. Claude liest diese Datei künftig zu Beginn jeder Sitzung in diesem Ordner.',
+     txt:'Kopieren Sie den Prompt in das Eingabefeld und senden Sie ihn. Claude nennt zuerst den Ordnerpfad: Er muss auf <b>\\vokabeltrainer</b> enden, sonst Schritt 1 wiederholen. Dann legt Claude die Datei <b>CLAUDE.md</b> an. Fragt die App vor dem Anlegen, klicken Sie auf <b>Erlauben</b>. Claude liest diese Datei künftig zu Beginn jeder Sitzung in diesem Ordner.',
      mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt','CLAUDE.md'],fr:{'CLAUDE.md':3},inp:1,snd:2,txt:'Lege in diesem Ordner die Datei CLAUDE.md an. Der Inhalt soll genau so lauten: …'}),
      alt:['Wozu CLAUDE.md?','Die Datei ist das Gedächtnis des Projekts: Regeln, die ab jetzt in jeder Sitzung in diesem Ordner gelten.','Die Offline-Regel verhindert, dass die App Schriften oder Bibliotheken aus dem Internet lädt.','Wenige, klare Regeln wirken besser als viele. Datenschutz gehört immer hinein.']}},
  {h:'Erst <em>planen lassen.</em>',prompt:()=>PLAN,plab:'PROMPT',x:['Antworthilfe kopieren',()=>ANSWER],
   C:{path:['Berechtigungen','Plan','Eingabefeld','Senden'],chk:1,
-     txt:'Stellen Sie unter dem Eingabefeld <b>Berechtigungen</b> auf <b>Plan</b> (Claude plant, ändert aber nichts). Kopieren Sie den Prompt und senden Sie ihn. Rückfragen beantworten Sie mit der <b>Antworthilfe</b> oder: „Entscheide du, halte es einfach.“',
+     txt:'Stellen Sie unter dem Eingabefeld <b>Berechtigungen</b> auf <b>Plan</b> (Claude plant, ändert aber nichts). Der Prompt enthält schon die genauen Regeln der Karten. Kopieren, senden. Rückfragen beantworten Sie mit der <b>Antworthilfe</b> oder „Entscheide du, halte es einfach.“ Erscheinen Auswahlkarten, wählen Sie die passende Option oder „Andere“ und fügen dort die Antworthilfe ein. Gibt Claude den Plan zur Freigabe frei, wählen Sie <b>manuell bestätigen</b>, nicht „automatisch“.',
      mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt','CLAUDE.md'],perm:'Plan',pm:1,inp:2,snd:3,txt:'Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts …',u:'Lege CLAUDE.md an …',a:'Erledigt. CLAUDE.md liegt im Ordner.'}),
-     alt:['Kein Menü „Berechtigungen“?','Schreiben Sie in den Prompt: „Baue noch nichts.“ Das genügt für den Anfang. Das Menü liegt je nach App-Version an anderer Stelle.','Lesen Sie den Plan, bevor Sie weitermachen. Einen Plan ändern Sie mit einem Satz.','Claude fängt trotzdem an zu bauen? Dann stand die Berechtigung nicht auf Plan.']}},
- {h:'Jetzt <em>bauen lassen.</em>',prompt:()=>BUILD,plab:'PROMPT',pnote:'Kleine App: ein Auftrag reicht',
-  C:{path:['Berechtigungen','Manuell','Senden','Erlauben'],chk:1,
-     txt:'Stellen Sie <b>Berechtigungen</b> auf <b>Manuell</b>, damit Claude vor jeder Änderung fragt. Senden Sie den Bau-Auftrag. Lesen Sie, was angelegt wird, und klicken Sie auf <b>Erlauben</b>. Danach erscheint <b>vokabeltrainer.html</b> rechts in der Dateiliste.',
+     alt:['Kein Menü „Berechtigungen“?','Schreiben Sie in den Prompt: „Baue noch nichts.“ Das genügt für den Anfang. Das Menü liegt je nach App-Version an anderer Stelle.','Lesen Sie den Plan, bevor Sie weitermachen. Einen Plan ändern Sie mit einem Satz.','Claude fängt trotzdem an zu bauen? Dann stand die Berechtigung nicht auf Plan oder der Plan wurde freigegeben.']}},
+ {h:'Jetzt <em>bauen lassen.</em>',prompt:()=>BUILD,plab:'FALLS CLAUDE NICHT BAUT',pnote:'sonst nicht nötig',
+  C:{path:['Plan freigeben','manuell bestätigen','Erlauben'],chk:1,
+     txt:'Ist der Plan freigegeben (manuell bestätigen), baut Claude jetzt los. Es können mehrere <b>Erlauben</b>-Abfragen nacheinander kommen: Lesen Sie jede kurz und klicken Sie auf Erlauben. Danach liegt <b>vokabeltrainer.html</b> im Ordner (Kontrolle: „Welche Dateien liegen im Ordner?“). Baut Claude nicht von selbst, senden Sie den Prompt unten.',
      mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],perm:'Manuell',pm:1,u:'Der Plan passt. Baue jetzt den Vokabeltrainer …',tool:'Write vokabeltrainer.html',ask:2,inp:0,txt:''}),
      alt:['Es wird nichts angelegt?','Sagen Sie: „Lege die Datei vokabeltrainer.html in diesem Ordner an.“ Prüfen Sie, ob der richtige Ordner gewählt ist.','Fragt Claude bei jedem Schritt, ist das gewollt. Bestätigen Sie nur, was Sie verstehen. Später können Sie auf „Auto“ umstellen.','Für diese kleine App reicht im Workshop ein Auftrag. Größere Apps bauen Sie im Alltag Schritt für Schritt.']}},
  {h:'Testen und <em>Fehler melden.</em>',prompt:()=>BUG,plab:'PROMPT-MUSTER',pnote:'[Klammern] selbst ausfüllen',x:['Prüfliste',null,'test'],
@@ -551,10 +571,10 @@ const STEPS=[
      alt:['Es werden Fundstellen gemeldet?','Lassen Sie diese Stellen ersetzen: „Entferne alle Einbindungen aus dem Internet. Die App muss offline laufen.“ Danach noch einmal prüfen.','Zur Klasse am einfachsten über die Lernplattform. Auf dem iPad läuft die Datei meist nur über die Lernplattform im Browser.','Die Datei weitergeben, nicht den Ordner mit CLAUDE.md. Vorher Datenschutz und Barrierefreiheit prüfen.']}}
 ];
 /* Prüfliste mit Soll-Ergebnissen (BAUANLEITUNG.md, kompakt) */
-const TESTS=[['Neue Runde öffnen','Fortschritt 0/10, englisches Wort sichtbar'],['Karte umdrehen','„the forest“ zeigt „der Wald“'],['„Nochmal“','Fortschritt bleibt, Karte kommt später wieder'],['Umdrehen, „Gewusst“','Fortschritt +1, nächste Karte'],['Alle gewusst','„Geschafft“ bei 10/10'],['„Neu starten“ abbrechen','Lernstand bleibt'],['„Neu starten“ bestätigen','Neue Runde bei 0/10'],['Datei ohne Internet','Alles funktioniert offline']];
+const TESTS=[['Datei zum ersten Mal öffnen','Fortschritt 0/10, englisches Wort sichtbar'],['Karte umdrehen','„the forest“ zeigt „der Wald“'],['„Nochmal“','Fortschritt bleibt, Karte kommt später wieder'],['Umdrehen, „Gewusst“','Fortschritt +1, nächste Karte'],['Seite neu laden (F5)','Lernstand bleibt erhalten'],['Alle gewusst','„Geschafft“ bei 10/10'],['„Neu starten“ abbrechen','Lernstand bleibt'],['„Neu starten“ bestätigen','Neue Runde bei 0/10'],['Datei ohne Internet','Alles funktioniert offline']];
 const DONE=[
  {ic:'lock',t:'Keine Schülerdaten',s:'Keine Namen, Noten oder Texte von Lernenden in KI-Werkzeuge eingeben.',e:'Beispieldaten und Wortlisten sind in Ordnung.'},
- {ic:'rule',t:'Freigegebene Werkzeuge',s:'Für dienstliche Zwecke die vom Land oder Schulträger freigegebenen Werkzeuge nutzen.',e:'Mit Privatkonto nur Beispieldaten. Training mit Ihren Chats in den Einstellungen ausschalten.'},
+ {ic:'rule',t:'Freigegebene Werkzeuge',s:'Für dienstliche Zwecke die vom Land oder Schulträger freigegebenen Werkzeuge nutzen.',e:'Mit Privatkonto nur Beispieldaten, nichts Dienstliches. Training mit Ihren Chats in den Einstellungen ausschalten.'},
  {ic:'test',t:'Selbst prüfen',s:'Inhalte, Bedienung und Barrierefreiheit testen, bevor die App in die Klasse geht.',e:'Die Verantwortung bleibt bei Ihnen, nicht bei der KI.'}
 ];
 const TOOLS={
@@ -584,7 +604,7 @@ function renderStep(i){
  m.innerHTML=win('Claude · Desktop-App · Code',TOOL,o.mock(),o.chk);
  let box='';
  if(S.words)box=`<div class="gbox"><div class="lb">WORTLISTE · wortliste.txt<span>englisch;deutsch</span></div><pre>${WORDS}</pre>
-  <div class="gbtn"><button class="cp" data-dl>${dlIc}Als .txt herunterladen</button><button class="cp sec" data-cp>${copyIc}Kopieren</button>${altBtn()}</div></div>`;
+  <div class="gbtn"><button class="cp" data-dl>${dlIc}Als .txt herunterladen</button><button class="cp sec" data-cp>${copyIc}Kopieren</button>${xBtn(S)}${altBtn()}</div></div>`;
  else if(S.prompt)box=`<div class="gbox"><div class="lb">${o.plab||S.plab}<span>${S.pnote||''}</span></div><pre>${S.prompt(TOOL)}</pre>
   <div class="gbtn"><button class="cp" data-cp>${copyIc}Kopieren</button>${xBtn(S)}${altBtn()}</div></div>`;
  else box=`<div class="note"><b>${o.note[0]}</b><div>${o.note[1]}</div></div><div style="flex:1"></div><div class="gbtn">${xBtn(S)}${altBtn(S.x?'':' style="margin-left:0"')}</div>`;
@@ -599,7 +619,7 @@ function renderStep(i){
 }
 function testCard(i){return `<div class="fx"><div class="top"><div class="ic">${svg('test')}</div><div><div class="kick">SCHRITT ${i+1} · PRÜFLISTE</div><h2>Was soll passieren?</h2></div></div>
  <table class="ttab">${TESTS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
- <div class="def" style="font-size:22px;margin-top:20px;color:var(--mute)">Erst in der Vorschau testen, dann noch einmal mit der heruntergeladenen Datei ohne Internet.</div></div>`}
+ <div class="def" style="font-size:22px;margin-top:20px;color:var(--mute)">Öffnen Sie vokabeltrainer.html per Doppelklick im Browser. Testen Sie zum Schluss noch einmal ohne WLAN.</div></div>`}
 function renderAll(){STEP_PAGES.forEach((_,i)=>renderStep(i))}
 function setTool(k){[...$('gPick').children].forEach(b=>b.classList.add('sel'))}
 
