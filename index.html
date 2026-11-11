@@ -2,49 +2,47 @@
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Vom Chat zum Code · Landesfachtag 2026</title>
 <style>
-:root{--bg:#0a111d;--panel:#101a2b;--fg:#e8edf4;--mute:#a9b6c9;--acc:#7fb0ff;--line:#223350}
-@media(prefers-color-scheme:light){:root{--bg:#f4f7fb;--panel:#fff;--fg:#14202f;--mute:#4a5a70;--acc:#1b4fb8;--line:#d3dcea}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;padding:0 16px 48px}
-main{max-width:860px;margin:0 auto}h1{font-size:clamp(28px,6vw,44px);margin:40px 0 6px}h2{font-size:21px;margin:36px 0 12px}
-.sub{color:var(--mute);margin:0 0 8px}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
-a.card{display:block;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;color:var(--fg);text-decoration:none}
-a.card:hover,a.card:focus-visible{border-color:var(--acc);outline:none}
-a.card b{display:block;color:var(--acc);margin-bottom:2px}a.card span{color:var(--mute);font-size:15px}
-.qr{display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
-.qr svg{width:170px;height:170px;border-radius:8px;flex:none}
-.note{color:var(--mute);font-size:15px}
-</style></head><body><main>
-<h1>Vom Chat zum Code</h1>
-<p class="sub">Landesfachtag 2026 · klickbare Präsentationen und Material zum Mitbauen. Alles läuft offline im Browser, empfohlen ist ein großer Bildschirm (Pfeiltasten blättern).</p>
-
-<h2>Präsentation</h2>
-<div class="grid">
-<a class="card" href="intro-mit-stimme.html"><b>Intro mit Stimme</b><span>Animiertes Intro, ca. 2,8 Minuten. Ton an, ein Klick startet.</span></a>
-<a class="card" href="teil2-begriffe-app.html"><b>Teil 2 · Begriffe und Weg zur App</b><span>Kacheln anklicken, Live-Demo, Prompt-Vorlagen.</span></a>
-<a class="card" href="teil2-oberflaechen.html"><b>Die Oberfläche</b><span>Wo finde ich was in Claude und ChatGPT?</span></a>
-<a class="card" href="teil2-mitbauen.html"><b>Mitbauen</b><span>Schritt für Schritt zum Vokabeltrainer.</span></a>
-</div>
-
-<h2>Material zum Nachbauen des Vokabeltrainers</h2>
-<div class="grid">
-<a class="card" href="material/wortliste.txt"><b>wortliste.txt</b><span>Beispiel-Wortliste (Englisch, Deutsch) zum Hochladen oder Einfügen.</span></a>
-<a class="card" href="material/prompt-baukasten.html"><b>Prompt-Baukasten (Formular)</b><span>Ankreuzen, daraus entsteht die Projektanweisung und der Bau-Prompt.</span></a>
-<a class="card" href="material/prompt-baukasten-frei.html"><b>Prompt-Baukasten frei</b><span>Für eine andere App, frei formuliert.</span></a>
-<a class="card" href="material/CLAUDE.md"><b>CLAUDE.md</b><span>Vorlage für die Projektanweisungen (Text, zum Kopieren).</span></a>
-<a class="card" href="material/spec-schreiben-SKILL.md"><b>Skill „Spezifikation schreiben“</b><span>Beispiel für einen wiederverwendbaren Baustein.</span></a>
-</div>
-
-<h2>Variante im Hessen-Design</h2>
-<p class="note">Gleiche Inhalte und Funktionen, Farben und Gestaltung nach dem Hessen-Design (Arial, ohne Logo und ohne Hausschrift).</p>
-<div class="grid">
-<a class="card" href="intro-mit-stimme.html"><b>Intro</b><span>Das Intro gibt es nur in der Originalfassung (Farben noch nicht umgestellt).</span></a>
-<a class="card" href="hessen/teil2-begriffe-app.html"><b>Teil 2 · Begriffe</b></a>
-<a class="card" href="hessen/teil2-oberflaechen.html"><b>Die Oberfläche</b></a>
-<a class="card" href="hessen/teil2-mitbauen.html"><b>Mitbauen</b></a>
-</div>
-
-<h2>Diese Seite weitergeben</h2>
-<div class="qr"><svg role="img" aria-label="QR-Code zur Seite" xmlns="http://www.w3.org/2000/svg" width="296" height="296" class="segno"><g transform="scale(8)"><path fill="#fff" d="M0 0h37v37h-37z"/><path class="qrline" stroke="#07003d" d="M2 2.5h7m2 0h2m2 0h5m1 0h1m1 0h3m2 0h7m-33 1h1m5 0h1m6 0h6m1 0h2m1 0h2m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h3m2 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h5m3 0h1m2 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h1m2 0h1m3 0h1m4 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h2m4 0h3m2 0h2m1 0h2m-25 1h1m2 0h1m1 0h2m1 0h1m1 0h5m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m-27 1h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h3m1 0h4m3 0h2m-33 1h2m2 0h3m1 0h1m1 0h1m2 0h2m1 0h1m2 0h3m3 0h4m1 0h1m1 0h1m-33 1h1m2 0h2m2 0h2m1 0h4m1 0h2m1 0h1m1 0h4m1 0h1m2 0h2m-30 1h2m3 0h3m1 0h2m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h2m1 0h1m1 0h1m-32 1h6m3 0h2m2 0h4m2 0h4m1 0h5m1 0h3m-33 1h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m9 0h1m1 0h1m1 0h2m1 0h4m-32 1h1m1 0h1m1 0h2m2 0h2m1 0h3m2 0h2m3 0h2m1 0h1m1 0h2m3 0h1m-32 1h1m1 0h3m1 0h2m7 0h3m2 0h2m1 0h2m1 0h1m1 0h1m2 0h1m-32 1h2m1 0h2m9 0h1m1 0h1m5 0h4m1 0h1m1 0h1m1 0h1m-31 1h1m2 0h1m1 0h3m1 0h3m3 0h3m3 0h1m1 0h3m3 0h1m1 0h1m-30 1h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h4m2 0h2m1 0h1m1 0h2m3 0h2m-33 1h2m3 0h3m1 0h1m2 0h1m1 0h3m2 0h3m2 0h1m2 0h1m3 0h2m-32 1h1m2 0h2m3 0h3m1 0h1m3 0h1m2 0h2m2 0h4m3 0h2m-33 1h3m1 0h1m1 0h1m3 0h1m3 0h1m1 0h2m1 0h1m1 0h1m2 0h2m2 0h1m3 0h1m-32 1h3m3 0h3m1 0h1m2 0h3m1 0h2m1 0h7m1 0h1m-30 1h1m1 0h2m1 0h4m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h6m-22 1h3m8 0h6m3 0h2m2 0h1m-33 1h7m2 0h2m5 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h4m-32 1h1m5 0h1m1 0h1m3 0h1m2 0h4m2 0h2m1 0h1m3 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h4m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m2 0h1m1 0h2m-30 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m1 0h1m1 0h1m-33 1h1m5 0h1m2 0h4m2 0h1m1 0h2m1 0h2m2 0h3m2 0h1m-30 1h7m1 0h1m2 0h1m1 0h1m7 0h1m2 0h2m2 0h1m2 0h1"/></g></svg><div><b>QR-Code scannen</b><p class="note" style="margin:6px 0 0">Öffnet diese Startseite auf dem Handy. Zum Mitbauen reicht der Rechner mit einem Konto bei Claude oder ChatGPT.</p></div></div>
+:root{--blau:#14006E;--blau80:#3C46AA;--blau20:#E6F0FF;--blau10:#F0FAFF;--gold:#F5E6D2;--grau:#232328;--grau60:#5A5A5F}
+*{box-sizing:border-box}
+body{margin:0;background:#FFFFFF;color:var(--grau);font:18px/1.55 Arial,"Helvetica Neue",Helvetica,sans-serif}
+header{background:var(--blau);color:#FFFFFF;padding:56px 16px 44px;border-bottom:8px solid var(--gold)}
+.w{max-width:920px;margin:0 auto}
+.kick{font-weight:700;letter-spacing:.2em;font-size:14px;color:var(--gold)}
+h1{margin:14px 0 12px;font-size:clamp(34px,7vw,64px);line-height:1.02;text-transform:uppercase;font-weight:700}
+header p{margin:0;max-width:680px;font-size:20px;color:#FFFFFF}
+main{padding:8px 16px 40px}
+h2{margin:44px 0 8px;font-size:24px;text-transform:uppercase;color:var(--blau);font-weight:700;border-bottom:2px solid var(--blau);padding-bottom:6px}
+.note{margin:8px 0 14px;color:var(--grau60);font-size:16px}
+.list{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:12px}
+.item{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;border:2px solid var(--blau);border-radius:8px;padding:16px 18px;background:#FFFFFF}
+.item:hover{background:var(--blau20)}
+.t{flex:1 1 320px;min-width:0}.t b{display:block;font-size:19px;color:var(--blau)}.t span{display:block;color:var(--grau60);font-size:16px;margin-top:2px}
+.act{display:flex;gap:10px;flex-wrap:wrap}
+.act a{font-weight:700;font-size:16px;border-radius:999px;padding:10px 20px;text-decoration:none;border:2px solid var(--blau);min-height:44px;display:inline-flex;align-items:center}
+.open{color:var(--blau);background:#FFFFFF}.open:hover{background:var(--blau20)}
+.dl{color:#FFFFFF;background:var(--blau)}.dl:hover{background:var(--blau80);border-color:var(--blau80)}
+a:focus-visible{outline:2px solid var(--blau);outline-offset:3px}
+.qr{display:flex;gap:24px;align-items:center;flex-wrap:wrap;border:2px solid var(--blau);border-radius:8px;padding:18px}
+.qr svg{width:180px;height:180px;flex:none}
+footer{background:var(--blau10);border-top:2px solid var(--blau);padding:8px 16px 40px;font-size:15.5px}
+footer h3{margin:26px 0 6px;font-size:16px;text-transform:uppercase;color:var(--blau)}
+footer p{margin:0 0 6px;max-width:760px}
+footer a{color:var(--blau)}
+.ph{background:var(--gold);padding:1px 6px;border-radius:4px;font-weight:700}
+</style></head><body>
+<header><div class="w"><div class="kick">LANDESFACHTAG 2026</div><h1>Vom Chat zum Code</h1><p>Klickbare Präsentationen und Material zum Mitbauen eines Vokabeltrainers. Alles läuft im Browser, empfohlen ist ein großer Bildschirm.</p></div></header>
+<main><div class="w">
+<section><h2>Präsentationen · Hessen-Variante</h2><p class="note">Farben und Gestaltung nach dem Hessen-Design (Arial, ohne Logo und ohne Hausschrift). Pfeiltasten blättern, Vollbild mit F.</p><ul class="list"><li class="item"><div class="t"><b>Teil 2 · Begriffe und Weg zur App</b><span>Kacheln anklicken, Live-Demo im Projekt-Chat, Prompt-Vorlagen.</span></div><div class="act"><a class="open" href="hessen/teil2-begriffe-app.html">Öffnen</a><a class="dl" href="hessen/teil2-begriffe-app.html" download="teil2-begriffe-app.html">Herunterladen</a></div></li><li class="item"><div class="t"><b>Die Oberfläche</b><span>Wo finde ich was in Claude und ChatGPT?</span></div><div class="act"><a class="open" href="hessen/teil2-oberflaechen.html">Öffnen</a><a class="dl" href="hessen/teil2-oberflaechen.html" download="teil2-oberflaechen.html">Herunterladen</a></div></li><li class="item"><div class="t"><b>Mitbauen im Chat</b><span>Chat und Projekt: Schritt für Schritt zum Vokabeltrainer in Claude oder ChatGPT.</span></div><div class="act"><a class="open" href="hessen/teil2-mitbauen.html">Öffnen</a><a class="dl" href="hessen/teil2-mitbauen.html" download="teil2-mitbauen.html">Herunterladen</a></div></li><li class="item"><div class="t"><b>Mitbauen in der IDE</b><span>Code-Weg: VS Code mit Claude Code. Schematisch, vor dem Einsatz prüfen.</span></div><div class="act"><a class="open" href="hessen/teil2-mitbauen-ide.html">Öffnen</a><a class="dl" href="hessen/teil2-mitbauen-ide.html" download="teil2-mitbauen-ide.html">Herunterladen</a></div></li></ul></section>
+<section><h2>Material zum Nachbauen des Vokabeltrainers</h2><p class="note">Alles zum Herunterladen. Die Textdateien lassen sich auch öffnen und kopieren.</p><ul class="list"><li class="item"><div class="t"><b>wortliste.txt</b><span>Beispiel-Wortliste (Englisch, Deutsch) zum Hochladen oder Einfügen.</span></div><div class="act"><a class="open" href="material/wortliste.txt">Öffnen</a><a class="dl" href="material/wortliste.txt" download="wortliste.txt">Herunterladen</a></div></li><li class="item"><div class="t"><b>CLAUDE.md</b><span>Vorlage für die Projektanweisungen.</span></div><div class="act"><a class="open" href="material/CLAUDE.md">Öffnen</a><a class="dl" href="material/CLAUDE.md" download="CLAUDE.md">Herunterladen</a></div></li><li class="item"><div class="t"><b>Skill „Spezifikation schreiben“</b><span>Beispiel für einen wiederverwendbaren Baustein.</span></div><div class="act"><a class="open" href="material/spec-schreiben-SKILL.md">Öffnen</a><a class="dl" href="material/spec-schreiben-SKILL.md" download="spec-schreiben-SKILL.md">Herunterladen</a></div></li><li class="item"><div class="t"><b>Prompt-Baukasten (Formular)</b><span>Ankreuzen, daraus entstehen Projektanweisung und Bau-Prompt.</span></div><div class="act"><a class="open" href="material/prompt-baukasten.html">Öffnen</a><a class="dl" href="material/prompt-baukasten.html" download="prompt-baukasten.html">Herunterladen</a></div></li><li class="item"><div class="t"><b>Prompt-Baukasten frei</b><span>Für eine andere App, frei formuliert.</span></div><div class="act"><a class="open" href="material/prompt-baukasten-frei.html">Öffnen</a><a class="dl" href="material/prompt-baukasten-frei.html" download="prompt-baukasten-frei.html">Herunterladen</a></div></li></ul></section>
+<section><h2>Alles auf einmal</h2><ul class="list"><li class="item"><div class="t"><b>Gesamtpaket als ZIP</b><span>Material und die vier Hessen-Präsentationen in einer Datei.</span></div><div class="act"><a class="dl" href="lft2026-material.zip" download="lft2026-material.zip">Herunterladen</a></div></li></ul></section>
+<section><h2>Präsentationen · Originalfassung</h2><p class="note">Die Originale in ihrem ersten Design. Sie laden Schriften von Google Fonts, siehe Datenschutz.</p><ul class="list"><li class="item"><div class="t"><b>Intro mit Stimme</b><span>Animiertes Intro, ca. 2,8 Minuten. Ton an, ein Klick startet.</span></div><div class="act"><a class="open" href="intro-mit-stimme.html">Öffnen</a><a class="dl" href="intro-mit-stimme.html" download="intro-mit-stimme.html">Herunterladen</a></div></li><li class="item"><div class="t"><b>Teil 2 · Begriffe und Weg zur App</b><span>Kacheln anklicken, Live-Demo, Prompt-Vorlagen.</span></div><div class="act"><a class="open" href="teil2-begriffe-app.html">Öffnen</a><a class="dl" href="teil2-begriffe-app.html" download="teil2-begriffe-app.html">Herunterladen</a></div></li><li class="item"><div class="t"><b>Die Oberfläche</b><span>Wo finde ich was in Claude und ChatGPT?</span></div><div class="act"><a class="open" href="teil2-oberflaechen.html">Öffnen</a><a class="dl" href="teil2-oberflaechen.html" download="teil2-oberflaechen.html">Herunterladen</a></div></li><li class="item"><div class="t"><b>Mitbauen</b><span>Schritt für Schritt zum Vokabeltrainer.</span></div><div class="act"><a class="open" href="teil2-mitbauen.html">Öffnen</a><a class="dl" href="teil2-mitbauen.html" download="teil2-mitbauen.html">Herunterladen</a></div></li></ul></section>
+<section><h2>Diese Seite weitergeben</h2><div class="qr"><svg role="img" aria-label="QR-Code zur Seite" xmlns="http://www.w3.org/2000/svg" width="296" height="296" class="segno"><g transform="scale(8)"><path fill="#fff" d="M0 0h37v37h-37z"/><path class="qrline" stroke="#07003d" d="M2 2.5h7m2 0h2m2 0h5m1 0h1m1 0h3m2 0h7m-33 1h1m5 0h1m6 0h6m1 0h2m1 0h2m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h3m2 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h5m3 0h1m2 0h1m3 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m4 0h1m2 0h1m3 0h1m4 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h2m4 0h3m2 0h2m1 0h2m-25 1h1m2 0h1m1 0h2m1 0h1m1 0h5m1 0h1m1 0h1m2 0h2m1 0h2m1 0h1m-27 1h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h3m1 0h4m3 0h2m-33 1h2m2 0h3m1 0h1m1 0h1m2 0h2m1 0h1m2 0h3m3 0h4m1 0h1m1 0h1m-33 1h1m2 0h2m2 0h2m1 0h4m1 0h2m1 0h1m1 0h4m1 0h1m2 0h2m-30 1h2m3 0h3m1 0h2m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m1 0h2m1 0h1m1 0h1m-32 1h6m3 0h2m2 0h4m2 0h4m1 0h5m1 0h3m-33 1h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m9 0h1m1 0h1m1 0h2m1 0h4m-32 1h1m1 0h1m1 0h2m2 0h2m1 0h3m2 0h2m3 0h2m1 0h1m1 0h2m3 0h1m-32 1h1m1 0h3m1 0h2m7 0h3m2 0h2m1 0h2m1 0h1m1 0h1m2 0h1m-32 1h2m1 0h2m9 0h1m1 0h1m5 0h4m1 0h1m1 0h1m1 0h1m-31 1h1m2 0h1m1 0h3m1 0h3m3 0h3m3 0h1m1 0h3m3 0h1m1 0h1m-30 1h1m1 0h1m1 0h1m1 0h1m2 0h2m1 0h4m2 0h2m1 0h1m1 0h2m3 0h2m-33 1h2m3 0h3m1 0h1m2 0h1m1 0h3m2 0h3m2 0h1m2 0h1m3 0h2m-32 1h1m2 0h2m3 0h3m1 0h1m3 0h1m2 0h2m2 0h4m3 0h2m-33 1h3m1 0h1m1 0h1m3 0h1m3 0h1m1 0h2m1 0h1m1 0h1m2 0h2m2 0h1m3 0h1m-32 1h3m3 0h3m1 0h1m2 0h3m1 0h2m1 0h7m1 0h1m-30 1h1m1 0h2m1 0h4m1 0h1m3 0h1m1 0h2m1 0h1m1 0h2m1 0h6m-22 1h3m8 0h6m3 0h2m2 0h1m-33 1h7m2 0h2m5 0h1m3 0h1m1 0h1m1 0h1m1 0h1m1 0h4m-32 1h1m5 0h1m1 0h1m3 0h1m2 0h4m2 0h2m1 0h1m3 0h1m-29 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m2 0h1m1 0h4m1 0h6m1 0h1m-32 1h1m1 0h3m1 0h1m1 0h4m1 0h2m1 0h2m2 0h1m1 0h2m2 0h1m1 0h2m-30 1h1m1 0h3m1 0h1m2 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m3 0h1m3 0h1m1 0h1m1 0h1m-33 1h1m5 0h1m2 0h4m2 0h1m1 0h2m1 0h2m2 0h3m2 0h1m-30 1h7m1 0h1m2 0h1m1 0h1m7 0h1m2 0h2m2 0h1m2 0h1"/></g></svg><p class="note" style="margin:0;max-width:420px">QR-Code zur Startseite. Mit der Handykamera scannen und die Seite öffnen.</p></div></section>
 <p class="note" style="margin-top:28px">Hinweis: Menünamen und Funktionen von Claude und ChatGPT ändern sich häufig. Stellen mit „Ungeprüft“ bitte vor dem Einsatz im eigenen Konto prüfen. Keine personenbezogenen Daten in die Apps eingeben.</p>
-</main></body></html>
+</div></main>
+<footer><div class="w">
+<h3>Impressum</h3><p>Verantwortlich für den Inhalt: <span class="ph">[Funktionsadresse eintragen]</span></p>
+<h3>Datenschutz</h3><p>Diese Seite ist statisch. Sie setzt keine Cookies und bindet keine Analyse- oder Werbedienste ein. Das Hosting erfolgt über GitHub Pages; dabei können technisch bedingt Zugriffsdaten wie die IP-Adresse beim Hoster verarbeitet werden. Einzelne Präsentationen merken sich Einstellungen (z. B. die Werkzeugwahl) nur lokal im eigenen Browser. Die vier Originalfassungen laden Schriften von Google Fonts, die Hessen-Varianten nicht. Wer das vermeiden möchte, nutzt die Hessen-Varianten.</p>
+<h3>Lizenz</h3><p>Inhalte unter <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.de">CC BY-SA 4.0</a>, sofern an der Datei nichts anderes steht. Namen und Logos von Claude, ChatGPT und Visual Studio Code gehören ihren Inhabern, die Oberflächen sind vereinfachte Nachzeichnungen.</p>
+<h3>KI-Hinweis</h3><p>Diese Seiten, die Präsentationen und die Texte wurden mit Unterstützung von KI (Claude) erstellt. Inhalte und Angaben zu Oberflächen bitte vor dem Einsatz selbst prüfen.</p>
+</div></footer>
+</body></html>

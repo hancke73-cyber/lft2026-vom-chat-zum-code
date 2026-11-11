@@ -422,26 +422,6 @@ a{text-decoration:underline;text-underline-offset:4px}
     <div class="bm rise" id="bm" style="--d:.3s"></div>
   </section>
 
-  <!-- 2 · Neue Funktionen -->
-  <section class="page tw" id="pNew" data-hint="Kachel anklicken für die Vorführung &nbsp;·&nbsp; &lt;kbd&gt;C&lt;/kbd&gt; / &lt;kbd&gt;G&lt;/kbd&gt; Werkzeug &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
-    <div class="head">
-      <div class="kick rise">09 · DIE OBERFLÄCHE · NEU</div>
-      <h1 class="rise" style="--d:.12s">Neue Funktionen <em>im Überblick.</em></h1>
-    </div>
-    <div class="grid" id="gNew" style="top:330px;grid-template-columns:repeat(3,1fr);grid-auto-rows:270px"></div>
-    <div class="was rise" id="was" style="--d:.9s"></div>
-  </section>
-
-  <!-- 3 · Vergleich -->
-  <section class="page" id="pCmp" data-hint="Paar anklicken für Details &nbsp;·&nbsp; &lt;kbd&gt;Esc&lt;/kbd&gt; schließen &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
-    <div class="head">
-      <div class="kick rise">09 · DIE OBERFLÄCHE · CLAUDE UND CHATGPT</div>
-      <h1 class="rise" style="--d:.12s">Dieselbe Idee, <em>andere Namen.</em></h1>
-    </div>
-    <div class="cmph rise" style="--d:.25s"><div><span>CLAUDE</span><span></span><span>CHATGPT</span></div><div><span>CLAUDE</span><span></span><span>CHATGPT</span></div></div>
-    <div class="pairs" id="gCmp"></div>
-  </section>
-
   <!-- 4 · Weiter -->
   <section class="page" id="pEnd" data-hint="&lt;kbd&gt;→&lt;/kbd&gt; weiter zum Mitbauen &nbsp;·&nbsp; &lt;kbd&gt;←&lt;/kbd&gt; zurück &nbsp;·&nbsp; &lt;kbd&gt;Pos1&lt;/kbd&gt; zum Anfang">
     <div class="head">
@@ -647,47 +627,6 @@ const ZONES={
   {t:'Eingebauter Browser',en:'Neuer Tab',d:'Im Seitenfenster öffnet „Neuer Tab“ einen Browser. In die Adresszeile geben Sie eine Suche oder eine URL ein. Unter Tools öffnet „Dateien“ (Strg+P) Ihre Dateien.',ex:'Sie öffnen Ihre gebaute App neben dem Chat und testen sie, während Sie Änderungen beschreiben.',nw:'Der frühere Browser Atlas ist seit 09.08.2026 eingestellt. Browserarbeit läuft jetzt in der Desktop-App.'}
  ]};
 
-/* ============ Neue Funktionen (Seite 3) ============ */
-const NEW={
- C:[
-  {ic:'panel',demo:'art',t:'Artefakt-Panel',s:'Ergebnisse neben dem Chat, mit Vorschau und Bearbeiten an Ort und Stelle.',since:'NEU SEIT 16.09.2026',d:'Dokumente, Folien, Designs und kleine Apps öffnen sich neben dem Chat. Sie markieren eine Stelle und sagen, was anders werden soll.',ex:'Ein Quiz zur Fotosynthese bauen, Frage 3 markieren und „einfacher formulieren“ schreiben.',w:'Im Chat rechts. Alle Artefakte finden Sie in der Seitenleiste unter Artefakte.'},
-  {ic:'folder',demo:'proj',t:'Projekte',s:'Anweisungen und Projektwissen gelten in jedem Chat des Projekts.',since:'NEUE FORM ALS BETA',d:'Sie legen einmal fest, wofür das Projekt da ist und was es wissen soll. Danach müssen Sie das nicht in jedem Chat neu erklären.',ex:'„Biologie 8b“: Lehrplanauszug als Projektwissen, Ihre Regeln als Projektanweisungen.',w:'Seitenleiste › Projekte › Neues Projekt › Projektanweisungen festlegen'},
-  {ic:'task',demo:'cow',t:'Cowork und Umgebung',s:'Längere Aufgaben mit Aufgabenliste, lokal oder in der Cloud.',since:'IN JEDEM GESPRÄCH SEIT 16.09.2026',d:'Cowork arbeitet mehrere Schritte nacheinander ab und zeigt eine Aufgabenliste. Die Berechtigungen legen fest, ob Claude vorher fragt. Die Umgebung bestimmt, wo gearbeitet wird.',ex:'Einen Ordner mit Materialien sortieren und eine Übersichtstabelle anlegen lassen.',w:'Im Gespräch. Berechtigungen in der Code-Ansicht: Auto, Manuell, Plan und weitere.'},
-  {ic:'search',demo:'res',t:'Recherche',s:'Mehrstufige Suche über Web und Konnektoren, am Ende ein Bericht.',since:'IN DEN BEZAHLPLÄNEN',d:'Claude sucht in mehreren Runden, wertet Quellen aus und schreibt einen Bericht mit Belegen.',ex:'Aktuelle Studien zu Handyregeln an Schulen zusammentragen, mit Quellenangaben.',w:'Plus-Schaltfläche › Recherche, oder den Befehl /deep-research eingeben.'},
-  {ic:'sliders',demo:'cus',t:'Anpassungen',s:'Skills, Konnektoren und Plugins an einem Ort.',since:'SEIT 25.02.2026',d:'Skills sind gespeicherte Arbeitsweisen. Konnektoren verbinden Dienste. Plugins bündeln Skills, Konnektoren und Befehle.',ex:'Ein Skill „Arbeitsblatt“ sorgt immer für dasselbe Layout, einen Lösungsteil und Quellenangaben.',w:'Seitenleiste › Anpassungen. Pro Gespräch: Plus-Schaltfläche › Konnektoren.'},
-  {ic:'brain',demo:'mem',t:'Memory',s:'Claude merkt sich Kontext als einzelne, bearbeitbare Einträge.',since:'THEMEN SEIT 25.08.2026',d:'Memory speichert, was in früheren Chats wichtig war, geordnet nach Themen. Sie können Einträge ansehen, ändern und pro Chat abschalten.',ex:'Claude weiß, dass Sie Arbeitsblätter immer mit Lösungsteil möchten.',w:'Einstellungen › Ihr Claude. Pro Chat: Plus-Schaltfläche › Memory.'}
- ],
- /* ChatGPT: Funktionen laut NACHTRAG (echte Desktop-App) */
- G:[
-  {ic:'panel',demo:'gside',t:'Seitenfenster',s:'Ausgaben, Seiten-Chats und Quellen zum Chat auf einen Blick.',since:'DESKTOP-APP',d:'Rechts neben dem Chat sehen Sie, was entstanden ist und womit ChatGPT arbeitet. Fertige Ergebnisse können unter Ausgaben stehen, Dateien und Apps unter Quellen.',ex:'Die angehängte Aufgabensammlung als PDF steht unter Quellen.',w:'Symbol oben rechts im Chat. Quellen: „+“, dann „Dateien anhängen oder Apps verbinden“.'},
-  {ic:'chat',demo:'gsch',t:'Seiten-Chats',s:'Ein Nebenchat in eigener Registerkarte, der Hauptchat bleibt sauber.',since:'DESKTOP-APP',d:'Ein Seiten-Chat ist ein Nebengespräch neben dem Hauptchat. Er öffnet sich als eigene Registerkarte rechts, mit eigenem Eingabefeld.',ex:'Während das Quiz entsteht, klären Sie im Nebenchat, wie man Brüche kürzt.',w:'Seitenfenster › Seiten-Chats › Nebenchat. Weitere mit „+“ oben rechts.'},
-  {ic:'globe',demo:'gbrw',t:'Eingebauter Browser',s:'Webseiten und eigene Apps direkt neben dem Chat öffnen.',since:'ATLAS EINGESTELLT 09.08.2026',d:'Im Seitenfenster öffnet „Neuer Tab“ einen Browser mit Adresszeile. Dort testen Sie Ihre App, ohne das Fenster zu wechseln.',ex:'Das Bruch-Quiz neben dem Chat ausprobieren und Fehler sofort beschreiben.',w:'Seitenfenster › Neuer Tab › „Suchen oder URL eingeben“. Tools: Dateien mit Strg+P.'},
-  {ic:'task',demo:'work',t:'Chat | Work',s:'Work erledigt lange Aufgaben und liefert fertige Dateien.',since:'SEIT 09.07.2026',d:'Work plant die Schritte selbst und zeigt, wie lange es gearbeitet hat. Am Ende stehen Dokumente, Tabellen oder Präsentationen. Für Free und Go ist Work nicht verfügbar.',ex:'Aus Stichpunkten eine Präsentation und ein Handout für den Elternabend machen.',w:'Umschalter oben in der Mitte: Chat | Work.'},
-  {ic:'shield',demo:'gappr',t:'Genehmigung',s:'Sie bestimmen, ob ChatGPT vor Aktionen fragt.',since:'IM EINGABEFELD',d:'„Genehmigung anfordern“ heißt: ChatGPT fragt vor Aktionen nach. „Für mich genehmigen“ heißt: Es arbeitet ohne Rückfrage weiter.',ex:'Beim ersten Bau einer App lassen Sie Genehmigungen anfordern und sehen jeden Schritt.',w:'Eingabefeld, neben dem „+“.'},
-  {ic:'spark',demo:'gmdl',t:'Modell und Denkstufe',s:'GPT-6.1 Sol mit Instant, Mittel, Hoch oder Sehr hoch.',since:'STUFEN SEIT 10.06.2026',d:'Die Modellwahl zeigt das Modell und die Denkstufe. Mehr Denken heißt gründlicher, aber langsamer. Darunter wählen Sie Projekt, Dateien und Plugins.',ex:'Für eine Vokabelliste reicht Instant. Für eine Klassenarbeit mit Erwartungshorizont lohnt Hoch.',w:'Eingabefeld rechts: „GPT-6.1 Sol Mittel ⌄“.'}
- ]};
-const WAS={
- C:[['Websuche-Schalter','sucht selbst'],['Chat · Cowork · Code','jetzt Chat / Code'],['„Integrationen“','heißen Konnektoren'],['„Erweitertes Denken“','jetzt Aufwand']],
- G:[['Canvas','nicht mehr'],['Agentenmodus','jetzt Work'],['Atlas','jetzt in der App'],['Pulse','jetzt Geplant'],['Gruppenchats','laufen aus'],['Eigene GPTs','bis 11.12.2026']]};
-
-/* ============ Vergleich (Seite 4) ============ */
-const CMP=[
- {c:'Projekte',cs:'Seitenleiste › Projekte',g:'Projekte',gs:'„…“ › Projekte',same:'Ein Arbeitsbereich pro Thema oder Klasse, mit eigenen Chats.',diff:'Claude testet eine neue Projektform mit Threads und Bibliothek (Beta, bisher in Claude Code).'},
- {c:'Projektanweisungen',cs:'Projektanweisungen festlegen',g:'Anweisungen',gs:'••• › Projekteinstellungen',same:'Regeln, die in jedem Chat des Projekts gelten.',diff:'Bei ChatGPT überschreiben die Projektanweisungen Ihre allgemeinen benutzerdefinierten Anweisungen.'},
- {c:'Projektwissen',cs:'Kasten im Projekt, „+“',g:'Quellen',gs:'Projekt › Quellen',same:'Dateien und Texte, die das Projekt in jedem Chat kennt.',diff:'Claude wechselt bei großen Mengen in einen Suchmodus mit bis zu 10-facher Kapazität. ChatGPT: Quellen im Projekt gelten für alle Chats, Quellen im Seitenfenster nur für diesen Chat.'},
- {c:'Artefakt-Panel',cs:'neben dem Chat',g:'Datei-Link',gs:'in der Antwort, z. B. „App öffnen“',same:'Fertige Ergebnisse ansehen und weiterverwenden.',diff:'Claude zeigt das Ergebnis mit Vorschau im Artefakt-Panel. ChatGPT bietet einen Datei- oder Vorschau-Link in der Antwort an. Ergebnisse können auch unter Ausgaben im Seitenfenster stehen, sicher ist das nicht.'},
- {c:'Konnektoren, Plugins',cs:'unter Anpassungen, dazu Skills',g:'Plugins',gs:'früher Apps, davor Konnektoren',same:'Verbindungen zu anderen Diensten und fertige Arbeitspakete.',diff:'Bei Claude sind Konnektoren, Skills und Plugins getrennt aufgeführt. Bei ChatGPT stecken Verbindungen und Skills in Plugins.'},
- {c:'Memory',cs:'auch „Speicher“',g:'Erinnerung',gs:'Personalisierung',same:'Die KI merkt sich Wichtiges aus früheren Chats.',diff:'Gleiche Idee, anderes Wort. „Erinnerung“ ist der ChatGPT-Begriff. Claude sagt Memory, Speicher oder Gedächtnis.'},
- {c:'Recherche',cs:'+ › Recherche, /deep-research',g:'Deep Research',gs:'+ › Deep Research',same:'Ausführliche, mehrstufige Suche mit Bericht.',diff:'Bei ChatGPT bearbeiten Sie vorab den Plan. Claude bezieht auf Wunsch auch Konnektoren ein.'},
- {c:'Cowork',cs:'in jedem Gespräch',g:'ChatGPT Work',gs:'Umschalter Chat | Work',same:'Längere Aufgaben in mehreren Schritten, am Ende Dateien.',diff:'Cowork steckt bei Claude im normalen Gespräch. Bei ChatGPT schalten Sie oben in der Mitte auf Work um.'},
- {c:'Berechtigungen',cs:'Auto, Manuell, Plan …',g:'Genehmigung',gs:'Schalter im Eingabefeld',same:'Sie legen fest, ob die KI vor Aktionen nachfragt.',diff:'Claude: Menü „Berechtigungen“ mit Auto, Manuell, Bearbeitungen automatisch akzeptieren und Plan. ChatGPT: „Genehmigung anfordern“ oder „Für mich genehmigen“. Für den Anfang: fragen lassen (Manuell bzw. Genehmigung anfordern).'},
- {c:'Code',cs:'Umschalter Code ‹/›',g:'Codex',gs:'Ansicht in der Desktop-App',same:'Programmier-Agent mit eigenem Verlauf.',diff:'Beide arbeiten in einer Umgebung. Claude: „Umgebung auswählen“ mit Lokal, Cloud oder WSL. Codex: wählbare Cloud-Umgebungen.'},
- {c:'Aufwand',cs:'„Opus 5.5 Mittel“',g:'Denkstufe',gs:'„GPT-6.1 Sol Mittel“',same:'Sie entscheiden, wie gründlich die KI nachdenkt.',diff:'Bei Claude steht der Aufwand hinter dem Modellnamen, z. B. „Opus 5.5 Mittel“, umstellbar unter „Aufwand ›“. Bei ChatGPT hängt die Stufe direkt am Modellnamen: Instant, Mittel, Hoch, Sehr hoch.'},
- {c:'Claude in Chrome',cs:'Seitenpanel im Chrome-Browser',g:'Eingebauter Browser',gs:'Neuer Tab im Seitenfenster',same:'Die KI arbeitet mit Webseiten, direkt neben dem Gespräch.',diff:'Claude kommt als Erweiterung in Ihr Chrome (nur Bezahlpläne). ChatGPT hat den Browser in der Desktop-App eingebaut.'},
- /* UNSICHER: deutscher Wortlaut „Temporärer Chat“ bei ChatGPT nicht geprüft */
- {c:'Inkognito-Chat',cs:'nicht im Verlauf',g:'Temporärer Chat',gs:'ohne Verlauf',same:'Ein Chat ohne Verlauf und ohne Gedächtnis.',diff:'Gut für einmalige Fragen. Für Schülerdaten ist auch dieser Chat nicht gedacht.'},
- {c:'Bibliothek',cs:'nur Projekt-Beta',g:'Bibliothek',gs:'zentrale Dateiablage',warn:1,same:'Gleiches Wort, andere Sache.',diff:'Bei ChatGPT ist die Bibliothek die Dateiablage für alle Chats. Bei Claude gibt es eine Bibliothek nur in der neuen Projektform, für ein einzelnes Projekt. Die zentrale Sammlung heißt dort Artefakte.'}
-];
 const END=[
  {ic:'left',t:'Links: Ordnung',s:'Neu, Suchen, Projekte und Verlauf. Hier finden Sie Ihre Arbeit wieder.',e:'Ein Projekt pro Klasse oder Thema.'},
  {ic:'tool',t:'Unten: Werkzeuge',s:'Plus-Menü und Modellwahl. Hier steuern Sie, was die KI für diese Aufgabe nutzt.',e:'Dateien, Recherche, Aufwand.'},
@@ -827,7 +766,7 @@ function stopDemo(){clearTimeout(DT);DT=null}
 /* ============ Zustand ============ */
 let TOOL='C';try{const s=localStorage.getItem('lft-mitbauen-tool');if(s==='C'||s==='G')TOOL=s}catch(e){}
 const QT=new URLSearchParams(location.search).get('t');if(QT&&/^[cg]$/i.test(QT))TOOL=QT.toUpperCase();
-const SEEN={C:new Set(),G:new Set()},SEENF={C:new Set(),G:new Set()};
+const SEEN={C:new Set(),G:new Set()};
 
 /* ============ Aufbau Seite 2: Übersicht ============ */
 function renderOverview(){
@@ -839,22 +778,6 @@ function renderOverview(){
  updCount()}
 function updCount(){const N=ZONES[TOOL].length,k=SEEN[TOOL].size;$('zc').innerHTML=`<b>${k}</b> von ${N} Bereichen angesehen${k===N?' ✓':''}`}
 
-/* ============ Aufbau Seite 3: Neue Funktionen ============ */
-function renderNew(){
- $('gNew').innerHTML=NEW[TOOL].map((o,i)=>`<div class="tile${SEENF[TOOL].has(i)?' seen':''}"><span class="grp">${o.since}</span><div class="ic">${svg(o.ic)}</div><h3>${o.t}</h3><p>${o.s}</p><span class="play">▶ VORFÜHRUNG</span></div>`).join('');
- [...$('gNew').children].forEach((el,i)=>{el.onclick=()=>{openCard(el,featCard(NEW[TOOL][i]),()=>{SEENF[TOOL].add(i);el.classList.add('seen')})};
-  el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')})});
- $('was').innerHTML=`<b>NICHT MEHR AKTUELL</b>`+WAS[TOOL].map(x=>`<span>${x[0]}<i>${x[1]}</i></span>`).join('');
-}
-function featCard(o){return `<div class="fx"><div class="top"><div class="ic">${svg(o.ic)}</div><div><div class="kick">${TOOLS[TOOL].n.toUpperCase()} · ${o.since}</div><h2>${o.t}</h2></div></div>
- <div class="fgrid"><div><p class="def">${o.d}</p><div class="box" style="margin-top:22px"><b>IM UNTERRICHT</b><div>${o.ex}</div></div><div class="box" style="margin-top:16px"><b>SO FINDEN SIE ES</b><div>${o.w}</div></div></div><div>${DEMO[o.demo]()}</div></div></div>`}
-
-/* ============ Aufbau Seite 4 und 5 ============ */
-$('gCmp').innerHTML=CMP.map((o,i)=>`<div class="pair rise${o.warn?' warn':''}" style="--d:${.3+(i%7)*.06+(i>6?.15:0)}s"><div><b>${o.c}</b><small>${o.cs}</small></div><div class="eq">${o.warn?'≠':'≈'}</div><div><b>${o.g}</b><small>${o.gs}</small></div></div>`).join('');
-[...$('gCmp').children].forEach((el,i)=>el.onclick=()=>openCard(el,cmpCard(CMP[i]),()=>el.classList.add('seen')));
-function cmpCard(o){return `<div class="fx"><div class="top"><div class="ic">${svg('vs')}</div><div><div class="kick">${o.warn?'ACHTUNG · GLEICHES WORT':'DIESELBE IDEE · ANDERER NAME'}</div><h2>${o.c} <span style="color:${o.warn?'var(--red)':'var(--amber)'};font-size:40px">${o.warn?'≠':'≈'}</span> ${o.g}</h2></div></div>
- <div class="cmp"><div class="side"><h5>CLAUDE</h5><div>${o.c}</div><p>${o.cs}</p></div><div class="mid" style="${o.warn?'color:var(--red)':''}">${o.warn?'≠':'≈'}</div><div class="side g"><h5>CHATGPT</h5><div>${o.g}</div><p>${o.gs}</p></div></div>
- <div class="boxes"><div class="box"><b>${o.warn?'VORSICHT':'GEMEINSAM'}</b><div>${o.same}</div></div><div class="box"><b>UNTERSCHIED</b><div>${o.diff}</div></div></div></div>`}
 $('gEnd').innerHTML=END.map((o,i)=>`<div class="tile rise c-green" style="--d:${.4+i*.15}s;cursor:default"><div class="ic">${svg(o.ic)}</div><h3 style="font-size:32px">${o.t}</h3><p style="font-size:20px">${o.s}</p><p style="margin-top:16px;font-size:19px;color:var(--acc2)">${o.e}</p></div>`).join('');
 function nextUrl(){return `teil2-mitbauen.html?p=0&t=${TOOL.toLowerCase()}`}
 
@@ -862,7 +785,7 @@ function setTool(k){
  if(k!=='C'&&k!=='G')return;const changed=k!==TOOL;TOOL=k;try{localStorage.setItem('lft-mitbauen-tool',k)}catch(e){}
  [...$('tsw').children].forEach(b=>b.classList.toggle('on',b.dataset.t===k));
  $('next').href=nextUrl();
- if(changed){closeCard(true);closeZone(true);renderOverview();renderNew();sfx('close')}
+ if(changed){closeCard(true);closeZone(true);renderOverview();sfx('close')}
 }
 [...$('tsw').children].forEach(b=>b.onclick=()=>setTool(b.dataset.t));
 
@@ -987,7 +910,7 @@ function sfx(k){if(muted)return;if(!AC){try{AC=new AudioContext()}catch(e){retur
   const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.45);g.gain.linearRampToValueAtTime(0,t+.78);n.connect(f).connect(g).connect(AC.destination);n.start(t)}}
 
 /* ============ Start ============ */
-renderOverview();renderNew();setTool(TOOL);
+renderOverview();setTool(TOOL);
 $('go').onclick=()=>{$('start').classList.add('gone');setTimeout(()=>$('start').style.display='none',700);sfx('open');go(0);try{document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
 const QP=new URLSearchParams(location.search).get('p');
 if(QP!==null){$('start').classList.add('gone');$('start').style.display='none';go(+QP||0)}

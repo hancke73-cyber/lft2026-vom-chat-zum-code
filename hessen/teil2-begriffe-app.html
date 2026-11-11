@@ -254,16 +254,7 @@ a{text-decoration:underline;text-underline-offset:4px}
       <div class="kick rise">07 · BEGRIFFE</div>
       <h1 class="rise" style="--d:.12s">Und wer <em>tiefer einsteigt</em>, begegnet diesen.</h1>
     </div>
-    <div class="grid" id="gMore" style="top:350px;grid-template-columns:repeat(3,1fr);grid-auto-rows:286px"></div>
-  </section>
-
-  <!-- 2 · Unterschiede -->
-  <section class="page" id="pCmp" data-hint="Kachel anklicken für den Vergleich &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
-    <div class="head">
-      <div class="kick rise">07 · BEGRIFFE</div>
-      <h1 class="rise" style="--d:.12s">Wo ist eigentlich <em>der Unterschied?</em></h1>
-    </div>
-    <div class="grid" id="gCmp" style="top:350px;grid-template-columns:repeat(3,1fr);grid-auto-rows:286px"></div>
+    <div class="grid" id="gMore" style="top:350px;grid-template-columns:repeat(4,1fr);grid-auto-rows:340px"></div>
   </section>
 
   <!-- 3 · Titel eigene App -->
@@ -295,10 +286,10 @@ a{text-decoration:underline;text-underline-offset:4px}
       <h1 class="rise" style="--d:.12s">So sieht das <em>in der Praxis</em> aus.</h1>
     </div>
     <div class="chips rise" id="dChips" style="--d:.25s"></div>
-    <div class="term rise" style="--d:.35s"><div class="tbar"><i></i><i></i><i></i><span>Terminal · ~/vokabeltrainer</span></div><div class="tl" id="dTerm"></div></div>
+    <div class="term rise" style="--d:.35s"><div class="tbar"><i></i><i></i><i></i><span>Chat · Projekt „Vokabeltrainer“</span></div><div class="tl" id="dTerm"></div></div>
     <div class="prev rise" style="--d:.45s">
-      <div class="tbar"><span>Projektordner</span></div><div class="tree mono" id="dTree"></div>
-      <div class="tbar" style="border-top:1px solid var(--line)"><span>Vorschau · index.html</span></div><div class="app" id="dApp"></div>
+      <div class="tbar"><span>Projekt · Wissen und Ergebnis</span></div><div class="tree mono" id="dTree"></div>
+      <div class="tbar" style="border-top:1px solid var(--line)"><span>Vorschau neben dem Chat</span></div><div class="app" id="dApp"></div>
     </div>
   </section>
 
@@ -379,12 +370,12 @@ const TERMS=[
  {g:'GRUNDLAGE',ic:'hallu',t:'Halluzination',s:'Plausibel, aber falsch',
   d:'Die KI erfindet Angaben, die überzeugend klingen, aber nicht stimmen: Quellen, Zahlen, Zitate. Sie tut das nicht absichtlich. Es folgt aus der Art, wie Modelle Texte erzeugen.',
   b:'Ein Buchtitel mit passendem Autor, den es nie gegeben hat.',m:'Fakten prüfen, Quellen verlangen, Ergebnisse gegenlesen.'},
- {g:'ARBEITSWEISE',ic:'md',t:'CLAUDE.md',s:'Das Gedächtnis des Projekts',c:'c-amber',
-  d:'Eine Textdatei im Projektordner mit Hintergrund und Regeln. Sie wird bei jedem Start automatisch gelesen. So muss man nicht in jedem Gespräch alles neu erklären.',
-  b:'<span class="mono"># Projekt Vokabeltrainer<br>- Zielgruppe: Klasse 7<br>- keine Schülerdaten speichern</span>',m:'Andere Werkzeuge nutzen dafür z. B. AGENTS.md. Das Prinzip ist dasselbe.'},
- {g:'ARBEITSWEISE',ic:'plan',t:'Plan-Modus',s:'Erst denken, dann ändern',c:'c-amber',
-  d:'Die KI untersucht die Aufgabe und schlägt einen Plan vor, ohne etwas zu verändern. Erst nach Ihrer Zustimmung wird gebaut.',
-  b:'„Plane einen Vokabeltrainer mit Karteikarten.“ Sie lesen den Plan und korrigieren ihn, dann geht es los.',m:'In der Claude-Desktop-App (Code-Ansicht): Menü „Berechtigungen“ › „Plan“, also „Vor Änderungen einen Plan erstellen“. Im Terminal: <kbd>Umschalt</kbd>+<kbd>Tab</kbd>.'},
+ {g:'ARBEITSWEISE',ic:'md',t:'Projektanweisung',s:'Das Gedächtnis des Projekts',c:'c-amber',
+  d:'Ein Text im Projekt mit Hintergrund und Regeln. Er gilt automatisch in jedem Chat des Projekts. So muss man nicht in jedem Gespräch alles neu erklären.',
+  b:'<span class="mono"># Projekt Vokabeltrainer<br>- Zielgruppe: Klasse 7<br>- keine Schülerdaten speichern</span>',m:'In Claude und ChatGPT heißt das Feld „Projektanweisungen“. Programmier-Werkzeuge nutzen dafür die Datei CLAUDE.md oder AGENTS.md.'},
+ {g:'ARBEITSWEISE',ic:'plan',t:'Planen lassen',s:'Erst denken, dann bauen',c:'c-amber',
+  d:'Die KI schlägt zuerst einen Plan vor, ohne etwas zu bauen. Erst nach Ihrer Zustimmung wird umgesetzt.',
+  b:'„Plane einen Vokabeltrainer mit Karteikarten.“ Sie lesen den Plan und korrigieren ihn, dann geht es los.',m:'Im Chat genügt ein Satz am Anfang: „Plane zuerst, ändere noch nichts.“'},
  {g:'ARBEITSWEISE',ic:'rule',t:'Regeln (Rules)',s:'Vorgaben, die immer gelten',c:'c-amber',
   d:'Feste Vorgaben für jede Aufgabe im Projekt: Sprache, Stil, Grenzen. Regeln wirken dauerhaft, ohne dass man sie jedes Mal wiederholt.',
   b:'„Schreibe in einfacher Sprache.“ · „Keine personenbezogenen Daten.“ · „Alles in einer HTML-Datei.“',m:'Regeln sichern Qualität und Datenschutz. Wenige, klare Regeln wirken besser als viele.'},
@@ -392,8 +383,8 @@ const TERMS=[
   d:'Ein Ordner mit einer Anleitung (SKILL.md), dazu bei Bedarf Vorlagen oder Skripte. Die KI lädt den Skill nur, wenn die Aufgabe dazu passt.',
   b:'Skill „Arbeitsblatt im Schul-Layout“: Kopfzeile, Schriftart, Aufgabenformat, Lösungsblatt.',m:'In Claude unter „Anpassungen › Skills“. Einmal sauber beschreiben, immer wieder nutzen, im Kollegium teilen.'},
  {g:'AGENTEN',ic:'agent',t:'Agent',s:'KI, die selbst handelt',c:'c-green',
-  d:'Ein Agent antwortet nicht nur. Er führt Schritte selbst aus: Dateien lesen und schreiben, Befehle starten, das Ergebnis prüfen und nachbessern, bis das Ziel erreicht ist.',
-  b:'Claude Code im Projektordner: „Baue aus wortliste.txt einen Vokabeltrainer.“',m:'Mehr Selbstständigkeit heißt auch: genauer beschreiben und Ergebnisse prüfen.'},
+  d:'Ein Agent antwortet nicht nur. Er führt Schritte selbst aus: Dateien lesen und erstellen, das Ergebnis prüfen und nachbessern, bis das Ziel erreicht ist.',
+  b:'Im Projekt: „Baue aus der hochgeladenen Wortliste einen Vokabeltrainer und teste ihn.“',m:'Mehr Selbstständigkeit heißt auch: genauer beschreiben und Ergebnisse prüfen.'},
  {g:'AGENTEN',ic:'sub',t:'Subagent',s:'Helfer für eine Teilaufgabe',c:'c-green',
   d:'Ein Helfer, den der Haupt-Agent für eine abgegrenzte Aufgabe startet. Er arbeitet mit eigenem, frischem Kontext und meldet nur das Ergebnis zurück.',
   b:'„Prüfe alle Aufgaben auf Rechtschreibung“, während der Haupt-Agent weiterbaut.',m:'Mehrere Subagenten können parallel arbeiten, wie ein kleines Team.'},
@@ -402,32 +393,6 @@ const TERMS=[
   d:'Das Model Context Protocol ist ein offener Standard, über den eine KI andere Programme und Datenquellen nutzen kann. Ein Connector ist eine solche Verbindung (in Claude: „Konnektoren“, in ChatGPT Teil der „Plugins“).',
   b:'Zugriff auf Kalender, Cloud-Ordner, Datenbanken oder ein Grafikprogramm.',m:'Jede Verbindung bewusst freigeben. Sie öffnet der KI echte Daten.'}
 ];
-const CMPS=[
- {a:'Chat',b:'Agent',s:'Antworten oder handeln?',
-  A:'Antwortet im Gesprächsfenster. Kopieren, einfügen und prüfen machen Sie selbst.',
-  B:'Arbeitet direkt im Projektordner: schreibt Dateien, führt sie aus, prüft das Ergebnis.',
-  an:'<b>Bild:</b> Beratung am Telefon und Handwerker vor Ort.'},
- {a:'Skill',b:'Agent',s:'Das Wie und das Wer',
-  A:'Wissen und Anleitung: <i>wie</i> eine Aufgabe gut erledigt wird. Ein Skill tut von sich aus nichts.',
-  B:'Der Ausführende: <i>wer</i> die Aufgabe erledigt. Ein Agent kann viele Skills nutzen.',
-  an:'<b>Bild:</b> Rezept und Koch.'},
- {a:'Regel',b:'Skill',s:'Immer oder bei Bedarf?',
-  A:'Gilt immer, bei jeder Aufgabe im Projekt. Kurz und verbindlich.',
-  B:'Wird nur geladen, wenn die Aufgabe passt. Darf ausführlich sein.',
-  an:'<b>Bild:</b> Hausordnung und Rezeptbuch im Regal.'},
- {a:'Agent',b:'Subagent',s:'Leitung und Fachkraft',viz:'sub',
-  A:'Behält das Ziel im Blick, verteilt Aufgaben und setzt die Ergebnisse zusammen.',
-  B:'Erledigt eine abgegrenzte Teilaufgabe mit eigenem Notizblock und berichtet zurück.',
-  an:'<b>Bild:</b> Projektleitung und Fachkolleginnen und -kollegen.'},
- {a:'Prompt',b:'Kontext',s:'Die Frage und alles drumherum',
-  A:'Der konkrete Auftrag in diesem Moment.',
-  B:'Alles, was die KI dazu weiß: Chatverlauf, Dateien, CLAUDE.md, Regeln.',
-  an:'<b>Bild:</b> Arbeitsauftrag und Akte auf dem Tisch.'},
- {a:'Vibe Coding',b:'AI Engineering',s:'Ausprobieren oder planen?',
-  A:'Beschreiben, ausprobieren, nachbessern, ohne Plan. Schnell und gut für Prototypen. Stufe 1–2.',
-  B:'Anforderungen, Regeln, Skills, Prüfkriterien. Verlässlich für Dinge, die bleiben sollen. Stufe 3–5.',
-  an:'<b>Bild:</b> Skizze und Bauplan.'}
-];
 const STEPS=[
  {ic:'idea',t:'Idee',s:'Ein echtes Problem',
   d:'Gute Apps beginnen mit einem konkreten Problem aus dem eigenen Unterricht. Klein anfangen: eine Zielgruppe, eine Aufgabe.',
@@ -435,14 +400,14 @@ const STEPS=[
  {ic:'write',t:'Beschreiben',s:'Was soll sie können?',
   d:'Vor dem Bauen schriftlich festhalten: Wer nutzt die App? Was muss sie können? Was gehört ausdrücklich nicht dazu? Woran erkenne ich, dass sie fertig ist?',
   b:'<span class="mono">Karteikarten · Lernstand · läuft offline · eine HTML-Datei · keine Anmeldung</span>',m:'Das ist Stufe 3, die Anforderung. Dieser Schritt spart später die meiste Zeit.'},
- {ic:'folder',t:'Einrichten',s:'Ordner, Material, Regeln',
-  d:'Ein eigener Projektordner mit allem Material, dazu eine CLAUDE.md mit den wichtigsten Regeln. Ab jetzt kennt die KI den Rahmen.',
-  b:'<span class="mono">vokabeltrainer/<br>├ wortliste.txt<br>└ CLAUDE.md</span>',m:'Datenschutz gleich als Regel festhalten: keine Namen, keine Noten.'},
- {ic:'plan',t:'Planen',s:'Plan-Modus nutzen',
-  d:'Die KI schlägt Aufbau, Bildschirme und Ablauf vor. Sie lesen den Plan, fragen nach und korrigieren, bevor Code entsteht.',
-  b:'„Plane zuerst. Zeig mir den Aufbau, bevor du etwas baust.“',m:'Einen Plan ändern Sie mit einem Satz. Fertigen Code zu ändern dauert deutlich länger.'},
+ {ic:'folder',t:'Einrichten',s:'Projekt, Material, Regeln',
+  d:'Ein eigenes Projekt im Chat-Werkzeug: Material als Projektwissen hochladen, die wichtigsten Regeln als Projektanweisung eintragen. Ab jetzt kennt die KI den Rahmen in jedem Chat.',
+  b:'<span class="mono">Projekt „Vokabeltrainer“<br>├ Wissen: wortliste.txt<br>└ Anweisung: Regeln</span>',m:'Datenschutz gleich als Regel festhalten: keine Namen, keine Noten.'},
+ {ic:'plan',t:'Planen',s:'Erst planen lassen',
+  d:'Die KI schlägt Aufbau, Bildschirme und Ablauf vor. Sie lesen den Plan, fragen nach und korrigieren, bevor etwas gebaut wird.',
+  b:'„Plane zuerst. Zeig mir den Aufbau, bevor du etwas baust.“',m:'Einen Plan ändern Sie mit einem Satz. Eine fertige App zu ändern dauert deutlich länger.'},
  {ic:'build',t:'Bauen',s:'Die KI schreibt den Code',
-  d:'Die KI erstellt die Dateien, führt sie aus und prüft sie selbst. Sie beobachten und geben die Richtung vor, möglichst in kleinen Schritten.',
+  d:'Die KI erstellt die App und zeigt sie als Vorschau neben dem Chat. Sie beobachten und geben die Richtung vor, möglichst in kleinen Schritten.',
   b:'„Setze Schritt 1 des Plans um: die Karteikarten mit Umdrehen.“',m:'Lieber fünf kleine Aufträge als ein riesiger. Nur eine sehr kleine App wie im Workshop gelingt auch mit einem Auftrag.'},
  {ic:'test',t:'Testen',s:'Mit der Schülerbrille',
   d:'Selbst ausprobieren, als wäre man in der 7. Klasse. Fehler beschreiben statt selbst reparieren: Was habe ich getan, was ist passiert, was hatte ich erwartet?',
@@ -465,16 +430,10 @@ P.harness='<rect x="8" y="8" width="8" height="8" rx="1.5"/><path d="M12 2v3M12 
 P.lock='<rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5M12 14.5v2"/>';
 P.copy='<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>';
 const MORE=[
- {g:'WERKZEUG',ic:'term',t:'Terminal',s:'Das Textfenster für Befehle',
-  d:'Ein Fenster, in dem man Befehle eintippt statt zu klicken. Viele KI-Agenten arbeiten dort, weil sie so Programme starten und Dateien bearbeiten können.',
-  b:'<span class="mono">$ cd vokabeltrainer<br>$ claude</span>',m:'Zum Start reichen meist zwei Befehle. Viele Agenten gibt es auch als Desktop-App.'},
  {g:'WERKZEUG',ic:'git',t:'Git · Repository',s:'Das Projekt mit Gedächtnis',
   d:'Ein Repository ist ein Projektordner, in dem Git jeden Zwischenstand speichert. Geht etwas schief, springt man zu einer funktionierenden Version zurück.',
   b:'„Speichere den aktuellen Stand als ‚Karteikarten funktionieren‘.“',m:'Plattformen wie GitHub machen Projekte teilbar, so wie OliCraft.'},
- {g:'AUTOMATIK',ic:'hook',t:'Hook',s:'Läuft bei jedem Ereignis automatisch',c:'c-amber',
-  d:'Ein Befehl, der automatisch startet, wenn etwas Bestimmtes passiert, etwa nachdem die KI eine Datei geändert hat. So laufen Prüfungen zuverlässig, ohne dass jemand daran denken muss.',
-  b:'Nach jeder Änderung automatisch die Rechtschreibung prüfen oder Tests starten.',m:'Eine Regel ist eine Bitte an die KI. Ein Hook wird in jedem Fall ausgeführt.'},
- /* Stand 11.11.2026 (design/ui-begriffe-claude-chatgpt.md): ChatGPT-Auswahl „Instant / Mittel / Hoch / Sehr hoch“ seit 10.06.2026, „Sehr hoch“ nur Pro/Business
+/* Stand 11.11.2026 (design/ui-begriffe-claude-chatgpt.md): ChatGPT-Auswahl „Instant / Mittel / Hoch / Sehr hoch“ seit 10.06.2026, „Sehr hoch“ nur Pro/Business
     (help.openai.com/de-de/articles/11165333, en/articles/20001354); Claude-Modellmenü mit „Aufwand“ Niedrig…Maximum (support.claude.com/de/articles/8664678).
     Modellname „GPT-6.1 Sol“ mit Denkstufe BELEGT durch Screenshot der deutschen Desktop-App („GPT-6.1 Sol Mittel ⌄“, design/screenshots/chatgpt-desktop-1..4.webp).
     UNSICHER: welches Modell Free-Konten nutzen (früher genanntes „GPT-5.6 Luna“ nicht belegt, daher entfernt). */
@@ -489,8 +448,8 @@ const MORE=[
    <div class="ml">Kosten · Limit</div><div class="dots c">●○○</div><div class="dots c">●●○</div><div class="dots c">●●●</div>
   </div><div class="an" style="margin-top:20px"><b>Faustregel:</b> Alltag mit dem mittleren Modell, Planung und knifflige Fehler mit dem gründlichen. Claude: zusätzlich der „Aufwand“ hinter dem Modellnamen, z. B. „Opus 5.5 Mittel“. ChatGPT-Namen sind die Referenz aus der Desktop-App. Kostenlose Zugänge haben weniger Auswahl. <span style="color:var(--dim)">Stand November 2026, die Namen ändern sich schnell.</span></div>`},
  {g:'WERKZEUG',ic:'harness',t:'Harness',s:'Das Programm rund um das Modell',
-  d:'Das Modell allein kann nur Text erzeugen. Das Harness ist die Software drumherum: Es gibt der KI Werkzeuge (Dateien, Browser, Befehle), verwaltet Kontext und Rechte und führt die Arbeitsschleife aus.',
-  b:'Dasselbe Modell steckt im Chatfenster und in Claude Code. Erst das Harness entscheidet, ob es nur antwortet oder auch Dateien bauen und testen darf.',m:'<b style="display:inline;color:var(--amber);letter-spacing:0;font-size:inherit">Bild:</b> Das Modell ist der Motor, das Harness das Auto drumherum.'},
+  d:'Das Modell allein kann nur Text erzeugen. Das Harness ist die Software drumherum: Es gibt der KI Werkzeuge (Dateien, Browser, Vorschau), verwaltet Kontext und Rechte und führt die Arbeitsschleife aus.',
+  b:'Dasselbe Modell steckt im Chatfenster und in Programmier-Werkzeugen. Erst das Harness entscheidet, ob es nur antwortet oder auch Ergebnisse bauen und testen darf.',m:'<b style="display:inline;color:var(--amber);letter-spacing:0;font-size:inherit">Bild:</b> Das Modell ist der Motor, das Harness das Auto drumherum.'},
  {g:'VERANTWORTUNG',ic:'lock',t:'Datenschutz',s:'Was die KI nicht sehen sollte',c:'c-green',
   d:'Alles, was man eingibt, geht an den Anbieter. Personenbezogene Daten von Lernenden, Noten oder Gutachten gehören nicht in ein KI-Werkzeug, das dafür nicht freigegeben ist.',
   b:'Statt echter Namen „Schüler A“, Beispieldaten oder anonymisierte Texte verwenden.',m:'Vorgaben von Land und Schulträger beachten. Im Zweifel: weglassen.'}
@@ -498,7 +457,7 @@ const MORE=[
 const TPL=[
  {ic:'write',t:'Beschreiben',s:'Die Anforderung',n:2,
   x:'Ich möchte eine kleine Web-App für <em>[Zielgruppe]</em>.\nZiel: <em>[Problem in einem Satz]</em>.\nSie soll können:\n- <em>…</em>\n- <em>…</em>\nSie soll ausdrücklich nicht: Anmeldung, Online-Speicherung, Schülerdaten.\nFertig ist sie, wenn <em>[prüfbares Kriterium]</em>.\nStell mir zuerst Rückfragen, bevor du planst.'},
- {ic:'md',t:'CLAUDE.md',s:'Die Regeln des Projekts',n:3,
+ {ic:'md',t:'Projektanweisung',s:'Die Regeln des Projekts',n:3,
   x:'# Projekt: <em>[Name]</em>\n## Zielgruppe\nKlasse <em>[x]</em>, <em>[Fach]</em>\n## Regeln\n- Alles in einer HTML-Datei, läuft offline\n- Keine Bibliotheken, Schriften oder Bilder aus dem Internet\n- Keine personenbezogenen Daten speichern\n- Einfache Sprache in der Oberfläche\n- Vor dem ersten Bauen und vor größeren Änderungen erst einen Plan zeigen'},
  {ic:'plan',t:'Planen',s:'Erst denken lassen',n:4,
   x:'Plane zuerst, ändere noch nichts.\nZeig mir:\n- den Aufbau der Bildschirme\n- den Ablauf für die Lernenden\n- offene Fragen an mich\nIch gebe dir dann Rückmeldung.'},
@@ -514,7 +473,6 @@ const TPL=[
 const $=id=>document.getElementById(id);
 function tileHTML(o,i){return `<div class="tile rise ${o.c||''}" style="--d:${.25+i*.06}s">${o.g?`<span class="grp">${o.g}</span>`:''}<div class="ic">${svg(o.ic)}</div><h3>${o.t}</h3><p>${o.s}</p></div>`}
 $('gTerms').innerHTML=TERMS.map(tileHTML).join('');
-$('gCmp').innerHTML=CMPS.map((o,i)=>`<div class="tile rise" style="--d:${.25+i*.08}s"><div class="vs"><span>${o.a}</span><i>vs.</i><span>${o.b}</span></div><p style="font-size:22px;color:var(--ink);font-weight:600">${o.s}</p><p>${o.a}: ${o.A.replace(/<[^>]+>/g,'').split(/(?<=[.:])\s/)[0]}</p></div>`).join('');
 $('gYou').innerHTML=YOU.map((o,i)=>`<div class="tile rise c-amber" style="--d:${.4+i*.15}s;cursor:default"><div class="ic">${svg(o.ic)}</div><h3 style="font-size:38px">${o.t}</h3><p style="font-size:22px">${o.s}</p><p style="margin-top:22px;font-size:21px;color:var(--acc2)">${o.e}</p></div>`).join('');
 $('gMore').innerHTML=MORE.map(tileHTML).join('');
 $('gTpl').innerHTML=TPL.map((o,i)=>`<div class="tile rise c-amber" style="--d:${.25+i*.08}s"><span class="grp">SCHRITT ${o.n}</span><div class="ic">${svg(o.ic)}</div><h3>${o.t}</h3><p>${o.s}</p><p class="mono" style="font-size:16px;color:var(--acc2);margin-top:14px">${o.x.replace(/<[^>]+>/g,'').split('\n')[0]}</p></div>`).join('');
@@ -522,8 +480,7 @@ $('gTpl').innerHTML=TPL.map((o,i)=>`<div class="tile rise c-amber" style="--d:${
 [...$('gTpl').children].forEach((el,i)=>el.onclick=()=>openCard(el,tplCard(TPL[i])));
 [...$('gMore').children,...$('gTpl').children].forEach(el=>el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')}));
 [...$('gTerms').children].forEach((el,i)=>el.onclick=()=>openCard(el,termCard(TERMS[i])));
-[...$('gCmp').children].forEach((el,i)=>el.onclick=()=>openCard(el,cmpCard(CMPS[i])));
-[...$('gTerms').children,...$('gCmp').children].forEach(el=>el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')}));
+[...$('gTerms').children].forEach(el=>el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')}));
 
 /* Weg: geschwungene Linie mit sieben Stationen */
 const NX=[250,485,720,955,1190,1425,1665],NY=[690,600,705,590,700,585,650];
@@ -564,10 +521,6 @@ function svRun(mode){svT.forEach(clearTimeout);svT=[];const S=$('svs');if(!S)ret
   at(4800,()=>{job.textContent='setzt die drei Ergebnisse zusammen';res.classList.add('on')});
   at(5200,()=>cap.innerHTML='<b>Ergebnis:</b> Schneller, weil parallel. Der Haupt-Agent kennt nur die drei kurzen Ergebnisse und bleibt übersichtlich: Kontext ca. 20 % statt über 90 %.');
  }}
-function cmpCard(o){if(o.viz==='sub')return subCard(o);return `<div class="fx"><div class="top"><div class="ic">${svg('vs')}</div><div><div class="kick">DER UNTERSCHIED</div><h2>${o.a} <span style="color:var(--amber);font-size:40px">vs.</span> ${o.b}</h2></div></div>
- <div class="def" style="color:var(--mute);font-size:28px;margin-top:22px">${o.s}</div>
- <div class="cmp"><div class="side"><h5>${o.a}</h5><div>${o.A}</div></div><div class="mid">↔</div><div class="side" style="border-color:#F5E6D2"><h5 style="color:var(--amber)">${o.b}</h5><div>${o.B}</div></div></div>
- <div class="an">${o.an}</div></div>`}
 function tplCard(o){return `<div class="fx"><div class="top"><div class="ic">${svg(o.ic)}</div><div><div class="kick">PROMPT-VORLAGE · SCHRITT ${o.n}</div><h2>${o.t}</h2></div></div>
  <pre>${o.x}</pre><div><button class="cp" onclick="copyTpl(this)">${svg('copy').replace('<svg','<svg style="width:18px;height:18px;vertical-align:-3px;margin-right:8px"')}Kopieren</button>
  <span style="margin-left:18px;color:var(--dim);font-size:18px">Gelbe Stellen in [Klammern] selbst ausfüllen</span></div></div>`}
@@ -596,15 +549,15 @@ function closeCard(){
 }
 $('cx').onclick=closeCard;$('veil').onclick=closeCard;
 
-/* ============ Live-Demo: Terminal baut den Vokabeltrainer ============ */
+/* ============ Live-Demo: Projekt-Chat baut den Vokabeltrainer ============ */
 const DEMO=[
  [['i','# Schritt 1 · Idee'],['u','Meine 7b vergisst die Vokabeln aus Unit 4 nach zwei Wochen.']],
  [['i','# Schritt 2 · Beschreiben'],['u','Ich brauche einen Vokabeltrainer: Karteikarten zum Umdrehen, Lernstand, läuft offline, eine HTML-Datei, keine Anmeldung. Fertig ist er, wenn alle 40 Wörter abfragbar sind.']],
- [['i','# Schritt 3 · Einrichten'],['tree',['vokabeltrainer/','├ wortliste.txt','└ CLAUDE.md']],['i','$ cd vokabeltrainer && claude'],['a','CLAUDE.md gelesen · Regeln: Klasse 7, keine Schülerdaten, eine HTML-Datei']],
- [['i','# Schritt 4 · Planen   ⏸ Plan-Modus: es wird noch nichts verändert'],['plan',['wortliste.txt einlesen (40 Paare)','Karte zeigt Englisch, Klick dreht auf Deutsch','„Nochmal“ und „Gewusst“ sortieren die Karten','Lernstand im Browser speichern']],['u','Passt. Bitte umsetzen.']],
- [['i','# Schritt 5 · Bauen'],['a','Write index.html · 214 Zeilen'],['tree+','└ index.html'],['app','sk'],['a','Karten-Logik und Lernstand ergänzt'],['ok','Gebaut']],
- [['i','# Schritt 6 · Testen'],['a','Öffne index.html im Browser … 40 Karten geladen'],['app','full'],['u','Bei „Gewusst“ kommt dieselbe Karte noch einmal.'],['a','Ursache: Der Kartenzähler wurde nicht erhöht'],['ok','Behoben und erneut getestet']],
- [['i','# Schritt 7 · Nutzen & Teilen'],['app','flip'],['ok','index.html startet per Doppelklick, auch offline'],['i','→ in die Lernplattform hochladen, mit der Klasse teilen']]
+ [['i','# Schritt 3 · Einrichten'],['tree',['Projekt „Vokabeltrainer“','├ Wissen: wortliste.txt','└ Anweisung: Regeln']],['i','Projekt angelegt, Wortliste hochgeladen'],['a','Projektanweisung gelesen · Regeln: Klasse 7, keine Schülerdaten, eine HTML-Datei']],
+ [['i','# Schritt 4 · Planen   Es wird noch nichts gebaut'],['plan',['wortliste.txt einlesen (40 Paare)','Karte zeigt Englisch, Klick dreht auf Deutsch','„Nochmal“ und „Gewusst“ sortieren die Karten','Lernstand im Browser speichern']],['u','Passt. Bitte umsetzen.']],
+ [['i','# Schritt 5 · Bauen'],['a','Erstelle das Ergebnis „Vokabeltrainer“ · 214 Zeilen'],['tree+','└ Ergebnis: vokabeltrainer.html'],['app','sk'],['a','Karten-Logik und Lernstand ergänzt'],['ok','Gebaut']],
+ [['i','# Schritt 6 · Testen'],['a','Öffne die Vorschau … 40 Karten geladen'],['app','full'],['u','Bei „Gewusst“ kommt dieselbe Karte noch einmal.'],['a','Ursache: Der Kartenzähler wurde nicht erhöht'],['ok','Behoben und erneut getestet']],
+ [['i','# Schritt 7 · Nutzen & Teilen'],['app','flip'],['ok','Datei herunterladen: startet per Doppelklick, auch offline'],['i','→ in die Lernplattform hochladen, mit der Klasse teilen']]
 ];
 const DN=['Idee','Beschreiben','Einrichten','Planen','Bauen','Testen','Nutzen'];
 $('dChips').innerHTML='<button class="play" id="dPlay">▶ Demo starten</button>'+DN.map((n,i)=>`<button data-s="${i}">${i+1} · ${n}</button>`).join('');
@@ -623,7 +576,7 @@ async function dDo(a,tk,fast){const [k,x]=a;
  if(k==='plan'){dLine('plan','<b>Plan</b>\n'+x.map((s,i)=>`${i+1}. ${s}`).join('\n'));if(!fast)await dSleep(1600,tk);return}
  if(k==='u'&&!fast){const d=dLine('u cur','');for(let i=1;i<=x.length;i++){if(!await dSleep(26,tk))return;d.textContent=x.slice(0,i);if(i%3===0)tick()}d.classList.remove('cur');await dSleep(700,tk);return}
  dLine(k,x);if(!fast)await dSleep(k==='i'?450:850,tk)}
-function dReset(){$('dTerm').innerHTML='';dTree=[];dTreeDraw();$('dApp').innerHTML='<div>Noch keine Datei</div>';[...$('dChips').children].forEach(b=>b.classList.remove('on','done'))}
+function dReset(){$('dTerm').innerHTML='';dTree=[];dTreeDraw();$('dApp').innerHTML='<div>Noch kein Ergebnis</div>';[...$('dChips').children].forEach(b=>b.classList.remove('on','done'))}
 async function dPlay(from=0,only=false){const tk=++dTok;dReset();
  for(let s=0;s<from;s++){for(const a of DEMO[s])await dDo(a,tk,true);$('dChips').children[s+1].classList.add('done')}
  for(let s=from;s<(only?from+1:DEMO.length);s++){const b=$('dChips').children[s+1];b.classList.add('on');

@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mitbauen in der IDE Vokabeltrainer</title>
+<!--
+  Teil 2 · 10 Mitbauen in der IDE: Vokabeltrainer mit Visual Studio Code und der Claude-Code-Erweiterung.
+  Kopie von teil2-mitbauen.html (Chat/Projekt-Fassung). Das Original und die Chat-Fassung bleiben unverändert.
+  UNGEPRÜFT: Die Bedienung der IDE ist schematisch nachgezeichnet und noch nicht in einer echten Installation abgeglichen
+  (Menünamen, Lage des Claude-Symbols, Berechtigungsabfrage). Jede Schrittseite trägt deshalb den Hinweis „Ungeprüft“.
+  Sicher bekannt: Datei › Ordner öffnen, Explorer, Neue Datei. Alles zur Claude-Code-Erweiterung vor dem Workshop selbst prüfen.
+  Mockups sind vereinfachte Nachzeichnungen ohne Original-Logos.
+-->
+<style>
+:root{--bg:#14006E;--ink:#FFFFFF;--mute:#E6F0FF;--dim:#B4C8FF;--acc:#B4C8FF;--acc2:#E6F0FF;--amber:#B4C8FF;--gold:#F5E6D2;--green:#B4C8FF;--red:#FF968C;--panel:#14006E;--panel2:#3C46AA;--line:#6E82F0;--line2:#3C46AA;--blau:#14006E;--blau80:#3C46AA;--blau60:#6E82F0;--blau40:#B4C8FF;--blau20:#E6F0FF;--grau100:#232328}
+/* Mockups von Claude/ChatGPT behalten ihre eigenen Produktfarben (lokal gesetzt, nur Systemschrift) */
+/* MOCK-ANFANG: lokale Produktfarben */
+.mock,.bm,.dm{--ink:#eef2f8;--mute:#93a1b5;--dim:#5d6b80;--acc:#5b9cff;--acc2:#9cc2ff;--red:#e0643f;--amber:#f2b24c;--green:#4cc9a0;--panel:#101a2b;--panel2:#13203a;--line:rgba(255,255,255,.1)}
+/* MOCK-ENDE */
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#14006E;color:var(--ink);font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;overflow:hidden}
+body.hidecursor{cursor:none}
+canvas#bg{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.mono{font-family:ui-monospace,Consolas,"Courier New",monospace}
+
+/* Kopfzeile wie im Intro */
+.chrome{position:absolute;left:160px;right:160px;top:88px;display:flex;justify-content:space-between;font-size:15px;font-weight:700;color:var(--dim);letter-spacing:5px}
+.chrome b{letter-spacing:1px;font-weight:700}
+.bar{position:absolute;left:160px;width:1600px;top:1042px;height:2px;background:#3C46AA}
+.bar i{display:block;height:100%;background:#B4C8FF;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.hint{position:absolute;left:0;right:0;top:1000px;text-align:center;color:var(--dim);font-size:17px;opacity:0;transition:opacity .8s}
+.hint.on{opacity:1}
+kbd{font:700 13px ui-monospace,Consolas,"Courier New",monospace;border:1px solid var(--line);border-radius:5px;padding:2px 7px;color:var(--mute)}
+
+/* Seiten */
+.page{position:absolute;inset:0;visibility:hidden}
+.page.on{visibility:visible}
+.rise{opacity:0;transform:translateY(26px)}
+.page.on .rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes rise{to{opacity:1;transform:none}}
+.page.out .rise{animation:fall .45s ease forwards}
+@keyframes fall{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-18px)}}
+.kick{font-size:19px;font-weight:700;color:var(--amber);letter-spacing:4px}
+h1{font-size:62px;font-weight:700;letter-spacing:-1px;margin:18px 0 0;line-height:1.1;white-space:nowrap}
+h1 em{font-style:normal;color:var(--acc)}
+.lead{font-size:27px;color:var(--mute);margin-top:18px;max-width:1100px;line-height:1.5}
+.head{position:absolute;left:160px;top:170px}
+
+/* Titelseite */
+.title{position:absolute;left:0;right:0;top:330px;text-align:center}
+.title .kick{letter-spacing:10px;font-size:24px}
+.title h2{font-size:124px;font-weight:700;letter-spacing:-3px;margin:34px 0 0;line-height:1.02}
+.title h2 span{display:inline-block}
+.title h2 .a{color:var(--acc)}
+.title p{font-size:32px;color:var(--mute);margin-top:36px}
+.title .line{width:640px;height:3px;margin:0 auto;background:#F5E6D2;transform:scaleX(0)}
+.page.on .title .line{animation:grow 1.4s cubic-bezier(.2,.8,.2,1) .2s forwards}
+@keyframes grow{to{transform:scaleX(1)}}
+
+/* Kacheln */
+.grid{position:absolute;left:160px;width:1600px;display:grid;gap:24px}
+.tile{position:relative;background:#14006E;border:2px solid #6E82F0;border-radius:8px;padding:26px 28px;cursor:pointer;transition:border-color .25s,background .25s,transform .25s;overflow:hidden}
+
+.tile:hover{border-color:#B4C8FF;background:#3C46AA;transform:translateY(-4px)}
+
+.tile .ic{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:#3C46AA;color:#FFFFFF;margin-bottom:18px}
+.tile .ic svg{width:30px;height:30px}
+.tile .grp{position:absolute;right:24px;top:26px;font-size:13px;font-weight:700;letter-spacing:3px;color:var(--dim)}
+.tile h3{margin:0;font-size:30px;font-weight:700;letter-spacing:-.3px}
+.tile p{margin:8px 0 0;font-size:19px;color:var(--mute);line-height:1.5}
+.tile.c-amber .ic{background:#14006E;color:#F5E6D2;border:2px solid #F5E6D2}
+.tile.c-green .ic{background:#14006E;color:#B4C8FF;border:2px solid #B4C8FF}
+.chip{display:inline-flex;align-items:center;gap:10px;border:2px solid #B4C8FF;background:#14006E;color:#FFFFFF;border-radius:999px;padding:9px 20px;font-size:20px;font-weight:700}
+
+/* Auswahl-Kacheln */
+.pick{padding:44px 48px}
+.pick h3{font-size:64px;font-weight:700;letter-spacing:-1.5px}
+.pick .url{font:700 20px ui-monospace,Consolas,"Courier New",monospace;color:var(--acc2);margin-top:10px}
+.pick ul{margin:26px 0 0;padding:0;list-style:none;font-size:23px;color:#E6F0FF;line-height:1.8}
+.pick ul li::before{content:"● ";color:var(--acc)}
+.pick .key{position:absolute;right:40px;bottom:36px;font-size:18px;color:var(--dim)}
+.pick .key kbd{font-size:17px;padding:4px 11px}
+.pick.sel{border-color:var(--gold)}
+.pick.sel .grp{color:var(--amber)}
+
+/* Umschalter Claude / ChatGPT */
+#tsw{position:absolute;right:160px;top:166px;display:flex;gap:6px;padding:6px;border-radius:999px;background:var(--panel);border:1.5px solid var(--line);opacity:0;pointer-events:none;transition:opacity .5s;z-index:2}
+#tsw.on{opacity:1;pointer-events:auto}
+#tsw button{font:700 18px Arial,"Helvetica Neue",Helvetica,sans-serif;color:var(--mute);background:none;border:0;border-radius:999px;padding:10px 20px;cursor:pointer;display:flex;gap:10px;align-items:center;transition:all .25s}
+#tsw button kbd{font-size:12px}
+#tsw button.on{color:#14006E;background:#F5E6D2}
+#tsw button.on kbd{color:#14006E;border-color:#14006E}
+
+/* MOCK-ANFANG: Produktfarben der nachgebauten Oberflächen von Claude/ChatGPT (kein Hessen-CD) */
+/* ===== Mockup der Oberfläche (links) ===== */
+.mock{position:absolute;left:160px;top:320px;width:1000px;height:640px;background:#0c1422;border:1.5px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.45);overflow:hidden}
+.tbar{display:flex;align-items:center;gap:8px;height:48px;padding:0 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line);font-size:15px;color:var(--dim);font-weight:600;letter-spacing:1px;flex:none}
+.tbar i{width:12px;height:12px;border-radius:50%;background:#2a364b}
+.tbar .url{margin-left:18px;font:400 15px ui-monospace,Consolas,"Courier New",monospace;letter-spacing:0;color:var(--mute);background:rgba(255,255,255,.05);border-radius:8px;padding:5px 16px;width:420px}
+.tbar .tag{margin-left:auto;font-size:13px;letter-spacing:3px;color:var(--dim)}
+.mw{position:absolute;top:48px;left:0;right:0;bottom:0;display:flex;animation:ln .45s ease}
+@keyframes ln{from{opacity:0;transform:translateY(8px)}}
+.ms{width:220px;flex:none;background:rgba(255,255,255,.025);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:3px}
+.mock.cl .ms{background:rgba(242,178,76,.035)}
+.ms .brand{font-weight:700;font-size:19px;padding:4px 10px 14px;color:var(--ink);letter-spacing:-.2px}
+.si{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;font-size:16px;color:#c3cede;white-space:nowrap}
+.si svg{width:18px;height:18px;color:var(--mute);flex:none}
+.si.act{background:rgba(255,255,255,.08);color:var(--ink)}
+.ms .lab{font-size:12px;letter-spacing:2px;color:var(--dim);padding:14px 10px 4px}
+.ph{height:10px;border-radius:5px;background:rgba(255,255,255,.07);margin:10px 10px}
+.ms .usr{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+.mm{flex:1;position:relative;padding:24px 28px;display:flex;flex-direction:column;min-width:0}
+.mm .top{display:flex;align-items:center;gap:12px;min-height:38px}
+.mm .crumb{font-size:14px;color:var(--mute)}
+.mm .pt{font-size:28px;font-weight:700;letter-spacing:-.4px;margin-top:6px;display:flex;align-items:center;gap:12px}
+.mm .pt svg{width:26px;height:26px;color:var(--mute)}
+.mm .sp{margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:9px;border:1px solid rgba(255,255,255,.16);font-size:15px;color:var(--ink);background:rgba(255,255,255,.04);white-space:nowrap}
+.btn svg{width:16px;height:16px}
+.btn.pri{background:var(--ink);color:#07101e;border-color:var(--ink);font-weight:600}
+.btn.ico{padding:8px 9px}
+.inp{border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:14px 14px 12px 18px;background:rgba(255,255,255,.035);font-size:16px;color:var(--mute);display:flex;align-items:flex-end;gap:10px;min-height:92px}
+.inp .tx{flex:1;align-self:flex-start;line-height:1.45}
+.inp .tx.f{color:var(--ink)}
+.inp .tl2{display:flex;gap:8px;align-items:center}
+.ib{width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.16);display:grid;place-items:center;color:var(--mute)}
+.ib svg{width:18px;height:18px}
+.snd{width:36px;height:36px;border-radius:10px;background:var(--ink);color:#07101e;display:grid;place-items:center}
+.snd svg{width:18px;height:18px}
+.cols{display:flex;gap:22px;margin-top:22px;flex:1;min-height:0}
+.cols>.l{flex:1;min-width:0;display:flex;flex-direction:column}
+.cols>.r{width:270px;flex:none;display:flex;flex-direction:column;gap:14px}
+.kcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:15px;background:rgba(255,255,255,.02)}
+.kcard h6{margin:0 0 8px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:space-between;color:var(--ink)}
+.kcard .lk{color:var(--acc2);display:inline-block;padding:2px 0}
+.kcard .mt{color:var(--dim);font-size:14px;line-height:1.4}
+.file{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(76,201,160,.45);border-radius:8px;padding:6px 10px;font:14px ui-monospace,Consolas,"Courier New",monospace;color:var(--green);background:rgba(76,201,160,.06)}
+.file svg{width:15px;height:15px}
+.plus{width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;color:var(--ink)}
+.plus svg{width:16px;height:16px}
+.modal{position:absolute;background:#16233b;border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:20px 22px;box-shadow:0 24px 60px rgba(0,0,0,.65);z-index:3}
+.modal h5{margin:0 0 12px;font-size:19px}
+.modal label{font-size:13px;color:var(--mute);letter-spacing:1px}
+.fld{border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:10px 12px;font-size:15px;color:var(--ink);margin:6px 0 14px;background:rgba(0,0,0,.15)}
+.fld.area{font:13px/1.5 ui-monospace,Consolas,"Courier New",monospace;color:#c3cede;height:150px;overflow:hidden;white-space:pre}
+.modal .row{display:flex;justify-content:flex-end;gap:10px}
+.menu{position:absolute;background:#16233b;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.6);z-index:3}
+.menu .si{font-size:15px}
+.menu hr{border:0;border-top:1px solid var(--line);margin:4px 6px}
+.chats .ph{margin:14px 0}
+.bub{align-self:flex-end;max-width:86%;background:rgba(255,255,255,.07);border-radius:14px;padding:10px 14px;font-size:14.5px;line-height:1.45;color:var(--ink)}
+.ans{font-size:14.5px;color:#c3cede;line-height:1.5;margin-top:14px}
+.achip{border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 14px;display:flex;gap:12px;align-items:center;margin-top:12px;font-size:15px;background:rgba(255,255,255,.03)}
+.achip .ai{width:34px;height:34px;border-radius:8px;background:rgba(91,156,255,.14);color:var(--acc);display:grid;place-items:center}
+.achip .ai svg{width:18px;height:18px}
+.achip small{display:block;color:var(--dim);font-size:13px}
+.mp{width:440px;flex:none;border-left:1px solid var(--line);background:#09111e;display:flex;flex-direction:column}
+.mp .hd{height:52px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600;flex:none}
+.mp .hd .nm{margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:flex;border:1px solid rgba(255,255,255,.16);border-radius:9px;overflow:visible}
+.seg span{padding:6px 12px;font-size:14px;color:var(--mute);position:relative}
+.seg span.on{background:rgba(255,255,255,.1);color:var(--ink);border-radius:8px}
+.mp .bd{flex:1;display:grid;place-items:center;padding:16px}
+.code{font:13px/1.6 ui-monospace,Consolas,"Courier New",monospace;color:#8fa3bf;padding:16px 18px;white-space:pre;align-self:start;justify-self:stretch}
+.code b{color:var(--acc2);font-weight:400}.code i{font-style:normal;color:var(--amber)}
+/* ChatGPT-Desktop-App (Screenshots 11.11.2026): Eingabefeld, Seitenfenster, „App öffnen“ */
+.inp.g{flex-direction:column;align-items:stretch;gap:10px;min-height:0}
+.inp.g .tl2{width:100%}
+.inp.g .gx{font-size:13px;color:var(--mute);white-space:nowrap}
+.inp.g .mdl{margin-left:auto;font-size:13.5px;color:var(--ink);white-space:nowrap}.inp.g .mdl i{font-style:normal;color:var(--mute)}
+.gund{display:flex;gap:18px;font-size:13px;color:var(--mute);padding:8px 16px 0;white-space:nowrap}
+.gund span{display:inline-flex;align-items:center;gap:6px}.gund svg{width:14px;height:14px}
+.cw{display:inline-flex;border-radius:999px;background:rgba(255,255,255,.06);padding:3px;font-size:13.5px}
+.cw span{padding:5px 16px;border-radius:999px;color:var(--mute)}.cw span.on{background:rgba(255,255,255,.12);color:var(--ink)}
+.wk{font-size:13px;color:var(--dim);margin-top:16px}
+.aop{display:inline-flex;align-items:center;gap:6px;color:var(--acc);font-size:14.5px;margin-top:10px;padding:2px 4px}
+.aop svg{width:15px;height:15px}
+.gsp{flex:none;border-left:1px solid var(--line);background:#09111e;padding:14px 12px;display:flex;flex-direction:column;gap:10px}
+.gsp .sec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;background:rgba(255,255,255,.02)}
+.gsp .sec h6{margin:0 0 6px;font-size:13.5px;font-weight:600;display:flex;justify-content:space-between;color:var(--ink)}
+.gsp .sec .mt{color:var(--dim);font-size:12.5px;line-height:1.4}
+.gsp .tabh{display:flex;align-items:center;gap:8px;font-size:13.5px;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:6px 10px;color:var(--ink)}
+.gsp .tabh svg{width:14px;height:14px;color:var(--mute)}
+.gsp .pvb{flex:1;min-height:0;display:grid;place-items:center;overflow:hidden}
+.gsp .pvb>span{transform:scale(.92)}
+.gsp .va{width:296px}.gsp .va .fc,.gsp .va .pb{width:264px}
+.rail{width:46px;flex:none;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 0;background:rgba(0,0,0,.18)}
+.rail .ri{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--mute)}
+.rail .ri svg{width:18px;height:18px}
+.rail .ri.tgt{background:rgba(255,255,255,.08);color:var(--ink)}
+.mock.gp .ms{width:196px}
+.gmenu{position:absolute;left:232px;width:200px;background:#16233b;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.6);z-index:3}
+.gmenu .si{font-size:15px}
+.ptabs{display:flex;gap:6px;margin-top:20px;border-bottom:1px solid var(--line)}
+.ptabs span{padding:8px 14px;font-size:15px;color:var(--mute);position:relative;display:inline-block}
+.ptabs span.on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+
+/* Mini-App im Mockup */
+.va{width:330px;text-align:center;position:relative}
+.va h6{margin:0;font-size:22px;color:var(--ink)}.va small{color:var(--mute);font-size:14px}
+.va .fc{margin:14px auto;width:290px;height:100px;position:relative}
+.va .fc span{position:absolute;inset:0;display:grid;place-items:center;border-radius:14px;font-size:27px;font-weight:700;background:var(--panel2);border:1.5px solid rgba(177,88,237,.5);color:var(--ink)}
+.va .bt{display:flex;gap:10px;justify-content:center}.va .bt i{font-style:normal;font-size:14px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
+.va .bt i+i{border-color:rgba(76,201,160,.6);color:var(--green)}
+.va .pb{margin:14px auto 0;width:290px;height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}.va .pb b{display:block;height:100%;width:30%;background:var(--green)}
+.va .lt{margin-top:8px;font-size:13px;color:var(--mute)}
+.va.sk .fc span,.va.sk .bt i{color:transparent;background:rgba(255,255,255,.05);border-color:transparent}
+.va.sk h6,.va.sk small{color:transparent;background:rgba(255,255,255,.06);border-radius:6px}
+.va.sk .pb b{width:0}
+
+
+/* MOCK-ENDE */
+/* MOCK-ANFANG: Nachzeichnung der IDE, eigene Farben (kein Hessen-CD) */
+.mock.ide{background:#1e1e1e;--ink:#d4d4d4;--mute:#9da1a6;--dim:#7b8088;--line:#3c3c3c}
+.ide .act{width:48px;flex:none;background:#333333;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0}
+.ide .act>span{width:36px;height:36px;display:grid;place-items:center;color:#8b8b8b;border-radius:6px}
+.ide .act>span.on{color:#ffffff}
+.ide .act svg{width:22px;height:22px}
+.ide .ex{width:210px;flex:none;background:#252526;padding:10px 0;font-size:14px;color:#cccccc;display:flex;flex-direction:column}
+.ide .ex .lab{font-size:11px;letter-spacing:1px;padding:4px 16px 8px;color:#bbbbbb}
+.ide .ex .fold{font-weight:700;font-size:12px;padding:4px 12px;display:flex;align-items:center;gap:6px}
+.ide .ex .ic2{margin-left:auto;display:flex;gap:6px}
+.ide .ex .mini svg{width:16px;height:16px;display:block}
+.ide .ex .it{padding:4px 12px 4px 26px;display:flex;align-items:center;gap:8px}
+.ide .ex .it.on{background:#37373d}
+.ide .ex .it svg{width:15px;height:15px;color:#9da1a6}
+.ide .ex .empty{padding:14px 16px;color:#9da1a6;line-height:1.5;font-size:13.5px}
+.ide .ed{flex:1;min-width:0;display:flex;flex-direction:column;background:#1e1e1e}
+.ide .tabs{display:flex;height:36px;background:#252526;flex:none}
+.ide .tab{padding:0 16px;display:flex;align-items:center;font-size:13.5px;color:#ffffff;background:#1e1e1e;border-top:2px solid #007acc}
+.ide .cd{flex:1;overflow:hidden;padding:14px 0;font:13px/1.65 ui-monospace,Consolas,"Courier New",monospace;color:#d4d4d4;white-space:pre}
+.ide .cd div{padding:0 18px}
+.ide .cd .n{color:#6e7681;display:inline-block;width:26px;margin-right:12px;text-align:right}
+.ide .welcome{flex:1;display:grid;place-items:center;text-align:center;color:#9da1a6}
+.ide .cl{width:320px;flex:none;border-left:1px solid #3c3c3c;background:#252526;display:flex;flex-direction:column;padding:12px 14px;gap:10px}
+.ide .hd2{font-size:12px;letter-spacing:1px;color:#bbbbbb;font-weight:700}
+.ide .tool{font:12.5px ui-monospace,Consolas,"Courier New",monospace;color:#4ec9b0;border:1px solid #3c3c3c;border-radius:6px;padding:6px 10px}
+.ide .perm{border:1px solid #007acc;border-radius:8px;padding:10px 12px;font-size:13px;color:#d4d4d4;line-height:1.45}
+/* MOCK-ENDE */
+/* Markierungsring */
+.tgt{position:relative}
+.ring{position:absolute;inset:-7px;border:3px solid var(--gold);border-radius:13px;pointer-events:none;opacity:0;z-index:4;animation:ringIn .5s cubic-bezier(.3,1.6,.5,1) var(--rd,.8s) forwards,pulse 1.8s ease-out calc(var(--rd,.8s) + .5s) infinite}
+.ring::after{content:attr(data-n);position:absolute;right:-17px;top:-17px;width:30px;height:30px;border-radius:50%;background:var(--gold);color:#14006E;font:700 16px Arial,"Helvetica Neue",Helvetica,sans-serif;display:grid;place-items:center}
+@keyframes ringIn{from{opacity:0;transform:scale(1.35)}to{opacity:1;transform:none}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 #F5E6D2}70%{box-shadow:0 0 0 8px #F5E6D2}100%{box-shadow:0 0 0 0 #F5E6D2}}
+
+/* ===== Anleitung (rechts) ===== */
+.guide{position:absolute;left:1200px;top:320px;width:560px;height:640px;display:flex;flex-direction:column}
+.gin{display:flex;flex-direction:column;height:100%;animation:ln .45s ease}
+.gtool{font:700 15px ui-monospace,Consolas,"Courier New",monospace;letter-spacing:2px;color:var(--acc2)}
+.path{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.path span{font-size:17px;font-weight:700;border:1px solid #F5E6D2;color:var(--amber);background:#3C46AA;border-radius:8px;padding:5px 12px}
+.path i{font-style:normal;color:var(--dim);font-size:18px}
+.gtxt{font-size:23px;line-height:1.5;color:var(--ink);margin:18px 0 0}
+.gtxt b{color:var(--amber);font-weight:700}
+.gbox{margin-top:20px;flex:1;min-height:0;display:flex;flex-direction:column}
+.gbox .lb{font-size:14px;letter-spacing:3px;color:var(--amber);font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between}
+.gbox .lb span{color:var(--dim);letter-spacing:1px;font-weight:400}
+.gbox pre{margin:0;flex:1;min-height:0;overflow:auto;padding:18px 22px;border-radius:8px;background:#232328;border:1px solid var(--line);font:400 17px/1.55 ui-monospace,Consolas,"Courier New",monospace;color:var(--acc2);white-space:pre-wrap}
+.gbox pre em{font-style:normal;color:var(--amber)}
+.gbtn{display:flex;gap:12px;margin-top:14px;align-items:center;flex-wrap:wrap}
+.cp{font:700 17px Arial,"Helvetica Neue",Helvetica,sans-serif;color:#14006E;background:var(--ink);border:0;border-radius:999px;padding:11px 22px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.cp svg{width:18px;height:18px}
+.cp.ok{background:var(--blau40)}
+.cp.sec{background:none;color:var(--ink);border:1.5px solid #6E82F0}
+.cp.sec.ok{background:var(--blau40);color:#14006E;border-color:var(--blau40)}
+.alt{margin-left:auto;font:400 16px Arial,"Helvetica Neue",Helvetica,sans-serif;color:var(--mute);background:none;border:0;cursor:pointer;text-decoration:underline;text-decoration-color:#B4C8FF;text-underline-offset:4px;padding:6px 0}
+.alt:hover{color:var(--ink)}
+.note{margin-top:20px;border:1px solid var(--line);border-radius:8px;padding:18px 22px;background:#3C46AA}
+.note b{display:block;font-size:14px;letter-spacing:3px;color:var(--amber);margin-bottom:8px}
+.note div{font-size:20px;line-height:1.5;color:#E6F0FF}
+.note b.in{display:inline;letter-spacing:0;color:var(--ink);font-size:inherit;margin:0;font-weight:700}
+.unchk{margin-top:12px;font-size:18px;font-weight:700;color:var(--amber)}
+.ttab{width:100%;border-collapse:collapse;margin-top:26px;font-size:22px}
+.ttab td{padding:9px 14px;border-bottom:1px solid var(--line);color:#E6F0FF}.ttab td:first-child{color:var(--ink);font-weight:700;width:42%}
+#card pre.mc{margin:24px 0 0;max-height:440px;overflow:auto;padding:18px 22px;border-radius:8px;background:#232328;border:1px solid var(--line);font:400 18px/1.5 ui-monospace,Consolas,"Courier New",monospace;color:var(--acc2);white-space:pre-wrap;user-select:text}
+#nav{position:absolute;right:160px;top:990px;display:flex;gap:10px;z-index:2}
+#nav button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--mute);font:700 20px Arial,"Helvetica Neue",Helvetica,sans-serif;cursor:pointer}
+#nav button:hover{color:var(--ink);border-color:#F5E6D2}
+
+/* Detail-Karte */
+#veil{position:absolute;inset:0;background:#14006E;opacity:0;pointer-events:none;transition:opacity .35s;z-index:6}
+#veil.on{opacity:1;pointer-events:auto}
+#card{position:absolute;left:310px;top:190px;width:1300px;min-height:520px;background:#14006E;border:1.5px solid #B4C8FF;border-radius:8px;padding:56px 64px 52px;opacity:0;pointer-events:none;transform-origin:0 0;z-index:7}
+#card.on{pointer-events:auto}
+#card .x{position:absolute;right:28px;top:26px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--mute);font-size:22px;cursor:pointer}
+#card .x:hover{color:var(--ink);border-color:var(--acc)}
+#card .top{display:flex;gap:26px;align-items:center}
+#card .ic{width:84px;height:84px;border-radius:20px;display:grid;place-items:center;background:#3C46AA;color:var(--acc);flex:none}
+#card .ic svg{width:46px;height:46px}
+#card h2{margin:6px 0 0;font-size:52px;font-weight:700;letter-spacing:-1px}
+#card .def{font-size:29px;line-height:1.5;margin:30px 0 0;color:var(--ink);max-width:1120px}
+#card .boxes{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px}
+#card .box{border:1px solid var(--line);border-radius:8px;padding:22px 26px;background:#3C46AA}
+#card .box b{display:block;font-size:15px;letter-spacing:3px;color:var(--amber);margin-bottom:10px}
+#card .box div{font-size:22px;line-height:1.5;color:#E6F0FF}
+#card .fx>*{opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s}
+#card.show .fx>*{opacity:1;transform:none}
+#card.show .fx>*:nth-child(2){transition-delay:.06s}#card.show .fx>*:nth-child(3){transition-delay:.12s}
+
+/* Startbildschirm */
+#start{position:fixed;inset:0;display:grid;place-items:center;background:#14006E;z-index:5;transition:opacity .6s}
+#start.gone{opacity:0;pointer-events:none}
+#start .c{text-align:center;max-width:760px;padding:24px}
+#start .k{letter-spacing:.32em;font-size:14px;font-weight:700;color:var(--amber)}
+#start h1{font-size:clamp(38px,6vw,68px);margin:14px 0 8px;font-weight:700;letter-spacing:-.02em;white-space:normal}
+#start p{color:var(--mute);font-size:18px;margin:0 0 30px}
+#start button{font:700 18px Arial,"Helvetica Neue",Helvetica,sans-serif;color:#14006E;background:var(--ink);border:0;border-radius:999px;padding:16px 34px;cursor:pointer}
+#start .keys{margin-top:34px;color:var(--dim);font-size:14px;line-height:2}
+
+/* Hessen-CD 2026: Typografie, Fokus, Zustände (flach, ohne Verlauf, ohne Transparenz) */
+h1,.title h2,.tile h3,.node h4,.pick h3,#card h2,#hc h2,#start h1,.vs span,#card .cmp .side h5{font-weight:700;text-transform:uppercase;letter-spacing:0;line-height:1}
+h1{font-size:56px}
+:focus-visible{outline:2px solid #FFFFFF;outline-offset:2px}
+a{text-decoration:underline;text-underline-offset:4px}
+.chips button:hover,#nav button:hover,.sv .tg button:hover,#tsw button:hover,#card .x:hover,#hc .x:hover{background:#3C46AA;color:#FFFFFF;border-color:#B4C8FF}
+.chips button.on:hover,#tsw button.on:hover,.sv .tg button.on:hover{background:#F5E6D2;color:#14006E}
+.chips button.done::before{content:"\2713\00a0"}
+.pair:hover{background:#3C46AA}
+.pick.sel{border-color:#F5E6D2;outline:3px solid #F5E6D2;outline-offset:3px}
+.cta{text-decoration:underline;text-underline-offset:6px}
+.cta:hover{background:#E6F0FF}
+.pair.warn{background:#14006E}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="stage">
+  <div class="chrome"><span>LANDESFACHTAG 2026</span><b>Vom Chat zum Code</b></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="hint" id="hint"></div>
+  <div id="nav"><button id="nPrev" aria-label="Zurück" title="Zurück">‹</button><button id="nNext" aria-label="Weiter" title="Weiter">›</button></div>
+
+  <!-- 0 · Titel -->
+  <section class="page" data-hint="&lt;kbd&gt;→&lt;/kbd&gt; weiter">
+    <div class="title">
+      <!-- PLATZHALTER Absender/Marke: Hier erst die offizielle, freigegebene Logo-Datei der Hessischen Lehrkräfteakademie (SVG, Negativ-Version) einsetzen; nicht nachbauen. Siehe design/hessen-umsetzung.md -->
+      <div class="kick rise" style="--d:.1s">10 · MITBAUEN IN DER IDE</div>
+      <h2><span class="rise" style="--d:.35s">Jetzt&nbsp;</span><span class="rise" style="--d:.5s">bauen&nbsp;</span><span class="rise a" style="--d:.65s">wir&nbsp;mit.</span></h2>
+      <div class="line" style="margin-top:40px"></div>
+      <p class="rise" style="--d:1s">Der Vokabeltrainer für die 7. Klasse, Schritt für Schritt in VS Code mit Claude Code</p>
+    </div>
+  </section>
+
+  <!-- 1 · Auswahl -->
+  <section class="page" id="pPick" data-hint="Kachel anklicken oder &lt;kbd&gt;→&lt;/kbd&gt; weiter">
+    <div class="head">
+      <div class="kick rise">10 · MITBAUEN IN DER IDE</div>
+      <h1 class="rise" style="--d:.12s">Was <em>brauchen Sie?</em></h1>
+    </div>
+    <div class="grid" id="gPick" style="top:350px;grid-template-columns:1fr;grid-auto-rows:400px"></div>
+    <div class="lead rise" style="--d:.7s;position:absolute;left:160px;top:820px;font-size:23px;max-width:1600px;line-height:1.4"><b style="color:var(--amber);font-weight:600">Vorher erledigen:</b> Visual Studio Code installieren, die Erweiterung Claude Code hinzufügen und anmelden. Prüfen Sie vorab, ob Ihr Zugang Claude Code einschließt. Nur Beispieldaten, keine Schülerdaten. Mit Privatkonto nicht dienstlich arbeiten. <b style="color:var(--amber);font-weight:600">Tipp:</b> VS Code in einem zweiten Fenster neben dieser Präsentation öffnen, wechseln mit <kbd>Alt</kbd>+<kbd>Tab</kbd>.</div>
+  </section>
+
+  <!-- 2–8 · Schritte (werden per Skript gefüllt) -->
+  <section class="page step" data-s="0"></section>
+  <section class="page step" data-s="1"></section>
+  <section class="page step" data-s="2"></section>
+  <section class="page step" data-s="3"></section>
+  <section class="page step" data-s="4"></section>
+  <section class="page step" data-s="5"></section>
+  <section class="page step" data-s="6"></section>
+
+  <!-- 9 · Geschafft -->
+  <section class="page" id="pDone" data-hint="&lt;kbd&gt;←&lt;/kbd&gt; zurück &nbsp;·&nbsp; &lt;kbd&gt;Pos1&lt;/kbd&gt; zum Anfang">
+    <div class="head">
+      <div class="kick rise">10 · MITBAUEN IN DER IDE</div>
+      <h1 class="rise" style="--d:.12s">Geschafft. <em>Ihre App läuft.</em></h1>
+      <div class="lead rise" style="--d:.25s">Bevor sie in den Unterricht geht, drei Dinge, die immer gelten:</div>
+    </div>
+    <div class="grid" style="top:440px;grid-template-columns:repeat(3,1fr);grid-auto-rows:350px" id="gDone"></div>
+    <div class="rise" style="--d:1s;position:absolute;left:160px;top:830px"><span class="chip">● Nächster Schritt: Ihre eigene App-Idee in drei Sätzen aufschreiben und wieder bei Schritt 1 starten</span></div>
+  </section>
+
+  <div id="veil"></div>
+  <div id="card"><button class="x" id="cx" aria-label="Schließen">✕</button><div id="cbody"></div></div>
+</div>
+
+<div id="start"><div class="c">
+  <div class="k">LANDESFACHTAG 2026 · TEIL 2</div>
+  <h1>Mitbauen in der IDE: Vokabeltrainer</h1>
+  <p>Live in VS Code mit Claude Code · Prompts kopieren, einfügen, ausprobieren</p>
+  <p style="margin-top:-14px">Tipp: Öffnen Sie VS Code in einem zweiten Fenster daneben und wechseln Sie mit Alt+Tab. Vollbild beenden: Taste F oder Esc.</p>
+  <button id="go">▶&nbsp; Starten</button>
+  <div class="keys"><kbd>→</kbd> <kbd>←</kbd> oder Präsenter: Seite vor/zurück &nbsp; <kbd>Esc</kbd> Karte schließen<br><kbd>F</kbd> Vollbild &nbsp; <kbd>M</kbd> Klänge aus/an &nbsp; <kbd>Pos1</kbd> Anfang</div>
+</div></div>
+
+<script>
+/* ============ Symbole (Linien-Icons) ============ */
+const P={
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ folder:'<path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+ search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+ send:'<path d="M12 19V5M6 11l6-6 6 6"/>',
+ dots:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+ dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+ share:'<path d="M12 15V4M7 9l5-5 5 5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/>',
+ copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+ file:'<path d="M6 2.5h8l4 4V21a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 21z"/><path d="M14 2.5v4h4"/>',
+ code:'<path d="m8 9-4 3 4 3M16 9l4 3-4 3M13.5 6l-3 12"/>',
+ who:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ lock:'<rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5M12 14.5v2"/>',
+ rule:'<path d="M12 2.5 4 6v6c0 4.5 3.4 8 8 9.5 4.6-1.5 8-5 8-9.5V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
+ test:'<path d="M9 3h6M10 3v6l-5.5 9.5A1.6 1.6 0 0 0 5.9 21h12.2a1.6 1.6 0 0 0 1.4-2.5L14 9V3"/><path d="M7.5 15h9"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17v.5"/>',
+ spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+ clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+ sliders:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+ layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+ lib:'<path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="m16 5 3.5-1 2.5 15-3.5 1z"/>',
+ plug:'<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v5"/>'
+};
+const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${P[k]}</svg>`;
+const $=id=>document.getElementById(id);
+
+/* ============ Texte zum Kopieren ============ */
+const WORDS=`the forest;der Wald
+the river;der Fluss
+the mountain;der Berg
+the island;die Insel
+the weather;das Wetter
+the journey;die Reise
+the map;die Landkarte
+to climb;klettern
+to explore;erkunden
+dangerous;gefährlich`;
+
+const RULES=`# Projekt: Vokabeltrainer Englisch
+## Zielgruppe
+Klasse 7, Englisch, Wörter aus wortliste.txt
+## Regeln
+- Die App ist eine einzige HTML-Datei mit HTML, CSS und JavaScript. Kein React, keine Bibliotheken, keine Schriften oder Bilder aus dem Internet. Sie läuft per Doppelklick offline.
+- Keine Anmeldung, keine Online-Speicherung, keine Schülerdaten.
+- Lernstand mit localStorage unter dem Namen „vokabeltrainer-englisch-7“ speichern, in try/catch. Fehlt localStorage, läuft die App ohne Speichern weiter und sagt das kurz.
+- Oberfläche auf Deutsch, einfache Sprache, große Knöpfe, gut lesbar auf dem Tablet.
+- Vor dem ersten Bauen: erst einen Plan zeigen und auf mein OK warten. Kleine Korrekturen danach direkt umsetzen.`;
+
+const PLAN=`Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts.
+Nutze die Wörter aus wortliste.txt.
+Zeig mir kurz:
+- welche Bildschirme es gibt
+- wie eine Übungsrunde abläuft
+- wie der Lernstand angezeigt wird
+- welche Fragen du an mich hast (höchstens drei)`;
+
+/* Antworthilfe für die Rückfragen nach dem Plan (Profi-Test, Befund 7) */
+const ANSWER=`Englisch vorne, Deutsch hinten. Reihenfolge zufällig.
+„Nochmal“-Karten kommen in derselben Runde später wieder.
+Die Runde endet, wenn alle Karten gewusst sind. Keine Punkte, nur Lernstand und Fortschrittsbalken.`;
+
+/* Kartenlogik ausdrücklich festgelegt (ChatGPT-Prüfung: BAUANLEITUNG.md). Für beide Werkzeuge gleich, nur die letzte Zeile unterscheidet sich. */
+const LOGIC=`So soll er funktionieren:
+- Vorne Englisch, nach „Umdrehen“ Deutsch.
+- „Gewusst“ und „Nochmal“ erst nach dem Umdrehen.
+- „Gewusst“ nimmt die Karte aus der Runde, der Fortschritt steigt um eins.
+- „Nochmal“ stellt die Karte hinten an, der Fortschritt bleibt.
+- Fortschritt: gewusste Wörter von allen, z. B. 3/10, mit Balken.
+- Sind alle gewusst, erscheint „Geschafft“. Ist nur noch eine Karte offen, darf sie nach „Nochmal“ sofort wiederkommen.
+- „Neu starten“ fragt nach und beginnt bei 0. Abbrechen behält den Lernstand.`;
+const BUILD=`Der Plan passt. Baue jetzt den Vokabeltrainer als eine einzige Datei vokabeltrainer.html in diesem Ordner (kein React, keine Bibliotheken).
+Lies die Wörter aus wortliste.txt und baue sie fest in die Datei ein.
+${LOGIC}
+Halte dich an die Regeln in CLAUDE.md.
+Sag mir danach in zwei Sätzen, wie ich die Datei öffne und was ich prüfen soll.`;
+
+/* Platzhalter statt Beispielfehler: Wer nur kopiert, meldet sonst einen Fehler, den es nicht gibt (Test-Befunde A-20, P-4) */
+const BUG=`Ich teste <em>[die Datei vokabeltrainer.html im Browser]</em>.
+Ich habe <em>[was ich getan habe]</em>.
+Passiert ist <em>[was ich sehe]</em>.
+Erwartet hatte ich <em>[Soll-Ergebnis aus der Prüfliste]</em>.
+Finde die Ursache, behebe sie in der Datei, teste, wenn du kannst, und sag mir in einem Satz, was du geändert hast.`;
+
+const FINAL=`Prüfe vokabeltrainer.html: Lädt die Datei irgendetwas aus dem Internet (Schriften, Bibliotheken, Bilder)?
+Zeig mir die Fundstellen. Ändere noch nichts ohne mein OK.`;
+
+/* MOCK-ANFANG: Produktfarben der nachgebauten Oberflächen (kein Hessen-CD) */
+/* ============ Mockup-Bausteine ============ */
+let RN=0;                                   /* fortlaufende Verzögerung der Ringe */
+const R=n=>n?`<span class="ring" data-n="${n}" style="--rd:${.75+n*.45}s"></span>`:'';
+const mi=k=>svg(k);
+const si=(lbl,ic,ring,act)=>`<div class="si${act?' act':''}${ring?' tgt':''}">${ic?mi(ic):''}<span>${lbl}</span>${R(ring)}</div>`;
+const T=(html,ring,cls='',st='')=>`<span class="${cls}${ring?' tgt':''}" style="${st}">${html}${R(ring)}</span>`;
+function win(url,tool,inner,unchk){return `<div class="tbar"><i></i><i></i><i></i><span class="url">${url}</span><span class="tag"${unchk?' style="color:var(--amber)"':''}>${unchk?'SCHEMATISCH · UNGEPRÜFT':'VEREINFACHTE DARSTELLUNG'}</span></div><div class="mw">${inner}</div>`}
+function app(mode){return `<div class="va ${mode==='sk'?'sk':''}"><h6>Vokabeltrainer</h6><small>Englisch · Klasse 7</small><div class="fc"><span>the forest</span></div><div class="bt"><i>Nochmal</i><i>Gewusst ✓</i></div><div class="pb"><b></b></div><div class="lt">Lernstand 3 / 10</div></div>`}
+const ph=w=>`<div class="ph" style="width:${w}%"></div>`;
+
+/* ---------- Visual Studio Code mit Claude-Code-Erweiterung (schematisch, ungeprüft) ---------- */
+const FILE_I=n=>mi(n.endsWith('.html')?'code':'file');
+function ide(o={}){
+ const fr=o.fr||{};
+ const items=(o.files||[]).map(n=>T(`<div class="it${o.tab===n?' on':''}">${FILE_I(n)}${n}</div>`,fr[n],'','display:block')).join('');
+ const ex=o.files&&o.files.length
+  ?`<div class="ex"><div class="lab">EXPLORER</div><div class="fold">▾ VOKABELTRAINER<span class="ic2">${T(`<span class="mini">${mi('plus')}</span>`,o.nf,'','display:inline-block;border-radius:6px')}</span></div>${items}</div>`
+  :`<div class="ex"><div class="lab">EXPLORER</div><div class="empty">Sie haben noch keinen Ordner geöffnet.<br>${T('<span class="btn pri">Ordner öffnen</span>',o.open,'','display:inline-block;border-radius:9px;margin-top:14px')}</div></div>`;
+ const code=o.code
+  ?`<div class="tabs"><span class="tab on">${o.tab}</span></div><div class="cd">${o.code.map((l,i)=>`<div><span class="n">${i+1}</span>${esc(l)}</div>`).join('')}</div>`
+  :`<div class="welcome"><div><div style="font-size:26px;color:#d4d4d4;margin-bottom:10px">Visual Studio Code</div><div style="font-size:15px">Datei › Ordner öffnen …</div></div></div>`;
+ const p=o.panel;
+ const panel=p?`<div class="cl"><div class="hd2">CLAUDE CODE</div>
+  ${p.u?`<div class="bub">${p.u}</div>`:''}${p.a?`<div class="ans">${p.a}</div>`:''}${p.tool?`<div class="tool">${p.tool}</div>`:''}
+  ${p.perm?T(`<div class="perm">Claude möchte die Datei <b>vokabeltrainer.html</b> anlegen.<div style="margin-top:8px;display:flex;gap:8px"><span class="btn">Ablehnen</span><span class="btn pri">Erlauben</span></div></div>`,p.perm,'','display:block;border-radius:8px'):''}
+  <div style="flex:1"></div>
+  ${T(`<div class="inp" style="min-height:70px"><div class="tx${p.txt?' f':''}">${p.txt||'Frage Claude …'}</div><div class="tl2">${T(`<span class="snd">${mi('send')}</span>`,p.snd,'','display:inline-block;border-radius:10px')}</div></div>`,p.inp,'','display:block;border-radius:16px')}</div>`:'';
+ return `<div class="act"><span class="on">${mi('file')}</span><span>${mi('search')}</span><span>${mi('code')}</span>${T(`<span style="display:grid">${mi('spark')}</span>`,o.ci,'','display:block;border-radius:8px')}</div>${ex}<div class="ed">${code}</div>${panel}`}
+
+/* MOCK-ENDE */
+/* ============ Schritte ============ */
+/* Korrekturen nach Anfänger-Test (A-…), Profi-Test (P-…) und ChatGPT-Prüfung der Kursleitung (Pruefung-ChatGPT-2026-11-11), siehe design/tests/umsetzung-testbefunde.md.
+   ChatGPT: Referenz ist die Desktop-App im Zustand „Work“ wie auf den Screenshots. Projektanlage, „Quellen › Hinzufügen“ und Projekteinstellungen sind NICHT fotografiert:
+   UNSICHER, deshalb sichtbar als ungeprüft markiert (chk) und mit Ersatzweg in einem Chat (FALLBACK). */
+const UNCHK='Ungeprüft: vor dem Workshop in der eigenen Installation prüfen';
+const STEPS=[
+ {h:'Den Ordner <em>öffnen.</em>',
+  C:{path:['VS Code','Datei','Ordner öffnen …','vokabeltrainer'],chk:1,
+     txt:'Legen Sie im Explorer Ihres Rechners einen leeren Ordner <b>vokabeltrainer</b> an, zum Beispiel unter Dokumente. Öffnen Sie dann in VS Code <b>Datei</b> › <b>Ordner öffnen …</b> und wählen Sie ihn aus. Ein Projekt in der IDE ist ein Ordner.',
+     mock:()=>ide({open:1}),
+     note:['VORAB PRÜFEN','VS Code ist installiert, die Erweiterung <b class="in">Claude Code</b> ist hinzugefügt und Sie sind angemeldet. Fragt VS Code, ob Sie dem Ordner vertrauen, bestätigen Sie das für Ihren eigenen Übungsordner.'],
+     alt:['Ordner öffnen fehlt?','Öffnen Sie VS Code neu und ziehen Sie den Ordner per Maus in das Fenster. Oder: Strg+K, dann Strg+O.','Kontrolle: Oben im Explorer steht der Ordnername VOKABELTRAINER.','Arbeiten Sie nur mit Übungsordnern, die keine Dateien mit Schülerdaten enthalten.']}},
+ {h:'Die Wortliste <em>ablegen.</em>',words:1,
+  C:{path:['Explorer','Neue Datei','wortliste.txt'],chk:1,
+     txt:'Klicken Sie unten auf <b>Als .txt herunterladen</b> und ziehen Sie die Datei aus Downloads in den Explorer von VS Code. Oder: <b>Neue Datei</b>, Name <b>wortliste.txt</b>, Inhalt einfügen.',
+     mock:()=>ide({files:['wortliste.txt'],tab:'wortliste.txt',nf:1,fr:{'wortliste.txt':2},code:WORDS.split('\n')}),
+     alt:['Die Datei erscheint nicht?','Prüfen Sie, ob die Datei wirklich im Ordner liegt (Rechtsklick › Im Datei-Explorer anzeigen). Heißt sie wortliste.txt.txt, benennen Sie sie um.','Kontrolle: Der Explorer zeigt wortliste.txt, im Editor stehen zehn Zeilen englisch;deutsch.','Später ersetzen Sie die Liste durch Ihre Unit-Wörter, im selben Format. Keine Namen oder Noten.']}},
+ {h:'Die Regeln <em>festlegen.</em>',prompt:()=>RULES,plab:'CLAUDE.md',
+  C:{path:['Explorer','Neue Datei','CLAUDE.md','Einfügen','Speichern'],chk:1,
+     txt:'Legen Sie mit <b>Neue Datei</b> die Datei <b>CLAUDE.md</b> an. Unten auf <b>Kopieren</b>, in die Datei klicken, <b>Strg+V</b> (Mac: Cmd+V), dann <b>Strg+S</b>. Claude Code liest diese Datei in diesem Ordner zu Beginn jeder Sitzung.',
+     mock:()=>ide({files:['wortliste.txt','CLAUDE.md'],tab:'CLAUDE.md',nf:1,fr:{'CLAUDE.md':2},code:RULES.split('\n').slice(0,9)}),
+     alt:['Wozu CLAUDE.md?','Die Datei ist das Gedächtnis des Projekts: Regeln, die ab jetzt in jeder Sitzung in diesem Ordner gelten.','Die Offline-Regel verhindert, dass die App Schriften oder Bibliotheken aus dem Internet lädt.','Wenige, klare Regeln wirken besser als viele. Datenschutz gehört immer hinein.']}},
+ {h:'Erst <em>planen lassen.</em>',prompt:()=>PLAN,plab:'PROMPT',x:['Antworthilfe kopieren',()=>ANSWER],
+  C:{path:['Claude-Symbol','Eingabefeld','Senden'],chk:1,
+     txt:'Öffnen Sie Claude Code über das Claude-Symbol (Lage je nach Version). Kopieren Sie den Prompt in das Eingabefeld und senden Sie ihn. Rückfragen beantworten Sie mit der <b>Antworthilfe</b> oder: „Entscheide du, halte es einfach.“',
+     mock:()=>ide({files:['wortliste.txt','CLAUDE.md'],tab:'CLAUDE.md',ci:1,code:RULES.split('\n').slice(0,9),panel:{txt:'Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts …',inp:2,snd:3,a:'Ich habe CLAUDE.md und wortliste.txt gelesen. Mein Plan:'}}),
+     alt:['Das Claude-Symbol fehlt?','Öffnen Sie die Befehlspalette mit Strg+Umschalt+P und suchen Sie nach „Claude“. Prüfen Sie unter Erweiterungen, ob Claude Code installiert und angemeldet ist.','Zusätzlich gibt es einen Planmodus, in dem Claude nur plant und nichts verändert. Wo Sie ihn schalten, hängt von der Version ab. Der Satz „Baue noch nichts“ im Prompt genügt für den Anfang.','Lesen Sie den Plan, bevor Sie weitermachen. Einen Plan ändern Sie mit einem Satz.']}},
+ {h:'Jetzt <em>bauen lassen.</em>',prompt:()=>BUILD,plab:'PROMPT',pnote:'Kleine App: ein Auftrag reicht',
+  C:{path:['Eingabefeld','Senden','Erlauben'],chk:1,
+     txt:'Senden Sie den Bau-Auftrag. Claude Code fragt vor dem Anlegen einer Datei um Erlaubnis. Lesen Sie, was angelegt wird, und klicken Sie auf <b>Erlauben</b>. Danach erscheint <b>vokabeltrainer.html</b> im Explorer.',
+     mock:()=>ide({files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],tab:'CLAUDE.md',code:RULES.split('\n').slice(0,9),panel:{u:'Der Plan passt. Baue jetzt den Vokabeltrainer …',tool:'Write vokabeltrainer.html',perm:1,txt:'',inp:0}}),
+     alt:['Es wird nichts angelegt?','Sagen Sie: „Lege die Datei vokabeltrainer.html in diesem Ordner an.“ Prüfen Sie, ob der richtige Ordner geöffnet ist.','Fragt Claude bei jedem Schritt, ist das gewollt. Bestätigen Sie nur, was Sie verstehen.','Für diese kleine App reicht im Workshop ein Auftrag. Größere Apps bauen Sie im Alltag Schritt für Schritt.']}},
+ {h:'Testen und <em>Fehler melden.</em>',prompt:()=>BUG,plab:'PROMPT-MUSTER',pnote:'[Klammern] selbst ausfüllen',x:['Prüfliste',null,'test'],
+  C:{path:['Explorer','vokabeltrainer.html','Im Browser öffnen'],chk:1,
+     txt:'Öffnen Sie die Datei im Browser: im Datei-Explorer Ihres Rechners Doppelklick auf <b>vokabeltrainer.html</b>. Testen Sie mit der <b>Prüfliste</b> (Knopf unten). Fehler melden: Muster kopieren, einfügen, Teile in [Klammern] ersetzen.',
+     mock:()=>ide({files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],tab:'vokabeltrainer.html',fr:{'vokabeltrainer.html':1},code:['<!doctype html>','<html lang="de">','<head><meta charset="utf-8">','<title>Vokabeltrainer</title>','<style>…</style>','</head>','<body>','  <div id="karte">…</div>'],panel:{a:'Fertig. Öffne vokabeltrainer.html im Browser und sag mir, was nicht passt.',txt:'Ich teste die Datei im Browser. Ich habe auf „Gewusst“ geklickt …',inp:2}}),
+     alt:['Kein Fehler gefunden?','Gut so, weiter zum letzten Schritt. Oder lassen Sie selbst prüfen: „Alles funktioniert. Prüfe noch einmal Umdrehen, Nochmal, Gewusst und Neu starten.“','Immer nur einen Fehler pro Nachricht melden. Beispiel: „Ich habe auf ‚Gewusst‘ geklickt. Passiert ist: dieselbe Karte kommt wieder.“','Öffnet sich ein Editor statt des Browsers: Rechtsklick › Öffnen mit › Edge oder Chrome.']}},
+ {h:'Prüfen <em>und teilen.</em>',prompt:()=>FINAL,plab:'PRÜFAUFTRAG',
+  C:{path:['Claude Code','Eingabefeld','Senden'],chk:1,
+     txt:'Die Datei liegt bereits in Ihrem Ordner. Lassen Sie prüfen, ob sie etwas aus dem Internet lädt, und testen Sie sie ohne WLAN. Zur Klasse am einfachsten über die Lernplattform.',
+     mock:()=>ide({files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],tab:'vokabeltrainer.html',code:['<!doctype html>','<html lang="de">','<head><meta charset="utf-8">','<title>Vokabeltrainer</title>','…'],panel:{u:'Prüfe vokabeltrainer.html: Lädt die Datei irgendetwas aus dem Internet?',a:'Nein. Alle Schriften, Skripte und Daten stehen in der Datei selbst.',inp:0,txt:''}}),
+     alt:['Es werden Fundstellen gemeldet?','Lassen Sie diese Stellen ersetzen: „Entferne alle Einbindungen aus dem Internet. Die App muss offline laufen.“ Danach noch einmal prüfen.','Zur Klasse am einfachsten über die Lernplattform. Auf dem iPad läuft die Datei meist nur über die Lernplattform im Browser.','Die Datei weitergeben, nicht den Ordner mit CLAUDE.md. Vorher Datenschutz und Barrierefreiheit prüfen.']}}
+];
+/* Prüfliste mit Soll-Ergebnissen (BAUANLEITUNG.md, kompakt) */
+const TESTS=[['Neue Runde öffnen','Fortschritt 0/10, englisches Wort sichtbar'],['Karte umdrehen','„the forest“ zeigt „der Wald“'],['„Nochmal“','Fortschritt bleibt, Karte kommt später wieder'],['Umdrehen, „Gewusst“','Fortschritt +1, nächste Karte'],['Alle gewusst','„Geschafft“ bei 10/10'],['„Neu starten“ abbrechen','Lernstand bleibt'],['„Neu starten“ bestätigen','Neue Runde bei 0/10'],['Datei ohne Internet','Alles funktioniert offline']];
+const DONE=[
+ {ic:'lock',t:'Keine Schülerdaten',s:'Keine Namen, Noten oder Texte von Lernenden in KI-Werkzeuge eingeben.',e:'Beispieldaten und Wortlisten sind in Ordnung.'},
+ {ic:'rule',t:'Freigegebene Werkzeuge',s:'Für dienstliche Zwecke die vom Land oder Schulträger freigegebenen Werkzeuge nutzen.',e:'Mit Privatkonto nur Beispieldaten. Training mit Ihren Chats in den Einstellungen ausschalten.'},
+ {ic:'test',t:'Selbst prüfen',s:'Inhalte, Bedienung und Barrierefreiheit testen, bevor die App in die Klasse geht.',e:'Die Verantwortung bleibt bei Ihnen, nicht bei der KI.'}
+];
+const TOOLS={
+ C:{n:'VS Code + Claude Code',url:'IDE · Visual Studio Code · ungeprüft',f:['Ein Ordner statt eines Projekts im Chat','CLAUDE.md legt die Regeln fest','Claude Code legt die Datei im Ordner an']}
+};
+
+/* ============ Aufbau ============ */
+const TOOL='C';
+
+$('gPick').innerHTML=['C'].map((k,i)=>`<div class="tile pick rise" data-t="${k}" style="--d:${.25+i*.12}s"><span class="grp">IDE-VARIANTE</span><h3>${TOOLS[k].n}</h3><div class="url">${TOOLS[k].url}</div><ul>${TOOLS[k].f.map(x=>`<li>${x}</li>`).join('')}</ul><div class="key">Klick oder <kbd>→</kbd></div></div>`).join('');
+[...$('gPick').children].forEach(el=>{el.onclick=()=>{setTool(el.dataset.t);go(cur+1)};el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')})});
+$('gDone').innerHTML=DONE.map((o,i)=>`<div class="tile rise c-green" style="--d:${.4+i*.15}s;cursor:default"><div class="ic">${svg(o.ic)}</div><h3 style="font-size:34px">${o.t}</h3><p style="font-size:22px">${o.s}</p><p style="margin-top:20px;font-size:20px;color:var(--acc2)">${o.e}</p></div>`).join('');
+
+const STEP_PAGES=[...document.querySelectorAll('.page.step')];
+const HINT_CP='<b>Kopieren</b> › ins Zielfeld klicken › <kbd>Strg</kbd>+<kbd>V</kbd> &nbsp;·&nbsp; <kbd>→</kbd> weiter';
+STEP_PAGES.forEach((pg,i)=>{
+ pg.dataset.hint=STEPS[i].prompt||STEPS[i].words?HINT_CP:'<kbd>→</kbd> weiter';
+ pg.innerHTML=`<div class="head"><div class="kick rise">10 · MITBAUEN IN DER IDE · SCHRITT ${i+1} VON ${STEPS.length}</div><h1 class="rise" style="--d:.12s">${STEPS[i].h}</h1></div>
+ <div class="mock rise" style="--d:.3s"></div><div class="guide rise" style="--d:.45s"></div>`;
+});
+const copyIc=svg('copy'),dlIc=svg('dl'),helpIc=svg('help');
+const altBtn=(st='')=>`<button class="alt" data-alt${st}>${helpIc.replace('<svg','<svg style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"')}Falls es anders aussieht</button>`;
+const xBtn=S=>S.x?`<button class="cp sec" data-x>${S.x[1]?copyIc:svg('test')}${S.x[0]}</button>`:'';
+function renderStep(i){
+ const S=STEPS[i],o=S[TOOL],pg=STEP_PAGES[i];
+ const m=pg.querySelector('.mock');m.className='mock rise ide';
+ m.innerHTML=win('Visual Studio Code · vokabeltrainer',TOOL,o.mock(),o.chk);
+ let box='';
+ if(S.words)box=`<div class="gbox"><div class="lb">WORTLISTE · wortliste.txt<span>englisch;deutsch</span></div><pre>${WORDS}</pre>
+  <div class="gbtn"><button class="cp" data-dl>${dlIc}Als .txt herunterladen</button><button class="cp sec" data-cp>${copyIc}Kopieren</button>${altBtn()}</div></div>`;
+ else if(S.prompt)box=`<div class="gbox"><div class="lb">${o.plab||S.plab}<span>${S.pnote||''}</span></div><pre>${S.prompt(TOOL)}</pre>
+  <div class="gbtn"><button class="cp" data-cp>${copyIc}Kopieren</button>${xBtn(S)}${altBtn()}</div></div>`;
+ else box=`<div class="note"><b>${o.note[0]}</b><div>${o.note[1]}</div></div><div style="flex:1"></div><div class="gbtn">${xBtn(S)}${altBtn(S.x?'':' style="margin-left:0"')}</div>`;
+ const g=pg.querySelector('.guide');
+ g.innerHTML=`<div class="gin"><div class="gtool">IN ${TOOLS[TOOL].n.toUpperCase()} · ${TOOLS[TOOL].url}</div>
+  <div class="path">${o.path.map(x=>`<span>${x}</span>`).join('<i>›</i>')}</div>
+  ${o.chk?`<div class="unchk">⚠ ${UNCHK}</div>`:''}<p class="gtxt"${o.chk?' style="margin-top:8px"':''}>${o.txt}</p>${box}</div>`;
+ g.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>copyText(b,g.querySelector('pre').innerText));
+ g.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>S.x[1]?copyText(b,S.x[1]()):openCard(b,testCard(i)));
+ g.querySelectorAll('[data-dl]').forEach(b=>b.onclick=()=>dlWords(b));
+ g.querySelectorAll('[data-alt]').forEach(b=>b.onclick=()=>openCard(b,altCard(o.alt,i)));
+}
+function testCard(i){return `<div class="fx"><div class="top"><div class="ic">${svg('test')}</div><div><div class="kick">SCHRITT ${i+1} · PRÜFLISTE</div><h2>Was soll passieren?</h2></div></div>
+ <table class="ttab">${TESTS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+ <div class="def" style="font-size:22px;margin-top:20px;color:var(--mute)">Erst in der Vorschau testen, dann noch einmal mit der heruntergeladenen Datei ohne Internet.</div></div>`}
+function renderAll(){STEP_PAGES.forEach((_,i)=>renderStep(i))}
+function setTool(k){[...$('gPick').children].forEach(b=>b.classList.add('sel'))}
+
+/* ============ Kopieren & Herunterladen ============ */
+function flash(b,txt){const lbl=b.lastChild,old=lbl.textContent;b.classList.add('ok');lbl.textContent=txt;setTimeout(()=>{b.classList.remove('ok');lbl.textContent=old},1800)}
+const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+/* Kopiererfolg wirklich prüfen; bei Fehler den Text markiert zeigen und das Kopieren von Hand erklären */
+function copyText(b,t){const ok=()=>flash(b,'Kopiert ✓');
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,fallback);else fallback();
+ function fallback(){const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();let done=false;try{done=document.execCommand('copy')}catch(e){}a.remove();if(done)ok();else manualCopy(b,t)}}
+function manualCopy(b,t){openCard(b,`<div class="fx"><div class="top"><div class="ic">${svg('copy')}</div><div><div class="kick">KOPIEREN HAT NICHT GEKLAPPT</div><h2>Bitte von Hand kopieren</h2></div></div>
+ <div class="def" style="font-size:24px">Der Text unten ist markiert. Drücken Sie <b>Strg+C</b> (Mac: Cmd+C), klicken Sie in das Zielfeld und drücken Sie <b>Strg+V</b>.</div><pre class="mc">${esc(t)}</pre></div>`);
+ setTimeout(()=>{const p=$('cbody').querySelector('pre.mc');if(!p)return;const r=document.createRange();r.selectNodeContents(p);const s=getSelection();s.removeAllRanges();s.addRange(r)},250)}
+function dlWords(b){const blob=new Blob([WORDS+'\n'],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wortliste.txt';document.body.appendChild(a);a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800);flash(b,'Download gestartet ✓')}
+
+/* ============ Detail-Karte (wächst aus dem Knopf) ============ */
+function altCard(a,i){return `<div class="fx"><div class="top"><div class="ic">${svg('help')}</div><div><div class="kick">SCHRITT ${i+1} · ${TOOLS[TOOL].n.toUpperCase()}</div><h2>${a[0]}</h2></div></div>
+ <div class="def">${a[1]}</div><div class="boxes"><div class="box"><b>TIPP</b><div>${a[2]}</div></div><div class="box"><b>MERKE</b><div>${a[3]}</div></div></div></div>`}
+let srcEl=null;
+function stageRect(el){const r=el.getBoundingClientRect(),s=$('stage').getBoundingClientRect();return{x:(r.left-s.left)/SC,y:(r.top-s.top)/SC,w:Math.max(r.width/SC,1),h:Math.max(r.height/SC,1)}}
+function openCard(el,html){
+ const c=$('card');$('cbody').innerHTML=html;srcEl=el;
+ c.style.transition='none';c.style.opacity=1;c.classList.add('on');c.classList.remove('show');
+ const f={x:310,y:0,w:1300,h:c.offsetHeight};f.y=Math.max(150,(1080-f.h)/2);c.style.top=f.y+'px';
+ const r=stageRect(el);c.style.transform=`translate(${r.x-f.x}px,${r.y-f.y}px) scale(${r.w/f.w},${r.h/f.h})`;c.style.borderRadius='8px';
+ c.getBoundingClientRect();
+ c.style.transition='transform .55s cubic-bezier(.2,.85,.2,1),border-radius .55s';c.style.transform='none';c.style.borderRadius='8px';
+ $('veil').classList.add('on');setTimeout(()=>c.classList.add('show'),180);sfx('open');
+}
+function closeCard(quiet){
+ const c=$('card');if(!c.classList.contains('on'))return;c.classList.remove('show');
+ const f={x:310,y:parseFloat(c.style.top),w:1300,h:c.offsetHeight};
+ if(srcEl&&srcEl.isConnected){const r=stageRect(srcEl);c.style.transition='transform .4s cubic-bezier(.5,0,.75,0),opacity .4s';c.style.transform=`translate(${r.x-f.x}px,${r.y-f.y}px) scale(${r.w/f.w},${r.h/f.h})`}
+ else c.style.transition='opacity .3s';
+ c.style.opacity=0;$('veil').classList.remove('on');c.classList.remove('on');if(quiet!==true)sfx('close');
+}
+$('cx').onclick=closeCard;$('veil').onclick=closeCard;
+$('nPrev').onclick=()=>{closeCard(true);go(cur-1)};$('nNext').onclick=()=>{closeCard(true);go(cur+1)};
+
+/* ============ Seiten-Steuerung ============ */
+const PAGES=[...document.querySelectorAll('.page')];let cur=-1;
+function go(n){
+ n=Math.max(0,Math.min(PAGES.length-1,n));if(n===cur)return;closeCard(true);
+ const old=PAGES[cur];if(old){old.classList.add('out');setTimeout(()=>{old.classList.remove('on','out')},450)}
+ const pg=PAGES[n];setTimeout(()=>{pg.classList.remove('on');void pg.offsetWidth;pg.classList.add('on')},old?380:0);
+ cur=n;$('prog').style.width=((n+1)/PAGES.length*100)+'%';
+ const h=$('hint');h.classList.remove('on');setTimeout(()=>{h.innerHTML=pg.dataset.hint||'';h.classList.add('on')},1400);
+ if(old)sfx('page');
+}
+addEventListener('keydown',e=>{
+ if(!$('start').classList.contains('gone'))return;
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ const k=e.key;
+ if(k==='Escape'){closeCard();return}
+ /* Enter, Leertaste und Rücktaste gehören fokussierten Knöpfen, Links und Eingaben: dann nicht blättern */
+ if([' ','Enter','Backspace'].includes(k)&&e.target.closest&&e.target.closest('button,a,input,textarea,select,[contenteditable],[tabindex]'))return;
+ if(['ArrowRight','PageDown',' ','Enter'].includes(k)){e.preventDefault();if($('card').classList.contains('on'))closeCard();else go(cur+1)}
+ else if(['ArrowLeft','PageUp','Backspace'].includes(k)){e.preventDefault();if($('card').classList.contains('on'))closeCard();else go(cur-1)}
+ else if(k==='Home')go(0);else if(k==='End')go(PAGES.length-1);
+ else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}
+ else if(k==='m'||k==='M'){muted=!muted}
+});
+let idle;addEventListener('mousemove',()=>{document.body.classList.remove('hidecursor');clearTimeout(idle);idle=setTimeout(()=>document.body.classList.add('hidecursor'),2500)});
+
+/* ============ Skalierung 1920×1080 ============ */
+let SC=1;
+function fit(){SC=Math.min(innerWidth/1920,innerHeight/1080);const st=$('stage');st.style.transform=`translate(${(innerWidth-1920*SC)/2}px,${(innerHeight-1080*SC)/2}px) scale(${SC})`;
+ const cv=$('bg'),d=devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d}
+addEventListener('resize',fit);fit();
+
+/* ============ Hintergrund wie im Intro ============ */
+const cv=$('bg'),ctx=cv.getContext('2d');
+function bg(ts){const t=ts/1000,d=devicePixelRatio||1,ox=(innerWidth-1920*SC)/2,oy=(innerHeight-1080*SC)/2;
+ ctx.setTransform(d,0,0,d,0,0);ctx.fillStyle='#14006E';ctx.fillRect(0,0,innerWidth,innerHeight);
+ ctx.setTransform(d*SC,0,0,d*SC,d*ox,d*oy);
+ ctx.fillStyle='#14006E';ctx.fillRect(0,0,1920,1080);
+ const sp=60,sx=(t*5)%sp,sy=(t*3)%sp;ctx.fillStyle='#3C46AA';for(let x=-sp;x<1980;x+=sp)for(let y=-sp;y<1140;y+=sp)ctx.fillRect(x+sx,y+sy,2,2);
+ requestAnimationFrame(bg)}
+requestAnimationFrame(bg);
+
+/* ============ Klänge (leise, im Browser erzeugt) ============ */
+let AC=null,muted=false;
+function sfx(k){if(muted)return;if(!AC){try{AC=new AudioContext()}catch(e){return}}const t=AC.currentTime+.01;
+ const tone=(f,v,d,type='sine',f2)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d*.6);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)};
+ if(k==='open'){tone(880,.05,.5);tone(1320,.02,.6)}
+ else if(k==='close'){tone(660,.035,.25,'sine',520)}
+ else if(k==='page'){const n=AC.createBufferSource(),b=AC.createBuffer(1,AC.sampleRate*.8,AC.sampleRate),x=b.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;n.buffer=b;
+  const f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=1.1;f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(2400,t+.45);f.frequency.exponentialRampToValueAtTime(600,t+.75);
+  const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.45);g.gain.linearRampToValueAtTime(0,t+.78);n.connect(f).connect(g).connect(AC.destination);n.start(t)}}
+
+/* ============ Start ============ */
+renderAll();setTool(TOOL);
+$('go').onclick=()=>{$('start').classList.add('gone');setTimeout(()=>$('start').style.display='none',700);sfx('open');go(0);try{document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
+const QP=new URLSearchParams(location.search).get('p');
+if(QP!==null){$('start').classList.add('gone');$('start').style.display='none';go(+QP||0)}
+</script>
+</body>
+</html>
