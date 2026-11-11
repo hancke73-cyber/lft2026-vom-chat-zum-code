@@ -221,6 +221,8 @@ h1 em{font-style:normal;color:var(--acc)}
 
 
 /* MOCK-ENDE */
+.hlp{margin-top:12px;border:2px solid #F5E6D2;border-radius:8px;padding:10px 14px;font-size:17px;line-height:1.45;color:#FFFFFF;background:#3C46AA}
+.hlp b{color:#F5E6D2}.hlp a{color:#FFFFFF;font-weight:700}
 /* Markierungsring */
 .tgt{position:relative}
 .ring{position:absolute;inset:-7px;border:3px solid var(--gold);border-radius:13px;pointer-events:none;opacity:0;z-index:4;animation:ringIn .5s cubic-bezier(.3,1.6,.5,1) var(--rd,.8s) forwards,pulse 1.8s ease-out calc(var(--rd,.8s) + .5s) infinite}
@@ -594,6 +596,8 @@ function gChat(o={}){return `<div class="mm" style="padding:20px 22px"><div clas
 /* Korrekturen nach Anfänger-Test (A-…), Profi-Test (P-…) und ChatGPT-Prüfung der Kursleitung (Pruefung-ChatGPT-2026-11-11), siehe design/tests/umsetzung-testbefunde.md.
    ChatGPT: Referenz ist die Desktop-App im Zustand „Work“ wie auf den Screenshots. Projektanlage, „Quellen › Hinzufügen“ und Projekteinstellungen sind NICHT fotografiert:
    UNSICHER, deshalb sichtbar als ungeprüft markiert (chk) und mit Ersatzweg in einem Chat (FALLBACK). */
+const BAUKASTEN_URL='https://hancke73-cyber.github.io/lft2026-vom-chat-zum-code/material/prompt-baukasten.html';
+const HELP=`<b>Eigene Regeln?</b> Der <a href="${BAUKASTEN_URL}" target="_blank" rel="noopener">Prompt-Baukasten</a> erstellt sie per Ankreuzen. Zu finden auf der GitHub-Seite unter Material › Prompt-Baukasten (Formular).`;
 const UNCHK='Ungeprüft: vor dem Workshop im eigenen Konto prüfen';
 const STEPS=[
  {h:'Ein Projekt <em>anlegen.</em>',x:['Ersatzweg kopieren',()=>FALLBACK],
@@ -618,11 +622,11 @@ const STEPS=[
      mock:()=>gSide({has:1,pin:1})+gProj({src:1,files:2,file:1}),
      alt:['Projekt oder „Quellen“ nicht zu sehen?','Steht das Projekt nicht unter Angeheftet, öffnen Sie es über <b>…</b> › <b>Projekte</b>. Klappt der Upload nicht, nehmen Sie den Ersatzweg aus Schritt 1. Er enthält die Wörter schon.','Kontrolle: Danach steht wortliste.txt im Projekt. Eine Zeile pro Wort: englisch;deutsch.','Quellen gelten für alle Chats im Projekt, an einen Chat angehängte Dateien nur für diesen Chat.']}},
  {h:'Die Regeln <em>festlegen.</em>',prompt:()=>RULES,plab:'PROJEKTANWEISUNGEN',
-  C:{path:['Projekt','Projektanweisungen festlegen','Anweisungen speichern'],
+  C:{help:HELP,path:['Projekt','Projektanweisungen festlegen','Anweisungen speichern'],
      txt:'Klicken Sie rechts auf <b>Projektanweisungen festlegen</b> (Regeln für jeden Chat im Projekt). Unten auf <b>Kopieren</b>, ins Feld klicken, <b>Strg+V</b> (Mac: Cmd+V). Dann <b>Anweisungen speichern</b>.',
      mock:()=>cSide({act:'p'})+cProj({file:1,ins:1,modal:1,save:2}),
      alt:['Wozu Regeln?','Projektanweisungen gelten ab jetzt in jedem Chat dieses Projekts. Sie müssen sie nicht noch einmal eingeben.','Die Offline-Regel verhindert, dass die App Schriften oder Bibliotheken aus dem Internet lädt.','Wenige, klare Regeln wirken besser als viele. Datenschutz gehört immer hinein.']},
-  G:{path:['Projektseite oben rechts','•••','Projekteinstellungen'],chk:1,
+  G:{help:HELP,path:['Projektseite oben rechts','•••','Projekteinstellungen'],chk:1,
      txt:'Oben rechts auf der Projektseite <b>•••</b> › <b>Projekteinstellungen</b> (nicht „…“ links). Unten auf <b>Kopieren</b>, ins Feld <b>Anweisungen</b> klicken, <b>Strg+V</b> (Mac: Cmd+V). Dann speichern.',
      mock:()=>gSide({has:1})+gProj({dots:1,menu:2,modal:1,save:3}),
      alt:['Keine Projekteinstellungen?','Nehmen Sie den Ersatzweg aus Schritt 1 in einem neuen Chat. Er enthält dieselben Regeln.','Die Offline-Regel verhindert, dass die App Schriften oder Bibliotheken aus dem Internet lädt.','Projektanweisungen gelten nur in diesem Projekt und haben Vorrang vor Ihren allgemeinen Anweisungen.']}},
@@ -708,7 +712,7 @@ function renderStep(i){
  const g=pg.querySelector('.guide');
  g.innerHTML=`<div class="gin"><div class="gtool">IN ${TOOLS[TOOL].n.toUpperCase()} · ${TOOLS[TOOL].url}</div>
   <div class="path">${o.path.map(x=>`<span>${x}</span>`).join('<i>›</i>')}</div>
-  ${o.chk?`<div class="unchk">⚠ ${UNCHK}</div>`:''}<p class="gtxt"${o.chk?' style="margin-top:8px"':''}>${o.txt}</p>${box}</div>`;
+  ${o.chk?`<div class="unchk">⚠ ${UNCHK}</div>`:''}<p class="gtxt"${o.chk?' style="margin-top:8px"':''}>${o.txt}</p>${o.help?`<div class="hlp">${o.help}</div>`:''}${box}</div>`;
  g.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>copyText(b,g.querySelector('pre').innerText));
  g.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>S.x[1]?copyText(b,S.x[1]()):openCard(b,testCard(i)));
  g.querySelectorAll('[data-dl]').forEach(b=>b.onclick=()=>dlWords(b));
