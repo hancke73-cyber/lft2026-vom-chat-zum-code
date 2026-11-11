@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt-Baukasten</title>
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--ink:#18202b;--mute:#4a5565;--line:#c9d0da;--acc:#1f5fbf;--ok:#0f6b5c;--okbg:#e2f4ee}
+@media (prefers-color-scheme:dark){:root{--bg:#10151c;--panel:#18202a;--ink:#eef2f7;--mute:#b6c1ce;--line:#3a4757;--acc:#8ab8ff;--ok:#6fdcc6;--okbg:#123a33}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.5 system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:820px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:.2em 0}
+h2{font-size:1.15rem;margin:0 0 6px}
+.lead{color:var(--mute)}
+fieldset{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin:14px 0}
+legend{font-weight:700;padding:0 6px}
+label{display:block}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
+.opt input{width:22px;height:22px;margin-top:4px;flex:none}
+.opt small{display:block;color:var(--mute);font-size:.9rem}
+input[type=text],textarea{font:inherit;width:100%;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+input[type=text]{min-height:46px}
+textarea{min-height:90px}
+.hint{color:var(--mute);font-size:.95rem;margin:2px 0 8px}
+button{font:inherit;min-height:46px;padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+#out{font:15px/1.5 ui-monospace,Consolas,monospace;min-height:380px;white-space:pre-wrap}
+.ok{background:var(--okbg);color:var(--ok);border-radius:8px;padding:6px 10px;display:inline-block}
+.count{color:var(--mute);font-size:.95rem}
+[hidden]{display:none!important}
+@media (prefers-color-scheme:dark){button.primary,button[aria-pressed="true"]{color:#0b1220}}
+</style>
+</head>
+<body>
+<main>
+ <h1>Prompt-Baukasten</h1>
+ <p class="lead">Erst planen, dann in <b>einem</b> Durchgang bauen lassen. Kreuze an, was die App können soll, schreibe deine Wünsche und Verbote auf, und unten entsteht dein fertiger Prompt. Kopiere ihn dann in Claude oder ChatGPT.</p>
+
+ <p class="hint">Eine andere App bauen oder lieber frei schreiben? Dann nimm den <a href="prompt-baukasten-frei.html" style="color:var(--acc)">freien Baukasten</a>.</p>
+
+ <fieldset>
+  <legend>1 · Die App</legend>
+  <label for="name"><b>Name der App</b></label>
+  <input type="text" id="name" value="Vokabeltrainer">
+  <label for="who" style="margin-top:10px"><b>Für wen?</b> (Klasse, Fach, Niveau)</label>
+  <input type="text" id="who" value="Klasse 6, Englisch, Niveau A1/A2">
+  <p class="hint">Die Vokabeln gibst du nicht vor: Die App startet leer, und du fügst später deine eigene Liste ein.</p>
+ </fieldset>
+
+ <fieldset>
+  <legend>2 · Womit baust du?</legend>
+  <label class="opt"><input type="radio" name="tool" value="chat" checked><span>Im Chat (Claude oder ChatGPT im Browser, Artefakt bzw. Canvas)</span></label>
+  <label class="opt"><input type="radio" name="tool" value="code"><span>Mit Claude Code oder Codex (Arbeitsordner, Datei wird gespeichert)</span></label>
+  <label class="opt"><input type="checkbox" id="plan" checked><span>Die KI soll mir zuerst ihren Plan zeigen<small>Du siehst vor dem Bauen, was sie verstanden hat, und kannst Fehler korrigieren, bevor Code entsteht.</small></span></label>
+ </fieldset>
+
+ <fieldset>
+  <legend>3 · Das soll die App können</legend>
+  <p class="hint">Immer dabei: leerer Start, Liste einfügen, Startbildschirm, Karteikarten mit „Nochmal / Gut / Leicht", zufällige Reihenfolge.</p>
+  <div id="feats"></div>
+ </fieldset>
+
+ <fieldset>
+  <legend>4 · Meine eigenen Wünsche</legend>
+  <label for="wish"><b>Was soll die App zusätzlich können?</b></label>
+  <p class="hint">Je genauer, desto besser. Beschreibe, was passieren soll, nicht, wie es programmiert wird. Beispiel: „Nach jeder Runde soll ein Konfetti-Symbol erscheinen, wenn alles richtig war."</p>
+  <textarea id="wish"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>5 · Das soll die App NICHT können</legend>
+  <div id="nots"></div>
+  <label for="nowish" style="margin-top:8px"><b>Weitere Verbote</b></label>
+  <p class="hint">Alles, was dich bei früheren Versuchen gestört hat. Beispiel: „Keine Animationen, keine Töne."</p>
+  <textarea id="nowish"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>6 · Aussehen und Besonderes</legend>
+  <label for="look"><b>Farben, Gerät, Besonderheiten</b> (optional)</label>
+  <p class="hint">Beispiel: „Wird auf dem Tablet benutzt, große Knöpfe. Hauptfarbe Blau."</p>
+  <textarea id="look"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>7 · Dein fertiger Prompt</legend>
+  <div class="row">
+   <button class="primary" id="copy">Prompt kopieren</button>
+   <button id="all">Alle Funktionen ankreuzen</button>
+   <button id="reset">Formular zurücksetzen</button>
+   <span id="copied" class="ok" role="status" hidden>Kopiert!</span>
+  </div>
+  <div class="count" id="count"></div>
+  <textarea id="out" aria-label="Fertiger Prompt" readonly></textarea>
+  <p class="hint">Danach: Prüfe in der Antwort der KI, ob der Plan stimmt. Fehlt etwas, sage es ihr genau so: „Das Verhalten bei [Situation] ist falsch. Erwartet: […]. Tatsächlich: […]. Bitte beheben und erneut testen."</p>
+ </fieldset>
+</main>
+
+<script>
+/* Funktionen zum Ankreuzen. text = was gebaut wird, accept = Abnahmekriterien. */
+const FEATS=[
+ {id:"quiz",label:"Quiz zum Tippen",hint:"Wort sehen, Übersetzung eintippen, sofort Rückmeldung.",on:true,
+  text:"Quiz-Modus: Im Startbildschirm gibt es einen Umschalter „Modus: Karteikarten / Quiz (Tippen)“. Im Quiz sehe ich das englische Wort und tippe die deutsche Übersetzung. Nach „Prüfen“ sehe ich ✔ „Richtig!“ oder ✖ „Fast! Richtig ist: … (du hast geschrieben: …)“. Der Artikel (der/die/das) und „to“ am Anfang sind egal. Falsche Groß-/Kleinschreibung gilt als richtig, aber mit Hinweis: „✔ Richtig! Achte noch auf die Groß- und Kleinschreibung: …“. Ein Buchstabe falsch, vergessen oder zu viel (bei Wörtern ab 4 Buchstaben) gilt als richtig mit Hinweis: „✔ Fast richtig! Schreibe es so: … (du hast geschrieben: …)“. Eine leere Eingabe bekommt einen freundlichen Hinweis ohne Wertung. Eine richtige oder fast richtige Antwort nimmt die Karte aus der Runde, eine falsche legt sie wie „Nochmal“ nach wenigen Karten wieder vor.",
+  accept:["Gegeben das Wort „bridge = die Brücke“ und die Eingabe „brücke“, dann sehe ich ✔ mit Hinweis auf die Groß-/Kleinschreibung.","Gegeben eine falsche Eingabe, dann sehe ich ✖, die richtige Lösung und meine Eingabe.","Gegeben eine leere Eingabe, dann erscheint ein freundlicher Hinweis ohne Wertung."]},
+ {id:"multi",label:"Mehrere Übersetzungen pro Wort",hint:"„to chat = chatten; plaudern“: jede Übersetzung zählt.",on:true,
+  text:"Mehrere Übersetzungen: Steht in einer Zeile mehr als eine Übersetzung (getrennt mit Semikolon, Schrägstrich oder Komma, z. B. „to chat = chatten; plaudern“), gilt jede einzelne als richtig. Bei einer richtigen Antwort zeige ich die übrigen Möglichkeiten mit „Auch möglich: …“, bei einer falschen alle Lösungen.",
+  accept:["Gegeben „to chat = chatten; plaudern“ und die Eingabe „plaudern“, dann ist es richtig und „Auch möglich: chatten“ wird angezeigt."]},
+ {id:"richtung",label:"Richtung wählen (Englisch → Deutsch oder umgekehrt)",hint:"Nur vor der Runde wählbar, nie mittendrin.",on:true,
+  text:"Richtung: Im Startbildschirm gibt es einen Umschalter „Englisch → Deutsch / Deutsch → Englisch“. Die Karten zeigen dann die jeweils andere Seite zuerst. Wichtig: Modus und Richtung gibt es nur im Startbildschirm, nicht während einer laufenden Runde, sonst sieht man die Lösung als Frage. Während der Runde gibt es stattdessen einen Knopf „Runde beenden“, der zurück zum Startbildschirm führt.",
+  accept:["Gegeben eine laufende Runde, dann kann ich die Richtung nicht ändern, aber „Runde beenden“ führt zum Startbildschirm.","Gegeben „Deutsch → Englisch“ im Startbildschirm, dann zeigt die erste Karte das deutsche Wort."]},
+ {id:"punkte",label:"Punkte sammeln",hint:"Belohnt richtige Antworten, bestraft Fehler nicht.",on:true,
+  text:"Punkte: Oben stehen „Punkte: x“, am Rundenende „+y Punkte in dieser Runde · z gesamt“. Karteikarten: „Gut“ und „Leicht“ geben je 5 Punkte, „Nochmal“ 0. Im Quiz (falls vorhanden): richtig +10, richtig mit Hinweis +5, falsch 0. Es gibt nie Punktabzug.",
+  accept:["Gegeben ein Quiz mit richtiger Antwort, dann steigen die Punkte um 10.","Gegeben eine falsche Antwort, dann bleiben die Punkte gleich (kein Abzug)."]},
+ {id:"speichern",label:"Fortschritt speichern",hint:"Karten, Lernstand und Punkte bleiben nach dem Schließen erhalten.",on:true,
+  text:"Speichern: Karten, Lernstand und Punkte werden im Browser gespeichert (localStorage, jeder Zugriff mit try/catch, damit die App auch ohne Speichern läuft). „Gut“ macht eine Karte erst am nächsten Tag wieder fällig, „Leicht“ erst nach drei Tagen. Oben steht „x Karten · heute fällig: y · Punkte: z“. Ein Knopf „Alles löschen“ fragt vorher nach. Wenn nichts fällig ist, kann ich trotzdem „Alle Karten nochmal üben“ wählen.",
+  accept:["Gegeben ich lade die Seite neu, dann sind Karten und Punkte noch da.","Gegeben gesperrtes localStorage, dann läuft die App trotzdem (ohne Speichern)."]},
+ {id:"datei",label:"Liste aus Datei laden (.txt/.csv)",hint:"Auch aus Excel gespeicherte Dateien mit ä, ö, ü.",on:false,
+  text:"Datei-Import: Ein Knopf „Datei wählen“ liest eine .txt- oder .csv-Datei ein und trägt den Inhalt ins Textfeld ein. Die Datei kann in UTF-8 oder Windows-1252 (Excel, Notepad) gespeichert sein: Lies sie als Bytes, versuche zuerst UTF-8 (streng) und nimm sonst Windows-1252, damit ä, ö, ü und ß richtig ankommen.",
+  accept:["Gegeben eine in Excel gespeicherte CSV-Datei mit „Brücke“, dann erscheint „Brücke“ ohne Fragezeichen."]},
+ {id:"vorlesen",label:"Vorlesen (Aussprache)",hint:"Neu und nicht in der Referenz-App: vorher prüfen, ob es bei dir funktioniert.",on:false,
+  text:"Vorlesen: Neben dem englischen Wort steht ein Knopf „Vorlesen“, der die Browser-Sprachausgabe (speechSynthesis, Sprache en-GB) nutzt. Der Knopf erscheint nur, wenn die Sprachausgabe verfügbar ist.",
+  accept:["Gegeben ein Browser ohne Sprachausgabe, dann ist der Knopf nicht sichtbar und nichts bricht ab."]}
+];
+const NOTS=[
+ "Keine Konten, keine Anmeldung, keine Namen oder Ranglisten",
+ "Keine Werbung, keine Online-Anbindung, keine KI-Aufrufe in der App",
+ "Kein Zeitdruck und keine Zeitlimits",
+ "Keine Punktabzüge und keine bloßstellenden Meldungen"
+];
+const $=id=>document.getElementById(id);
+const KEY="prompt-baukasten-v1";
+FEATS.forEach(f=>{
+  const l=document.createElement("label");l.className="opt";
+  l.innerHTML='<input type="checkbox" data-f="'+f.id+'"'+(f.on?" checked":"")+'><span>'+f.label+'<small>'+f.hint+'</small></span>';
+  $("feats").appendChild(l);
+});
+NOTS.forEach((n,i)=>{
+  const l=document.createElement("label");l.className="opt";
+  l.innerHTML='<input type="checkbox" data-n="'+i+'" checked><span>'+n+'</span>';
+  $("nots").appendChild(l);
+});
+
+function val(id){return $(id).value.trim()}
+function build(){
+  const name=val("name")||"Vokabeltrainer",who=val("who")||"Klasse 6, Englisch, Niveau A1/A2";
+  const tool=document.querySelector('input[name=tool]:checked').value,plan=$("plan").checked;
+  const feats=FEATS.filter(f=>document.querySelector('[data-f="'+f.id+'"]').checked);
+  const nots=NOTS.filter((n,i)=>document.querySelector('[data-n="'+i+'"]').checked);
+  const L=[];
+  L.push("Baue eine einzige HTML-Datei „"+name+"“ (Karteikarten zum Vokabellernen) für "+who+". Deutsche Oberfläche, kurze einfache Sätze, läuft offline im Browser, keine externen Bibliotheken.");
+  L.push("");
+  L.push("## Grundfunktionen (immer)");
+  L.push("1. Die App startet leer. Es gibt ein Textfeld, in das ich Vokabeln einfüge, eine pro Zeile im Format „english = deutsch“ (Semikolon oder Tab als Trennzeichen funktionieren auch), und einen Knopf „Karten erstellen“. Doppelte Wörter und Zeilen ohne Trennzeichen werden ignoriert. Wenn nichts erkannt wird, erscheint ein freundlicher Hinweis mit dem erwarteten Format. Es sind keine Vokabeln vorgegeben.");
+  L.push("2. Danach kommt ein Startbildschirm mit dem Knopf „Runde starten“. Dort steht auch, wie viele Karten fällig sind.");
+  L.push("3. Die Karten kommen in jeder Runde in zufälliger Reihenfolge, nie in der Reihenfolge der Liste.");
+  L.push("4. Karteikarten: Eine Karte zeigt das englische Wort. „Antwort zeigen“ deckt die deutsche Übersetzung auf. Danach drei Knöpfe: „Nochmal“, „Gut“, „Leicht“. „Nochmal“ legt die Karte nach wenigen Karten wieder vor. „Gut“ und „Leicht“ nehmen sie aus der heutigen Runde. Unter den Knöpfen steht in einfachen Worten: Nochmal = wusste ich nicht, kommt gleich wieder. Gut = wusste ich, kommt morgen wieder. Leicht = war ganz einfach, kommt in 3 Tagen wieder. Anzeige: „Noch x Karten“. Am Ende: „Geschafft! x Karten geübt“.");
+  if(feats.length){
+    L.push("");L.push("## Zusätzliche Funktionen");
+    feats.forEach((f,i)=>L.push((i+1)+". "+f.text));
+  }
+  if(val("wish")){L.push("");L.push("## Meine eigenen Wünsche");L.push(val("wish"))}
+  L.push("");L.push("## Das soll die App NICHT können");
+  nots.forEach(n=>L.push("- "+n));
+  if(val("nowish"))L.push("- "+val("nowish").replace(/\n+/g,"\n- "));
+  if(!nots.length&&!val("nowish"))L.push("- (keine besonderen Verbote)");
+  L.push("");L.push("## Haltung und Qualität");
+  L.push("- Fehler werden ermutigend erklärt, nie bloßgestellt („Fast! Richtig ist: …“, nie „Falsch!“).");
+  L.push("- Schrift mindestens 18 px, Kontrast mindestens 4,5:1, Schaltflächen mindestens 44 px hoch, bedienbar mit Tastatur und Touch, Fokus sichtbar, helles und dunkles Design automatisch.");
+  L.push("- Alles in einer Datei. Die Datei beginnt mit <meta charset=\"utf-8\">, damit ä, ö, ü und ß richtig angezeigt werden. Keine personenbezogenen Daten.");
+  if(val("look")){L.push("");L.push("## Aussehen und Besonderes");L.push(val("look"))}
+  L.push("");L.push("## Abnahmekriterien (jedes einzeln prüfen)");
+  const acc=["Gegeben ein leeres Textfeld, wenn ich „Karten erstellen“ wähle, dann erscheint ein freundlicher Hinweis mit dem Format.","Gegeben dasselbe Wort zweimal, dann entsteht nur eine Karte.","Gegeben zwei Runden hintereinander, dann ist die Reihenfolge der Wörter verschieden.","Gegeben ich drücke „Nochmal“, dann kommt die Karte nach wenigen Karten wieder."];
+  feats.forEach(f=>f.accept.forEach(a=>acc.push(a)));
+  acc.forEach((a,i)=>L.push((i+1)+". "+a));
+  L.push("");L.push("## Arbeitsweise");
+  if(tool==="code"){
+    if(plan)L.push("1. Lege mir ZUERST einen kurzen Plan vor (5–8 Stichpunkte: Funktionen, Aufbau, Risiken) und ändere nichts, bis ich ihn freigebe.");
+    L.push((plan?"2":"1")+". Baue danach ALLES in einem Durchgang und speichere die Datei als „vokabeltrainer.html“. Baue nichts, was hier nicht steht.");
+    L.push((plan?"3":"2")+". Teste die Datei im Browser selbst und gib mir eine Liste „Kriterium – erfüllt / nicht erfüllt – wie geprüft“.");
+  }else{
+    if(plan)L.push("1. Fasse ZUERST in 5–8 Stichpunkten zusammen, was du baust und was du bewusst weglässt. Warte danach auf mein OK.");
+    L.push((plan?"2":"1")+". Gib dann die komplette Datei in EINEM Artefakt bzw. Canvas (alternativ in einem einzigen Codeblock) aus und baue nichts, was hier nicht steht.");
+    L.push((plan?"3":"2")+". Gehe die Abnahmekriterien gedanklich einzeln durch und nenne mir danach in einer Liste, was du sicher geprüft hast und wo du unsicher bist.");
+  }
+  L.push("- Bei einem echten Widerspruch oder einer Lücke im Auftrag frage nach, solange noch nichts gebaut ist. Danach entscheide bei Kleinigkeiten selbst und schreibe jede Annahme, die du getroffen hast, in deinen Bericht.");
+  return L.join("\n");
+}
+function refresh(){
+  const t=build();$("out").value=t;
+  $("count").textContent=t.length+" Zeichen · "+t.split(/\s+/).length+" Wörter";
+  save();
+}
+function save(){
+  try{
+    const d={name:val("name"),who:val("who"),tool:document.querySelector('input[name=tool]:checked').value,plan:$("plan").checked,wish:$("wish").value,nowish:$("nowish").value,look:$("look").value,
+      f:FEATS.map(f=>document.querySelector('[data-f="'+f.id+'"]').checked),n:NOTS.map((n,i)=>document.querySelector('[data-n="'+i+'"]').checked)};
+    localStorage.setItem(KEY,JSON.stringify(d));
+  }catch(e){}
+}
+function load(){
+  try{
+    const d=JSON.parse(localStorage.getItem(KEY));if(!d)return;
+    $("name").value=d.name;$("who").value=d.who;$("plan").checked=d.plan;$("wish").value=d.wish;$("nowish").value=d.nowish;$("look").value=d.look;
+    document.querySelector('input[name=tool][value='+d.tool+']').checked=true;
+    FEATS.forEach((f,i)=>document.querySelector('[data-f="'+f.id+'"]').checked=!!d.f[i]);
+    NOTS.forEach((n,i)=>document.querySelector('[data-n="'+i+'"]').checked=!!d.n[i]);
+  }catch(e){}
+}
+document.addEventListener("input",refresh);document.addEventListener("change",refresh);
+$("all").onclick=()=>{FEATS.forEach(f=>document.querySelector('[data-f="'+f.id+'"]').checked=true);refresh()};
+$("reset").onclick=()=>{try{localStorage.removeItem(KEY)}catch(e){}location.reload()};
+$("copy").onclick=async()=>{
+  const t=$("out").value;
+  try{await navigator.clipboard.writeText(t)}catch(e){$("out").select();document.execCommand("copy")}
+  $("copied").hidden=false;setTimeout(()=>$("copied").hidden=true,2500);
+};
+load();refresh();
+</script>
+</body>
+</html>

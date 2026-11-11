@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt-Baukasten frei</title>
+<style>
+:root{--bg:#f5f6f8;--panel:#fff;--ink:#18202b;--mute:#4a5565;--line:#c9d0da;--acc:#1f5fbf;--ok:#0f6b5c;--okbg:#e2f4ee}
+@media (prefers-color-scheme:dark){:root{--bg:#10151c;--panel:#18202a;--ink:#eef2f7;--mute:#b6c1ce;--line:#3a4757;--acc:#8ab8ff;--ok:#6fdcc6;--okbg:#123a33}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.5 system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:820px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:.2em 0}
+.lead{color:var(--mute)}
+a{color:var(--acc)}
+fieldset{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:14px 16px;margin:14px 0}
+legend{font-weight:700;padding:0 6px}
+label{display:block}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
+.opt input{width:22px;height:22px;margin-top:4px;flex:none}
+.opt small{display:block;color:var(--mute);font-size:.9rem}
+input[type=text],textarea{font:inherit;width:100%;padding:8px 12px;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+input[type=text]{min-height:46px}
+textarea{min-height:90px}
+.hint{color:var(--mute);font-size:.95rem;margin:2px 0 8px}
+.req{color:var(--acc);font-weight:700}
+button{font:inherit;min-height:46px;padding:8px 16px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+button:focus-visible,input:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+#out{font:15px/1.5 ui-monospace,Consolas,monospace;min-height:420px;white-space:pre-wrap}
+.ok{background:var(--okbg);color:var(--ok);border-radius:8px;padding:6px 10px;display:inline-block}
+.count{color:var(--mute);font-size:.95rem}
+[hidden]{display:none!important}
+@media (prefers-color-scheme:dark){button.primary,button[aria-pressed="true"]{color:#0b1220}}
+</style>
+</head>
+<body>
+<main>
+ <h1>Prompt-Baukasten (frei)</h1>
+ <p class="lead">Für jede App, nicht nur für Vokabeln. Beschreibe in eigenen Worten, was du willst und was nicht. Unten entsteht dein fertiger Prompt. Leere Felder werden weggelassen. Lieber das Wichtige genau als alles ungefähr.</p>
+ <p class="hint">Lieber ankreuzen statt schreiben? Dann nimm den <a href="prompt-baukasten.html">Baukasten zum Ankreuzen (Vokabeltrainer)</a>.</p>
+
+ <div class="row">
+  <button id="ex1">Beispiel laden: Vokabeltrainer</button>
+  <button id="ex2">Beispiel laden: Gruppen-Zufallsgenerator</button>
+  <button id="ex3">Beispiel laden: Vokabeltrainer mit Listen-Ordner (Claude Code)</button>
+ </div>
+
+ <fieldset>
+  <legend>1 · Worum geht es?</legend>
+  <label for="name"><b>Name der App</b></label>
+  <input type="text" id="name" placeholder="z. B. Gruppenwürfel">
+  <label for="goal" style="margin-top:10px"><b>Ziel in einem Satz</b> <span class="req">wichtig</span></label>
+  <p class="hint">Was soll die App leisten? Beispiel: „Eine App, mit der ich meine Klasse per Knopfdruck in zufällige Gruppen einteile.“</p>
+  <textarea id="goal" style="min-height:60px"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>2 · Wer nutzt sie, wann und wo?</legend>
+  <p class="hint">Beispiel: „Ich, im Unterricht, am Lehrer-PC mit Beamer. Die Klasse schaut zu.“</p>
+  <textarea id="who"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>3 · Das MUSS die App können <span class="req">wichtig</span></legend>
+  <p class="hint">Eine Funktion pro Zeile, konkret und prüfbar. Schreibe, was passieren soll, nicht, wie es programmiert wird.</p>
+  <textarea id="must" style="min-height:140px"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>4 · Das wäre schön (nur, wenn alles andere sicher läuft)</legend>
+  <textarea id="nice"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>5 · Das soll die App NICHT können</legend>
+  <p class="hint">Verbote verhindern, dass die KI „mitdenkt“ und Dinge einbaut, die du nicht willst. Beispiel: „Keine Anmeldung, keine Namen speichern, keine Töne.“</p>
+  <textarea id="not"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>6 · Womit startet die App? (Daten, Beispiele)</legend>
+  <p class="hint">Soll sie leer starten oder mit Beispieldaten? Woher kommen später die echten Daten? Beispiel: „Startet leer, ich füge die Namen der Klasse selbst in ein Textfeld ein.“ Keine echten Schülerdaten in den Prompt schreiben.</p>
+  <textarea id="data"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>7 · Dateien, Ordner und Datenformat (nur wenn die App Dateien nutzt)</legend>
+  <p class="hint">Wo liegen die Daten? Wie heißen die Dateien, wie sehen sie innen aus? Beispiel: „Ordner daten/ neben index.html, Dateien liste-1.csv bis liste-9.csv, eine Zeile pro Person im Format Name;Klasse.“ Sage auch, ob das Programm aus mehreren Dateien bestehen soll.</p>
+  <textarea id="files"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>8 · Aussehen, Gerät und Ton</legend>
+  <p class="hint">Beispiel: „Große Schrift für den Beamer, Hauptfarbe Blau, freundlich und ruhig, Oberfläche auf Deutsch.“</p>
+  <textarea id="look"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>9 · Was kann schiefgehen? (Sonderfälle)</legend>
+  <p class="hint">Denke an Fehleingaben: leere Felder, doppelte Einträge, Umlaute, Groß-/Kleinschreibung, sehr lange Listen. Beispiel: „Bei 25 Personen und Gruppengröße 4 soll die letzte Gruppe kleiner sein, nicht fehlen.“</p>
+  <textarea id="edge"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>10 · Woran erkenne ich, dass sie fertig und richtig ist?</legend>
+  <p class="hint">Am besten: „Gegeben … Wenn … Dann …“. Eine pro Zeile. Wenn du nichts einträgst, soll die KI sich selbst Kriterien zu deinen Muss-Funktionen ausdenken und prüfen.</p>
+  <textarea id="accept" style="min-height:120px"></textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>11 · Regeln zum Bauen</legend>
+  <label class="opt"><input type="radio" name="tool" value="chat" checked><span>Im Chat (Claude oder ChatGPT im Browser, Artefakt bzw. Canvas)</span></label>
+  <label class="opt"><input type="radio" name="tool" value="code"><span>Mit Claude Code oder Codex (Arbeitsordner, Datei wird gespeichert)</span></label>
+  <label class="opt"><input type="checkbox" id="plan" checked><span>Die KI soll mir zuerst ihren Plan zeigen<small>Du siehst vor dem Bauen, was sie verstanden hat, und kannst Fehler korrigieren.</small></span></label>
+  <label class="opt"><input type="checkbox" id="ask"><span>Die KI soll mir vorher höchstens fünf Rückfragen stellen<small>Sinnvoll, wenn du dir bei Punkt 3 oder 8 unsicher bist.</small></span></label>
+  <label class="opt"><input type="checkbox" id="onefile" checked><span>Alles in einer einzigen HTML-Datei, läuft offline im Browser<small>Abwählen, wenn das Programm aus mehreren Dateien bestehen soll (siehe Punkt 7).</small></span></label>
+  <label class="opt"><input type="checkbox" id="tests"><span>Die KI soll Tests schreiben und selbst ausführen<small>Nur mit Claude Code oder Codex: Sie prüft ihre Arbeit damit selbst und repariert Fehler.</small></span></label>
+  <label for="quality" style="margin-top:8px"><b>Qualitätsregeln</b> (anpassbar)</label>
+  <textarea id="quality" style="min-height:120px">Schrift mindestens 18 px, Kontrast mindestens 4,5:1, Schaltflächen mindestens 44 px hoch, bedienbar mit Tastatur und Touch, Fokus sichtbar, helles und dunkles Design automatisch.
+Keine externen Bibliotheken, keine Internetverbindung nötig. Die Datei beginnt mit <meta charset="utf-8">, damit ä, ö, ü und ß richtig angezeigt werden.
+Keine personenbezogenen Daten. Gespeichert wird nur lokal im Browser (localStorage, jeder Zugriff mit try/catch, damit die App auch ohne Speichern läuft).
+Fehler werden ermutigend erklärt, nie bloßgestellt.</textarea>
+ </fieldset>
+
+ <fieldset>
+  <legend>Dein fertiger Prompt</legend>
+  <div class="row">
+   <button class="primary" id="copy">Prompt kopieren</button>
+   <button id="reset">Formular leeren</button>
+   <span id="copied" class="ok" role="status" hidden>Kopiert!</span>
+  </div>
+  <div class="count" id="count" role="status"></div>
+  <textarea id="out" aria-label="Fertiger Prompt" readonly></textarea>
+  <p class="hint">Stimmt etwas nicht? Schreibe der KI genau diesen Satz: „Das Verhalten bei [Situation] ist falsch. Erwartet: […]. Tatsächlich: […]. Bitte beheben und erneut testen.“</p>
+ </fieldset>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const KEY="prompt-baukasten-frei-v1";
+const IDS=["name","goal","who","must","nice","not","data","files","look","edge","accept","quality"];
+const DEFAULT_QUALITY=$("quality").value;
+const EX={
+ ex1:{name:"Vokabeltrainer",goal:"Eine App, mit der Schülerinnen und Schüler englische Vokabeln mit Karteikarten und einem Tipp-Quiz üben.",
+  who:"Klasse 6, Englisch, Niveau A1/A2. Sie üben im Unterricht oder zu Hause am Tablet oder Laptop, allein.",
+  must:"Karteikarten: Karte zeigt das englische Wort, „Antwort zeigen“ deckt die deutsche Übersetzung auf, dann „Nochmal“, „Gut“, „Leicht“ (mit kurzer Erklärung unter den Knöpfen).\nQuiz zum Tippen: Ich sehe ein Wort und tippe die Übersetzung. Danach sehe ich ✔ oder ✖ und die richtige Lösung.\nStartbildschirm vor jeder Runde, dort wähle ich Modus und Richtung (Englisch → Deutsch oder umgekehrt). Während der Runde kann man beides nicht ändern.\nDie Karten kommen in jeder Runde in zufälliger Reihenfolge.\nPunkte: richtig +10, Karteikarte „Gut/Leicht“ +5, nie Abzug.",
+  nice:"Vorlesen des englischen Wortes mit der Browser-Sprachausgabe.",
+  not:"Keine Konten, keine Ranglisten mit Namen, keine Werbung, keine Zeitlimits.",
+  data:"Die App startet leer. Ich füge die Vokabeln als Text ein, eine Zeile pro Wort im Format „english = deutsch“. Mehrere Übersetzungen werden mit Semikolon getrennt.",
+  look:"Ruhig und freundlich, große Schrift, Hauptfarbe Blau, Oberfläche auf Deutsch.",
+  edge:"Leere Eingabe: freundlicher Hinweis. Falsche Groß-/Kleinschreibung oder ein Tippfehler zählt als richtig, aber mit Hinweis. Mehrere gültige Übersetzungen zählen alle. Doppelte Wörter nur einmal.",
+  accept:"Gegeben „bridge = die Brücke“ und die Eingabe „brücke“, dann ✔ mit Hinweis auf die Groß-/Kleinschreibung.\nGegeben zwei Runden, dann ist die Reihenfolge verschieden.\nGegeben ich lade die Seite neu, dann sind Karten und Punkte noch da."},
+ ex2:{name:"Gruppenwürfel",goal:"Eine App, mit der ich meine Klasse per Knopfdruck in zufällige Gruppen einteile.",
+  who:"Ich, im Unterricht am Lehrer-PC mit Beamer. Die Klasse schaut zu.",
+  must:"Ich füge die Namen der Klasse in ein Textfeld ein, eine Person pro Zeile.\nIch wähle die Gruppengröße (2 bis 6).\nEin Knopf „Gruppen bilden“ teilt zufällig ein und zeigt die Gruppen als große Karten.\nEin Knopf „Neu mischen“ teilt noch einmal anders ein.\nEin Knopf „Als Text kopieren“ legt die Einteilung in die Zwischenablage.",
+  nice:"Eine Person kann mit „Nicht zusammen“ von einer anderen getrennt werden.",
+  not:"Keine Anmeldung, Namen nicht speichern, keine Töne, keine Werbung.",
+  data:"Startet leer. Die echten Namen füge ich selbst ein, sie bleiben nur auf diesem Gerät.",
+  look:"Sehr große Schrift für den Beamer, hoher Kontrast, Gruppen in verschiedenen Farben, aber Text immer gut lesbar.",
+  edge:"Bei 25 Personen und Gruppengröße 4 ist die letzte Gruppe kleiner, nicht leer. Leere Zeilen und doppelte Namen werden ignoriert. Bei weniger Personen als der Gruppengröße ein freundlicher Hinweis.",
+  accept:"Gegeben 10 Namen und Gruppengröße 3, dann gibt es vier Gruppen (3, 3, 3, 1) und jeder Name kommt genau einmal vor.\nGegeben ich drücke „Neu mischen“, dann ist die Einteilung (fast immer) anders.\nGegeben ein leeres Textfeld, dann erscheint ein freundlicher Hinweis."},
+ ex3:{name:"Vokabeltrainer",
+  goal:"Ein Abfragequiz zum Tippen, das seine Vokabellisten selbst aus einem Ordner holt. Wenn ich eine neue Liste in den Ordner lege und auf „Update“ klicke, erscheint sie als neuer Menüpunkt.",
+  who:"Schülerinnen und Schüler der Klasse 6 (Englisch, A1/A2) üben im Unterricht oder zu Hause am Laptop oder Tablet, allein. Die Lehrkraft legt neue Listen in den Ordner.",
+  must:"Menü: ein Eintrag pro Liste im Ordner (Titel und Wortzahl), dazu „Alle Listen zusammen“.\nStartbildschirm pro Runde: Richtung wählen (Englisch → Deutsch, Deutsch → Englisch oder gemischt). Während der Runde lässt sich die Richtung nicht ändern.\nQuiz: Wort sehen, Übersetzung tippen, sofort ✔ oder ✖ mit der richtigen Lösung. Die Reihenfolge ist in jeder Runde zufällig.\nGroß-/Kleinschreibung, Artikel und ein Tippfehler zählen als richtig, aber mit Hinweis. Mehrere Übersetzungen (mit ; getrennt) gelten alle.\nRundenende: „x von y richtig“, Fehlerliste, „Fehler nochmal üben“.\nPunkte: richtig +10, richtig mit Hinweis +5, falsch 0.\nKnopf „Update“: liest den Ordner neu ein, neue Listen erscheinen im Menü, eine Meldung nennt, was neu ist und was ignoriert wurde.",
+  nice:"Vorlesen des englischen Wortes mit der Browser-Sprachausgabe.",
+  not:"Keine Konten, Namen, Ranglisten, Werbung, KI-Aufrufe, Zeitlimits oder Punktabzüge. Kein Server und keine Ordnerauswahl: Die App kennt den Ordner selbst.",
+  data:"Die Wörter kommen nur aus den Dateien im Ordner, im Code stehen keine Vokabeln. Es liegen drei Beispiellisten bereit (Unit 2, 3 und 4).",
+  files:"Der Ordner „vokabeln/“ liegt neben index.html und enthält Dateien unit-1.js bis unit-30.js (es müssen nicht alle existieren).\nJede Datei ruft Vokabeln.add(`…`) auf. Darin steht zuerst eine Titelzeile „# Unit 5: Tiere“, danach pro Zeile „english = deutsch“, mehrere Übersetzungen mit „;“. Zeilen ohne „=“ und doppelte Wörter werden ignoriert und gezählt.\nEine direkt geöffnete Seite darf keine Ordner lesen, aber Skripte laden: Die App probiert die Dateinamen deshalb nacheinander als <script> (mit Zeitstempel gegen Zwischenspeicher).\nAufteilung: index.html (Oberfläche), logik.js (Prüfen, Mischen, Listen auswerten), tests/ (Prüfungen).",
+  look:"Ruhig und freundlich, große Schrift, Hauptfarbe Blau, Oberfläche auf Deutsch.",
+  edge:"Fehlende Dateien still überspringen. Datei mit kaputtem Rahmen: Meldung mit Hinweis, die anderen Listen bleiben nutzbar. Datei in Windows-Kodierung (Umlaute) trotzdem richtig lesen. Leere Eingabe: freundlicher Hinweis. Zweites Update ohne Änderung: kein doppelter Menüpunkt.",
+  accept:"Gegeben unit-2.js, unit-3.js und unit-4.js im Ordner, dann zeigt das Menü genau diese drei Listen plus „Alle Listen zusammen“, ohne dass ich etwas auswähle.\nGegeben ich speichere unit-5.js (ein doppeltes Wort, eine Zeile ohne „=“) im Ordner, wenn ich „Update“ klicke, dann erscheint ein neuer Menüpunkt und die Meldung nennt beide ignorierten Zeilen.\nGegeben „Update“ ein zweites Mal ohne Änderung, dann entsteht kein zweiter Menüpunkt.\nGegeben „bridge = die Brücke“ und die Eingabe „brücke“, dann ✔ mit Hinweis auf die Schreibung.\nGegeben „to chat = chatten; plaudern“ und die Eingabe „plaudern“, dann richtig und „Auch möglich: chatten“.\nGegeben zwei Runden derselben Liste, dann ist die Reihenfolge verschieden.\nGegeben eine leere Eingabe, dann erscheint ein freundlicher Hinweis.",
+  opts:{tool:"code",plan:true,ask:false,one:false,tests:true}}
+};
+function val(id){return $(id).value.trim()}
+function section(L,title,text){if(text){L.push("");L.push("## "+title);L.push(text)}}
+function build(){
+  const name=val("name")||"meine App",tool=document.querySelector('input[name=tool]:checked').value;
+  const plan=$("plan").checked,ask=$("ask").checked,one=$("onefile").checked;
+  const L=[];
+  L.push("Baue "+(one?"eine einzige HTML-Datei":"eine App")+" mit dem Namen „"+name+"“."+(one?" Sie läuft offline im Browser, ohne externe Bibliotheken.":""));
+  section(L,"Ziel",val("goal"));
+  section(L,"Wer nutzt sie, wann und wo",val("who"));
+  section(L,"Das muss die App können",val("must"));
+  section(L,"Das wäre schön (nur wenn alles andere sicher läuft)",val("nice"));
+  section(L,"Das soll die App NICHT können",val("not"));
+  section(L,"Womit startet die App (Daten, Beispiele)",val("data"));
+  section(L,"Dateien, Ordner und Datenformat",val("files"));
+  section(L,"Aussehen, Gerät und Ton",val("look"));
+  section(L,"Das kann schiefgehen (Sonderfälle, bitte abfangen)",val("edge"));
+  section(L,"Qualitätsregeln",val("quality"));
+  L.push("");L.push("## Abnahmekriterien (jedes einzeln prüfen)");
+  L.push(val("accept")||"Formuliere selbst zu jeder „Das muss die App können“-Funktion mindestens ein Kriterium in der Form „Gegeben … Wenn … Dann …“ und prüfe es einzeln.");
+  L.push("");L.push("## Arbeitsweise");
+  let n=1;const step=t=>L.push((n++)+". "+t);
+  if(ask)step("Stelle mir ZUERST höchstens fünf Rückfragen, eine nach der anderen, zu allem, was unklar oder widersprüchlich ist. Danach geht es weiter.");
+  if(tool==="code"){
+    if(plan)step("Lege mir einen kurzen Plan vor (5–8 Stichpunkte: Funktionen, Aufbau, Risiken) und ändere nichts, bis ich ihn freigebe.");
+    step("Baue danach ALLES in einem Durchgang"+(one?" und speichere die Datei als „"+(name.toLowerCase().replace(/[^a-z0-9äöüß]+/g,"-").replace(/^-|-$/g,"")||"app")+".html“":"")+". Baue nichts, was hier nicht steht.");
+    if($("tests").checked)step("Schreibe Tests zu den Abnahmekriterien (soweit ohne Browser möglich, z. B. mit Node) und führe sie selbst aus. Behebe Fehler, bis alles besteht.");
+    step("Prüfe das Ergebnis selbst im Browser und gib mir eine Liste „Kriterium – erfüllt / nicht erfüllt – wie geprüft“.");
+  }else{
+    if(plan)step("Fasse in 5–8 Stichpunkten zusammen, was du baust und was du bewusst weglässt. Warte danach auf mein OK.");
+    step("Gib dann"+(one?" die komplette Datei in EINEM Artefakt bzw. Canvas (alternativ in einem einzigen Codeblock)":" das Ergebnis")+" aus und baue nichts, was hier nicht steht.");
+    step("Gehe die Abnahmekriterien gedanklich einzeln durch und nenne mir danach, was du sicher geprüft hast und wo du unsicher bist.");
+  }
+  L.push("- Bei einem echten Widerspruch oder einer Lücke im Auftrag frage nach, solange noch nichts gebaut ist. Danach entscheide bei Kleinigkeiten selbst und schreibe jede Annahme, die du getroffen hast, in deinen Bericht.");
+  return L.join("\n");
+}
+function refresh(){
+  const t=build();$("out").value=t;
+  const tips=[];if(!val("goal"))tips.push("Ziel fehlt");if(!val("must"))tips.push("„Das muss die App können“ fehlt");
+  $("count").textContent=t.length+" Zeichen · "+t.split(/\s+/).length+" Wörter"+(tips.length?" · Tipp: "+tips.join(", "):"");
+  save();
+}
+function save(){try{const d={tool:document.querySelector('input[name=tool]:checked').value,plan:$("plan").checked,ask:$("ask").checked,one:$("onefile").checked,tests:$("tests").checked};IDS.forEach(i=>d[i]=$(i).value);localStorage.setItem(KEY,JSON.stringify(d))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(!d)return;IDS.forEach(i=>{if(typeof d[i]==="string")$(i).value=d[i]});$("plan").checked=d.plan;$("ask").checked=d.ask;$("onefile").checked=d.one;$("tests").checked=!!d.tests;document.querySelector('input[name=tool][value='+d.tool+']').checked=true}catch(e){}}
+function fill(ex){IDS.forEach(i=>{$(i).value=ex[i]!==undefined?ex[i]:(i==="quality"?DEFAULT_QUALITY:"")});
+  const o=ex.opts||{tool:"chat",plan:true,ask:false,one:true,tests:false};
+  document.querySelector('input[name=tool][value='+o.tool+']').checked=true;$("plan").checked=o.plan;$("ask").checked=o.ask;$("onefile").checked=o.one;$("tests").checked=o.tests;
+  refresh()}
+["ex1","ex2","ex3"].forEach(k=>$(k).onclick=()=>{
+  const filled=IDS.some(i=>i!=="quality"&&val(i));
+  if(filled&&!confirm("Deine Eingaben im Formular werden durch das Beispiel ersetzt. Fortfahren?"))return;
+  fill(EX[k]);
+});
+document.addEventListener("input",refresh);document.addEventListener("change",refresh);
+$("reset").onclick=()=>{if(confirm("Alle Felder leeren?")){fill({})}};
+$("copy").onclick=async()=>{const t=$("out").value;try{await navigator.clipboard.writeText(t)}catch(e){$("out").select();document.execCommand("copy")}$("copied").hidden=false;setTimeout(()=>$("copied").hidden=true,2500)};
+load();refresh();
+</script>
+</body>
+</html>

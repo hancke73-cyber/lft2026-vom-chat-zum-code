@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mitbauen Vokabeltrainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!--
+  Teil 2 · 10 Mitbauen: Vokabeltrainer live in Claude (claude.ai) oder ChatGPT (chatgpt.com).
+  Stand der Menüpfade: Recherche 11.11.2026, Quellen:
+  - https://support.claude.com/de/articles/9519177-wie-kann-ich-projekte-erstellen-und-verwalten  („+ Neues Projekt“, „+“ beim Projektwissen, „Projektanweisungen festlegen“, „Anweisungen speichern“)
+  - https://support.claude.com/de/articles/17153992                                                („Artefakte“-Registerkarte in der Seitenleiste, „Artefakt-Panel“ neben dem Chat)
+  - https://support.claude.com/en/articles/9487310-what-are-artifacts-and-how-do-i-use-them       (Fenster neben dem Chat, Steuerelemente oben im Panel)
+  - https://support.claude.com/de/articles/12512180 und /16761823                                  („Anpassen“ in der Seitenleiste; zwei Oberflächen seit 16.09.2026: bisherige und „neue Claude-Erfahrung“ mit Cowork in jedem Gespräch)
+  - Projektwissen vs. „Kontext“: Chat-Projekte heißen in de/en-Hilfe weiter „Projektwissen“ (9519177, 9517075); „Context“ ist nur bei Cowork-Projekten belegt (en/articles/14116274). Daher im Text „Projektwissen bzw. Kontext“.
+  - https://support.claude.com/en/articles/9547008-publishing-and-sharing-artifacts               („Share“, zunächst privat)
+  - https://support.claude.com/de/articles/12512180-skills-in-claude-verwenden                     (Einstellungen > Funktionen > „Code-Ausführung und Dateierstellung“)
+  - https://help.openai.com/de-de/articles/10169521-projekte-in-chatgpt                            („Neues Projekt“ in der Seitenleiste, Tabs „Chats“/„Quellen“, ••• > „Projekteinstellungen“ > „Anweisungen“, nur im Projekt)
+  - https://help.openai.com/en/articles/20001246-working-with-writing-blocks-and-code-blocks-in-chatgpt (Canvas in aktuellen Modellen entfernt; Codeblock nur noch als Notweg)
+  - VORRANG: Screenshots der deutschen ChatGPT-Desktop-App, design/screenshots/chatgpt-desktop-1..4.webp und Nachtrag in design/ui-begriffe-claude-chatgpt.md (Seitenleiste, „Chat | Work“, Eingabefeld mit „GPT-6.1 Sol Mittel“, Seitenfenster „Ausgaben“/„Seiten-Chats“/„Quellen“, Link „App öffnen“)
+  - VORRANG: Screenshots der deutschen Claude-Desktop-App, design/screenshots/claude-desktop-collage.webp und NACHTRAG 2 (Seitenleiste „+ Neu“, „Suchen“, „Projekte“, „Artefakte“, „Geplant“, „Design“, „Anpassungen“, „Angepinnt ›“, „Letzte Elemente ›“; Umschalter Chat / Code oben links; Projektseite mit „Neues Projekt“ oben rechts; „Opus 5.5 Mittel“, „Auto“; Hinweis „5-Stunden-Limit fast erreicht“)
+  - Korrekturen nach Anfänger- und Profi-Test (design/tests/umsetzung-testbefunde.md), 11.11.2026
+  Unsichere Beschriftungen sind unten mit UNSICHER markiert. Mockups sind vereinfachte Nachzeichnungen ohne Original-Logos.
+-->
+<style>
+:root{--bg:#0b0548;--ink:#ffffff;--mute:#B9B6E3;--dim:#9A96CC;--acc:#B158ED;--acc2:#E6F0FF;--amber:#f2b24c;--green:#4cc9a0;--red:#FF6B72;--panel:#110a5a;--panel2:#14006E;--line:rgba(230,240,255,.14);--hw-standard:#14006E;--hw-dark:#07003D;--hw-kick:#E6F0FF;--hw-focus:#B158ED}
+/* Mockups von Claude/ChatGPT behalten ihre eigene (neutrale) Produktoptik: alte Tokens lokal */
+.mock,.bm,.dm{--ink:#eef2f8;--mute:#93a1b5;--dim:#5d6b80;--acc:#5b9cff;--acc2:#9cc2ff;--red:#e0643f;--panel:#101a2b;--panel2:#13203a;--line:rgba(255,255,255,.1)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#07003D;color:var(--ink);font-family:"Plus Jakarta Sans","Segoe UI",Arial,sans-serif;overflow:hidden}
+body.hidecursor{cursor:none}
+canvas#bg{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.mono{font-family:"JetBrains Mono",Consolas,monospace}
+
+/* Kopfzeile wie im Intro */
+.chrome{position:absolute;left:160px;right:160px;top:88px;display:flex;justify-content:space-between;font-size:15px;font-weight:600;color:var(--dim);letter-spacing:5px}
+.chrome b{letter-spacing:1px;font-weight:600}
+.bar{position:absolute;left:160px;width:1600px;top:1042px;height:2px;background:rgba(255,255,255,.07)}
+.bar i{display:block;height:100%;background:rgba(177,88,237,.7);width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.hint{position:absolute;left:0;right:0;top:1000px;text-align:center;color:var(--dim);font-size:17px;opacity:0;transition:opacity .8s}
+.hint.on{opacity:1}
+kbd{font:600 13px "JetBrains Mono",monospace;border:1px solid var(--line);border-radius:5px;padding:2px 7px;color:var(--mute)}
+
+/* Seiten */
+.page{position:absolute;inset:0;visibility:hidden}
+.page.on{visibility:visible}
+.rise{opacity:0;transform:translateY(26px)}
+.page.on .rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes rise{to{opacity:1;transform:none}}
+.page.out .rise{animation:fall .45s ease forwards}
+@keyframes fall{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-18px)}}
+.kick{font-size:19px;font-weight:600;color:var(--amber);letter-spacing:4px}
+h1{font-size:62px;font-weight:700;letter-spacing:-1px;margin:18px 0 0;line-height:1.1;white-space:nowrap}
+h1 em{font-style:normal;color:var(--acc)}
+.lead{font-size:27px;color:var(--mute);margin-top:18px;max-width:1100px;line-height:1.45}
+.head{position:absolute;left:160px;top:170px}
+
+/* Titelseite */
+.title{position:absolute;left:0;right:0;top:330px;text-align:center}
+.title .kick{letter-spacing:10px;font-size:24px}
+.title h2{font-size:124px;font-weight:800;letter-spacing:-3px;margin:34px 0 0;line-height:1.02}
+.title h2 span{display:inline-block}
+.title h2 .a{color:var(--acc)}
+.title p{font-size:32px;color:var(--mute);margin-top:36px}
+.title .line{width:640px;height:3px;margin:0 auto;background:linear-gradient(90deg,transparent,#14006E 12%,var(--acc) 45%,#E6F0FF 55%,var(--acc) 65%,transparent);transform:scaleX(0)}
+.page.on .title .line{animation:grow 1.4s cubic-bezier(.2,.8,.2,1) .2s forwards}
+@keyframes grow{to{transform:scaleX(1)}}
+
+/* Kacheln */
+.grid{position:absolute;left:160px;width:1600px;display:grid;gap:24px}
+.tile{position:relative;background:var(--panel);border:1.5px solid var(--line);border-radius:18px;padding:26px 28px;cursor:pointer;
+  box-shadow:0 16px 40px rgba(0,0,0,.4);transition:border-color .25s,background .25s,transform .25s;overflow:hidden}
+.tile::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 220px at var(--mx,30%) var(--my,0%),rgba(177,88,237,.16),transparent 70%);opacity:0;transition:opacity .3s}
+.tile:hover{border-color:rgba(177,88,237,.55);transform:translateY(-4px)}
+.tile:hover::before{opacity:1}
+.tile .ic{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;background:rgba(177,88,237,.12);color:var(--acc);margin-bottom:18px}
+.tile .ic svg{width:30px;height:30px}
+.tile .grp{position:absolute;right:24px;top:26px;font-size:13px;font-weight:600;letter-spacing:3px;color:var(--dim)}
+.tile h3{margin:0;font-size:30px;font-weight:700;letter-spacing:-.3px}
+.tile p{margin:8px 0 0;font-size:19px;color:var(--mute);line-height:1.4}
+.tile.c-amber .ic{background:rgba(242,178,76,.13);color:var(--amber)}
+.tile.c-green .ic{background:rgba(76,201,160,.13);color:var(--green)}
+.chip{display:inline-flex;align-items:center;gap:10px;border:1.5px solid rgba(76,201,160,.6);background:rgba(76,201,160,.1);color:var(--green);border-radius:999px;padding:9px 20px;font-size:20px;font-weight:600}
+
+/* Auswahl-Kacheln */
+.pick{padding:44px 48px}
+.pick h3{font-size:64px;font-weight:800;letter-spacing:-1.5px}
+.pick .url{font:600 20px "JetBrains Mono",monospace;color:var(--acc2);margin-top:10px}
+.pick ul{margin:26px 0 0;padding:0;list-style:none;font-size:23px;color:#c9d3e1;line-height:1.8}
+.pick ul li::before{content:"● ";color:var(--acc)}
+.pick .key{position:absolute;right:40px;bottom:36px;font-size:18px;color:var(--dim)}
+.pick .key kbd{font-size:17px;padding:4px 11px}
+.pick.sel{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber),0 0 50px rgba(242,178,76,.18),0 16px 40px rgba(0,0,0,.4)}
+.pick.sel .grp{color:var(--amber)}
+
+/* Umschalter Claude / ChatGPT */
+#tsw{position:absolute;right:160px;top:166px;display:flex;gap:6px;padding:6px;border-radius:999px;background:var(--panel);border:1.5px solid var(--line);opacity:0;pointer-events:none;transition:opacity .5s;z-index:2}
+#tsw.on{opacity:1;pointer-events:auto}
+#tsw button{font:600 18px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;color:var(--mute);background:none;border:0;border-radius:999px;padding:10px 20px;cursor:pointer;display:flex;gap:10px;align-items:center;transition:all .25s}
+#tsw button kbd{font-size:12px}
+#tsw button.on{color:#07101e;background:var(--acc);box-shadow:0 0 24px rgba(177,88,237,.45)}
+#tsw button.on kbd{color:#07101e;border-color:rgba(7,16,30,.35)}
+
+/* ===== Mockup der Oberfläche (links) ===== */
+.mock{position:absolute;left:160px;top:320px;width:1000px;height:640px;background:#0c1422;border:1.5px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.45);overflow:hidden}
+.tbar{display:flex;align-items:center;gap:8px;height:48px;padding:0 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line);font-size:15px;color:var(--dim);font-weight:600;letter-spacing:1px;flex:none}
+.tbar i{width:12px;height:12px;border-radius:50%;background:#2a364b}
+.tbar .url{margin-left:18px;font:400 15px "JetBrains Mono",monospace;letter-spacing:0;color:var(--mute);background:rgba(255,255,255,.05);border-radius:8px;padding:5px 16px;width:420px}
+.tbar .tag{margin-left:auto;font-size:13px;letter-spacing:3px;color:var(--dim)}
+.mw{position:absolute;top:48px;left:0;right:0;bottom:0;display:flex;animation:ln .45s ease}
+@keyframes ln{from{opacity:0;transform:translateY(8px)}}
+.ms{width:220px;flex:none;background:rgba(255,255,255,.025);border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:3px}
+.mock.cl .ms{background:rgba(242,178,76,.035)}
+.ms .brand{font-weight:700;font-size:19px;padding:4px 10px 14px;color:var(--ink);letter-spacing:-.2px}
+.si{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:9px;font-size:16px;color:#c3cede;white-space:nowrap}
+.si svg{width:18px;height:18px;color:var(--mute);flex:none}
+.si.act{background:rgba(255,255,255,.08);color:var(--ink)}
+.ms .lab{font-size:12px;letter-spacing:2px;color:var(--dim);padding:14px 10px 4px}
+.ph{height:10px;border-radius:5px;background:rgba(255,255,255,.07);margin:10px 10px}
+.ms .usr{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+.mm{flex:1;position:relative;padding:24px 28px;display:flex;flex-direction:column;min-width:0}
+.mm .top{display:flex;align-items:center;gap:12px;min-height:38px}
+.mm .crumb{font-size:14px;color:var(--mute)}
+.mm .pt{font-size:28px;font-weight:700;letter-spacing:-.4px;margin-top:6px;display:flex;align-items:center;gap:12px}
+.mm .pt svg{width:26px;height:26px;color:var(--mute)}
+.mm .sp{margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:9px;border:1px solid rgba(255,255,255,.16);font-size:15px;color:var(--ink);background:rgba(255,255,255,.04);white-space:nowrap}
+.btn svg{width:16px;height:16px}
+.btn.pri{background:var(--ink);color:#07101e;border-color:var(--ink);font-weight:600}
+.btn.ico{padding:8px 9px}
+.inp{border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:14px 14px 12px 18px;background:rgba(255,255,255,.035);font-size:16px;color:var(--mute);display:flex;align-items:flex-end;gap:10px;min-height:92px}
+.inp .tx{flex:1;align-self:flex-start;line-height:1.45}
+.inp .tx.f{color:var(--ink)}
+.inp .tl2{display:flex;gap:8px;align-items:center}
+.ib{width:34px;height:34px;border-radius:10px;border:1px solid rgba(255,255,255,.16);display:grid;place-items:center;color:var(--mute)}
+.ib svg{width:18px;height:18px}
+.snd{width:36px;height:36px;border-radius:10px;background:var(--ink);color:#07101e;display:grid;place-items:center}
+.snd svg{width:18px;height:18px}
+.cols{display:flex;gap:22px;margin-top:22px;flex:1;min-height:0}
+.cols>.l{flex:1;min-width:0;display:flex;flex-direction:column}
+.cols>.r{width:270px;flex:none;display:flex;flex-direction:column;gap:14px}
+.kcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:15px;background:rgba(255,255,255,.02)}
+.kcard h6{margin:0 0 8px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:space-between;color:var(--ink)}
+.kcard .lk{color:var(--acc2);display:inline-block;padding:2px 0}
+.kcard .mt{color:var(--dim);font-size:14px;line-height:1.4}
+.file{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(76,201,160,.45);border-radius:8px;padding:6px 10px;font:14px "JetBrains Mono",monospace;color:var(--green);background:rgba(76,201,160,.06)}
+.file svg{width:15px;height:15px}
+.plus{width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;color:var(--ink)}
+.plus svg{width:16px;height:16px}
+.modal{position:absolute;background:#16233b;border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:20px 22px;box-shadow:0 24px 60px rgba(0,0,0,.65);z-index:3}
+.modal h5{margin:0 0 12px;font-size:19px}
+.modal label{font-size:13px;color:var(--mute);letter-spacing:1px}
+.fld{border:1px solid rgba(255,255,255,.18);border-radius:9px;padding:10px 12px;font-size:15px;color:var(--ink);margin:6px 0 14px;background:rgba(0,0,0,.15)}
+.fld.area{font:13px/1.5 "JetBrains Mono",monospace;color:#c3cede;height:150px;overflow:hidden;white-space:pre}
+.modal .row{display:flex;justify-content:flex-end;gap:10px}
+.menu{position:absolute;background:#16233b;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.6);z-index:3}
+.menu .si{font-size:15px}
+.menu hr{border:0;border-top:1px solid var(--line);margin:4px 6px}
+.chats .ph{margin:14px 0}
+.bub{align-self:flex-end;max-width:86%;background:rgba(255,255,255,.07);border-radius:14px;padding:10px 14px;font-size:14.5px;line-height:1.45;color:var(--ink)}
+.ans{font-size:14.5px;color:#c3cede;line-height:1.5;margin-top:14px}
+.achip{border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 14px;display:flex;gap:12px;align-items:center;margin-top:12px;font-size:15px;background:rgba(255,255,255,.03)}
+.achip .ai{width:34px;height:34px;border-radius:8px;background:rgba(91,156,255,.14);color:var(--acc);display:grid;place-items:center}
+.achip .ai svg{width:18px;height:18px}
+.achip small{display:block;color:var(--dim);font-size:13px}
+.mp{width:440px;flex:none;border-left:1px solid var(--line);background:#09111e;display:flex;flex-direction:column}
+.mp .hd{height:52px;display:flex;align-items:center;gap:8px;padding:0 14px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600;flex:none}
+.mp .hd .nm{margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seg{display:flex;border:1px solid rgba(255,255,255,.16);border-radius:9px;overflow:visible}
+.seg span{padding:6px 12px;font-size:14px;color:var(--mute);position:relative}
+.seg span.on{background:rgba(255,255,255,.1);color:var(--ink);border-radius:8px}
+.mp .bd{flex:1;display:grid;place-items:center;padding:16px}
+.code{font:13px/1.6 "JetBrains Mono",monospace;color:#8fa3bf;padding:16px 18px;white-space:pre;align-self:start;justify-self:stretch}
+.code b{color:var(--acc2);font-weight:400}.code i{font-style:normal;color:var(--amber)}
+/* ChatGPT-Desktop-App (Screenshots 11.11.2026): Eingabefeld, Seitenfenster, „App öffnen“ */
+.inp.g{flex-direction:column;align-items:stretch;gap:10px;min-height:0}
+.inp.g .tl2{width:100%}
+.inp.g .gx{font-size:13px;color:var(--mute);white-space:nowrap}
+.inp.g .mdl{margin-left:auto;font-size:13.5px;color:var(--ink);white-space:nowrap}.inp.g .mdl i{font-style:normal;color:var(--mute)}
+.gund{display:flex;gap:18px;font-size:13px;color:var(--mute);padding:8px 16px 0;white-space:nowrap}
+.gund span{display:inline-flex;align-items:center;gap:6px}.gund svg{width:14px;height:14px}
+.cw{display:inline-flex;border-radius:999px;background:rgba(255,255,255,.06);padding:3px;font-size:13.5px}
+.cw span{padding:5px 16px;border-radius:999px;color:var(--mute)}.cw span.on{background:rgba(255,255,255,.12);color:var(--ink)}
+.wk{font-size:13px;color:var(--dim);margin-top:16px}
+.aop{display:inline-flex;align-items:center;gap:6px;color:var(--acc);font-size:14.5px;margin-top:10px;padding:2px 4px}
+.aop svg{width:15px;height:15px}
+.gsp{flex:none;border-left:1px solid var(--line);background:#09111e;padding:14px 12px;display:flex;flex-direction:column;gap:10px}
+.gsp .sec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;background:rgba(255,255,255,.02)}
+.gsp .sec h6{margin:0 0 6px;font-size:13.5px;font-weight:600;display:flex;justify-content:space-between;color:var(--ink)}
+.gsp .sec .mt{color:var(--dim);font-size:12.5px;line-height:1.4}
+.gsp .tabh{display:flex;align-items:center;gap:8px;font-size:13.5px;border:1px solid rgba(255,255,255,.16);border-radius:8px;padding:6px 10px;color:var(--ink)}
+.gsp .tabh svg{width:14px;height:14px;color:var(--mute)}
+.gsp .pvb{flex:1;min-height:0;display:grid;place-items:center;overflow:hidden}
+.gsp .pvb>span{transform:scale(.92)}
+.gsp .va{width:296px}.gsp .va .fc,.gsp .va .pb{width:264px}
+.rail{width:46px;flex:none;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 0;background:rgba(0,0,0,.18)}
+.rail .ri{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--mute)}
+.rail .ri svg{width:18px;height:18px}
+.rail .ri.tgt{background:rgba(255,255,255,.08);color:var(--ink)}
+.mock.gp .ms{width:196px}
+.gmenu{position:absolute;left:232px;width:200px;background:#16233b;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:6px;box-shadow:0 18px 40px rgba(0,0,0,.6);z-index:3}
+.gmenu .si{font-size:15px}
+.ptabs{display:flex;gap:6px;margin-top:20px;border-bottom:1px solid var(--line)}
+.ptabs span{padding:8px 14px;font-size:15px;color:var(--mute);position:relative;display:inline-block}
+.ptabs span.on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+
+/* Mini-App im Mockup */
+.va{width:330px;text-align:center;position:relative}
+.va h6{margin:0;font-size:22px;color:var(--ink)}.va small{color:var(--mute);font-size:14px}
+.va .fc{margin:14px auto;width:290px;height:100px;position:relative}
+.va .fc span{position:absolute;inset:0;display:grid;place-items:center;border-radius:14px;font-size:27px;font-weight:700;background:var(--panel2);border:1.5px solid rgba(177,88,237,.5);color:var(--ink)}
+.va .bt{display:flex;gap:10px;justify-content:center}.va .bt i{font-style:normal;font-size:14px;padding:7px 14px;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
+.va .bt i+i{border-color:rgba(76,201,160,.6);color:var(--green)}
+.va .pb{margin:14px auto 0;width:290px;height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}.va .pb b{display:block;height:100%;width:30%;background:var(--green)}
+.va .lt{margin-top:8px;font-size:13px;color:var(--mute)}
+.va.sk .fc span,.va.sk .bt i{color:transparent;background:rgba(255,255,255,.05);border-color:transparent}
+.va.sk h6,.va.sk small{color:transparent;background:rgba(255,255,255,.06);border-radius:6px}
+.va.sk .pb b{width:0}
+
+/* Markierungsring */
+.tgt{position:relative}
+.ring{position:absolute;inset:-7px;border:3px solid var(--amber);border-radius:13px;pointer-events:none;opacity:0;z-index:4;
+  animation:ringIn .5s cubic-bezier(.3,1.6,.5,1) var(--rd,.8s) forwards,pulse 1.8s ease-out calc(var(--rd,.8s) + .5s) infinite}
+.ring::after{content:attr(data-n);position:absolute;right:-17px;top:-17px;width:30px;height:30px;border-radius:50%;background:var(--amber);color:#07101e;font:800 16px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+@keyframes ringIn{from{opacity:0;transform:scale(1.35)}to{opacity:1;transform:none}}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(242,178,76,.55)}70%{box-shadow:0 0 0 16px rgba(242,178,76,0)}100%{box-shadow:0 0 0 0 rgba(242,178,76,0)}}
+
+/* ===== Anleitung (rechts) ===== */
+.guide{position:absolute;left:1200px;top:320px;width:560px;height:640px;display:flex;flex-direction:column}
+.gin{display:flex;flex-direction:column;height:100%;animation:ln .45s ease}
+.gtool{font:600 15px "JetBrains Mono",monospace;letter-spacing:2px;color:var(--acc2)}
+.path{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.path span{font-size:17px;font-weight:600;border:1px solid rgba(242,178,76,.45);color:var(--amber);background:rgba(242,178,76,.06);border-radius:8px;padding:5px 12px}
+.path i{font-style:normal;color:var(--dim);font-size:18px}
+.gtxt{font-size:23px;line-height:1.45;color:var(--ink);margin:18px 0 0}
+.gtxt b{color:var(--amber);font-weight:600}
+.gbox{margin-top:20px;flex:1;min-height:0;display:flex;flex-direction:column}
+.gbox .lb{font-size:14px;letter-spacing:3px;color:var(--amber);font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between}
+.gbox .lb span{color:var(--dim);letter-spacing:1px;font-weight:500}
+.gbox pre{margin:0;flex:1;min-height:0;overflow:auto;padding:18px 22px;border-radius:14px;background:#0a1220;border:1px solid var(--line);font:400 17px/1.55 "JetBrains Mono",Consolas,monospace;color:var(--acc2);white-space:pre-wrap}
+.gbox pre em{font-style:normal;color:var(--amber)}
+.gbtn{display:flex;gap:12px;margin-top:14px;align-items:center;flex-wrap:wrap}
+.cp{font:600 17px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;color:#07101e;background:var(--ink);border:0;border-radius:999px;padding:11px 22px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.cp svg{width:18px;height:18px}
+.cp.ok{background:var(--green)}
+.cp.sec{background:none;color:var(--ink);border:1.5px solid rgba(255,255,255,.25)}
+.cp.sec.ok{background:var(--green);color:#07101e;border-color:var(--green)}
+.alt{margin-left:auto;font:500 16px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;color:var(--mute);background:none;border:0;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(255,255,255,.25);text-underline-offset:4px;padding:6px 0}
+.alt:hover{color:var(--ink)}
+.note{margin-top:20px;border:1px solid var(--line);border-radius:14px;padding:18px 22px;background:rgba(255,255,255,.025)}
+.note b{display:block;font-size:14px;letter-spacing:3px;color:var(--amber);margin-bottom:8px}
+.note div{font-size:20px;line-height:1.45;color:#c9d3e1}
+.note b.in{display:inline;letter-spacing:0;color:var(--ink);font-size:inherit;margin:0;font-weight:600}
+.unchk{margin-top:12px;font-size:18px;font-weight:600;color:var(--amber)}
+.ttab{width:100%;border-collapse:collapse;margin-top:26px;font-size:22px}
+.ttab td{padding:9px 14px;border-bottom:1px solid var(--line);color:#c9d3e1}.ttab td:first-child{color:var(--ink);font-weight:600;width:42%}
+#card pre.mc{margin:24px 0 0;max-height:440px;overflow:auto;padding:18px 22px;border-radius:14px;background:#0a1220;border:1px solid var(--line);font:400 18px/1.5 "JetBrains Mono",Consolas,monospace;color:var(--acc2);white-space:pre-wrap;user-select:text}
+#nav{position:absolute;right:160px;top:990px;display:flex;gap:10px;z-index:2}
+#nav button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--mute);font:600 20px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;cursor:pointer}
+#nav button:hover{color:var(--ink);border-color:var(--acc)}
+
+/* Detail-Karte */
+#veil{position:absolute;inset:0;background:rgba(5,9,16,.7);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .35s;z-index:6}
+#veil.on{opacity:1;pointer-events:auto}
+#card{position:absolute;left:310px;top:190px;width:1300px;min-height:520px;background:linear-gradient(180deg,#1c0a80,#0e0558);border:1.5px solid rgba(177,88,237,.45);border-radius:24px;
+  padding:56px 64px 52px;box-shadow:0 40px 120px rgba(0,0,0,.6);opacity:0;pointer-events:none;transform-origin:0 0;z-index:7}
+#card.on{pointer-events:auto}
+#card .x{position:absolute;right:28px;top:26px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--mute);font-size:22px;cursor:pointer}
+#card .x:hover{color:var(--ink);border-color:var(--acc)}
+#card .top{display:flex;gap:26px;align-items:center}
+#card .ic{width:84px;height:84px;border-radius:20px;display:grid;place-items:center;background:rgba(177,88,237,.13);color:var(--acc);flex:none}
+#card .ic svg{width:46px;height:46px}
+#card h2{margin:6px 0 0;font-size:52px;font-weight:800;letter-spacing:-1px}
+#card .def{font-size:29px;line-height:1.5;margin:30px 0 0;color:var(--ink);max-width:1120px}
+#card .boxes{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px}
+#card .box{border:1px solid var(--line);border-radius:16px;padding:22px 26px;background:rgba(255,255,255,.025)}
+#card .box b{display:block;font-size:15px;letter-spacing:3px;color:var(--amber);margin-bottom:10px}
+#card .box div{font-size:22px;line-height:1.45;color:#c9d3e1}
+#card .fx>*{opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s}
+#card.show .fx>*{opacity:1;transform:none}
+#card.show .fx>*:nth-child(2){transition-delay:.06s}#card.show .fx>*:nth-child(3){transition-delay:.12s}
+
+/* Startbildschirm */
+#start{position:fixed;inset:0;display:grid;place-items:center;background:rgba(7,0,61,.78);backdrop-filter:blur(10px);z-index:5;transition:opacity .6s}
+#start.gone{opacity:0;pointer-events:none}
+#start .c{text-align:center;max-width:760px;padding:24px}
+#start .k{letter-spacing:.32em;font-size:14px;font-weight:600;color:var(--amber)}
+#start h1{font-size:clamp(38px,6vw,68px);margin:14px 0 8px;font-weight:800;letter-spacing:-.02em;white-space:normal}
+#start p{color:var(--mute);font-size:18px;margin:0 0 30px}
+#start button{font:600 18px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;color:#07101e;background:var(--ink);border:0;border-radius:999px;padding:16px 34px;cursor:pointer}
+#start .keys{margin-top:34px;color:var(--dim);font-size:14px;line-height:2}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="stage">
+  <div class="chrome"><span>LANDESFACHTAG 2026</span><b>Vom Chat zum Code</b></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="hint" id="hint"></div>
+  <div id="tsw"><button data-t="C">Claude <kbd>C</kbd></button><button data-t="G">ChatGPT <kbd>G</kbd></button></div>
+  <div id="nav"><button id="nPrev" aria-label="Zurück" title="Zurück">‹</button><button id="nNext" aria-label="Weiter" title="Weiter">›</button></div>
+
+  <!-- 0 · Titel -->
+  <section class="page" data-hint="&lt;kbd&gt;→&lt;/kbd&gt; weiter">
+    <div class="title">
+      <!-- PLATZHALTER Absender/Marke: Hier erst die offizielle, freigegebene Logo-Datei der Hessischen Lehrkräfteakademie (SVG, Negativ-Version) einsetzen; nicht nachbauen. Siehe design/hessen-umsetzung.md -->
+      <div class="kick rise" style="--d:.1s">10 · MITBAUEN</div>
+      <h2><span class="rise" style="--d:.35s">Jetzt&nbsp;</span><span class="rise" style="--d:.5s">bauen&nbsp;</span><span class="rise a" style="--d:.65s">wir&nbsp;mit.</span></h2>
+      <div class="line" style="margin-top:40px"></div>
+      <p class="rise" style="--d:1s">Der Vokabeltrainer für die 7. Klasse, Schritt für Schritt in Claude oder ChatGPT</p>
+    </div>
+  </section>
+
+  <!-- 1 · Auswahl -->
+  <section class="page" id="pPick" data-hint="Werkzeug anklicken oder &lt;kbd&gt;C&lt;/kbd&gt; / &lt;kbd&gt;G&lt;/kbd&gt; &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
+    <div class="head">
+      <div class="kick rise">10 · MITBAUEN</div>
+      <h1 class="rise" style="--d:.12s">Womit <em>bauen Sie mit?</em></h1>
+    </div>
+    <div class="grid" id="gPick" style="top:350px;grid-template-columns:1fr 1fr;grid-auto-rows:430px"></div>
+    <div class="lead rise" style="--d:.7s;position:absolute;left:160px;top:820px;font-size:23px;max-width:1600px;line-height:1.4"><b style="color:var(--amber);font-weight:600">Vorher erledigen:</b> Konto anlegen und anmelden. Der kostenlose Tarif reicht, hat aber ein Nachrichtenlimit. Bezahltarife bieten mehr Nachrichten und Funktionen. Nur Beispieldaten, keine Schülerdaten, mit einem Privatkonto nicht dienstlich arbeiten. <b style="color:var(--amber);font-weight:600">Tipp:</b> Claude oder ChatGPT in einem zweiten Fenster neben dieser Präsentation öffnen, wechseln mit <kbd>Alt</kbd>+<kbd>Tab</kbd>. Suchen Sie nach dem Begriff, nicht nach der Stelle.</div>
+  </section>
+
+  <!-- 2–8 · Schritte (werden per Skript gefüllt) -->
+  <section class="page step" data-s="0"></section>
+  <section class="page step" data-s="1"></section>
+  <section class="page step" data-s="2"></section>
+  <section class="page step" data-s="3"></section>
+  <section class="page step" data-s="4"></section>
+  <section class="page step" data-s="5"></section>
+  <section class="page step" data-s="6"></section>
+
+  <!-- 9 · Geschafft -->
+  <section class="page" id="pDone" data-hint="&lt;kbd&gt;←&lt;/kbd&gt; zurück &nbsp;·&nbsp; &lt;kbd&gt;Pos1&lt;/kbd&gt; zum Anfang">
+    <div class="head">
+      <div class="kick rise">10 · MITBAUEN</div>
+      <h1 class="rise" style="--d:.12s">Geschafft. <em>Ihre App läuft.</em></h1>
+      <div class="lead rise" style="--d:.25s">Bevor sie in den Unterricht geht, drei Dinge, die immer gelten:</div>
+    </div>
+    <div class="grid" style="top:440px;grid-template-columns:repeat(3,1fr);grid-auto-rows:350px" id="gDone"></div>
+    <div class="rise" style="--d:1s;position:absolute;left:160px;top:830px"><span class="chip">● Nächster Schritt: Ihre eigene App-Idee in drei Sätzen aufschreiben und wieder bei Schritt 1 starten</span></div>
+  </section>
+
+  <div id="veil"></div>
+  <div id="card"><button class="x" id="cx" aria-label="Schließen">✕</button><div id="cbody"></div></div>
+</div>
+
+<div id="start"><div class="c">
+  <div class="k">LANDESFACHTAG 2026 · TEIL 2</div>
+  <h1>Mitbauen: Vokabeltrainer</h1>
+  <p>Live mit Claude oder ChatGPT · Prompts kopieren, einfügen, ausprobieren</p>
+  <p style="margin-top:-14px">Tipp: Öffnen Sie Claude oder ChatGPT in einem zweiten Fenster daneben und wechseln Sie mit Alt+Tab. Vollbild beenden: Taste F oder Esc.</p>
+  <button id="go">▶&nbsp; Starten</button>
+  <div class="keys"><kbd>→</kbd> <kbd>←</kbd> oder Präsenter: Seite vor/zurück &nbsp; <kbd>C</kbd> Claude &nbsp; <kbd>G</kbd> ChatGPT &nbsp; <kbd>Esc</kbd> Karte schließen<br><kbd>F</kbd> Vollbild &nbsp; <kbd>M</kbd> Klänge aus/an &nbsp; <kbd>Pos1</kbd> Anfang</div>
+</div></div>
+
+<script>
+/* ============ Symbole (Linien-Icons) ============ */
+const P={
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ folder:'<path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+ search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+ send:'<path d="M12 19V5M6 11l6-6 6 6"/>',
+ dots:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+ dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+ share:'<path d="M12 15V4M7 9l5-5 5 5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"/>',
+ copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+ file:'<path d="M6 2.5h8l4 4V21a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 21z"/><path d="M14 2.5v4h4"/>',
+ code:'<path d="m8 9-4 3 4 3M16 9l4 3-4 3M13.5 6l-3 12"/>',
+ who:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ lock:'<rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5M12 14.5v2"/>',
+ rule:'<path d="M12 2.5 4 6v6c0 4.5 3.4 8 8 9.5 4.6-1.5 8-5 8-9.5V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
+ test:'<path d="M9 3h6M10 3v6l-5.5 9.5A1.6 1.6 0 0 0 5.9 21h12.2a1.6 1.6 0 0 0 1.4-2.5L14 9V3"/><path d="M7.5 15h9"/>',
+ help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17v.5"/>',
+ spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+ clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+ sliders:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+ layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+ lib:'<path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="m16 5 3.5-1 2.5 15-3.5 1z"/>',
+ plug:'<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v5"/>'
+};
+const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${P[k]}</svg>`;
+const $=id=>document.getElementById(id);
+
+/* ============ Texte zum Kopieren ============ */
+const WORDS=`the forest;der Wald
+the river;der Fluss
+the mountain;der Berg
+the island;die Insel
+the weather;das Wetter
+the journey;die Reise
+the map;die Landkarte
+to climb;klettern
+to explore;erkunden
+dangerous;gefährlich`;
+
+const RULES=`# Projekt: Vokabeltrainer Englisch
+## Zielgruppe
+Klasse 7, Englisch, Wörter aus wortliste.txt
+## Regeln
+- Die App ist eine einzige HTML-Datei mit HTML, CSS und JavaScript. Kein React, keine Bibliotheken, keine Schriften oder Bilder aus dem Internet. Sie läuft per Doppelklick offline.
+- Keine Anmeldung, keine Online-Speicherung, keine Schülerdaten.
+- Lernstand mit localStorage unter dem Namen „vokabeltrainer-englisch-7“ speichern, in try/catch. Fehlt localStorage, läuft die App ohne Speichern weiter und sagt das kurz.
+- Oberfläche auf Deutsch, einfache Sprache, große Knöpfe, gut lesbar auf dem Tablet.
+- Vor dem ersten Bauen: erst einen Plan zeigen und auf mein OK warten. Kleine Korrekturen danach direkt umsetzen.`;
+
+const PLAN=`Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts.
+Nutze die Wörter aus wortliste.txt.
+Zeig mir kurz:
+- welche Bildschirme es gibt
+- wie eine Übungsrunde abläuft
+- wie der Lernstand angezeigt wird
+- welche Fragen du an mich hast (höchstens drei)`;
+
+/* Antworthilfe für die Rückfragen nach dem Plan (Profi-Test, Befund 7) */
+const ANSWER=`Englisch vorne, Deutsch hinten. Reihenfolge zufällig.
+„Nochmal“-Karten kommen in derselben Runde später wieder.
+Die Runde endet, wenn alle Karten gewusst sind. Keine Punkte, nur Lernstand und Fortschrittsbalken.`;
+
+/* Kartenlogik ausdrücklich festgelegt (ChatGPT-Prüfung: BAUANLEITUNG.md). Für beide Werkzeuge gleich, nur die letzte Zeile unterscheidet sich. */
+const LOGIC=`So soll er funktionieren:
+- Vorne Englisch, nach „Umdrehen“ Deutsch.
+- „Gewusst“ und „Nochmal“ erst nach dem Umdrehen.
+- „Gewusst“ nimmt die Karte aus der Runde, der Fortschritt steigt um eins.
+- „Nochmal“ stellt die Karte hinten an, der Fortschritt bleibt.
+- Fortschritt: gewusste Wörter von allen, z. B. 3/10, mit Balken.
+- Sind alle gewusst, erscheint „Geschafft“. Ist nur noch eine Karte offen, darf sie nach „Nochmal“ sofort wiederkommen.
+- „Neu starten“ fragt nach und beginnt bei 0. Abbrechen behält den Lernstand.`;
+const BUILD={
+ C:`Der Plan passt. Baue jetzt den Vokabeltrainer als eine einzige HTML-Datei vokabeltrainer.html (kein React).
+Baue die Wörter aus der Wortliste fest in die Datei ein.
+${LOGIC}
+Zeige ihn als Artefakt an, damit ich ihn rechts direkt ausprobieren kann.
+Halte dich an die Regeln.`,
+ G:`Der Plan passt. Baue jetzt den Vokabeltrainer als eine einzige HTML-Datei vokabeltrainer.html (kein React).
+Baue die Wörter aus der Wortliste fest in die Datei ein.
+${LOGIC}
+Gib mir die vollständige Datei zum Herunterladen. Wenn eine Vorschau verfügbar ist, öffne sie zusätzlich. Sag kurz, wo ich die Datei finde.
+Halte dich an die Regeln.`};
+
+/* Ersatzweg: ein einziger Prompt in einem neuen Chat, ohne Projekt und ohne Upload (BAUANLEITUNG.md, Profi-Test „Schnellweg“) */
+const FALLBACK=`Plane einen Vokabeltrainer für Englisch, Klasse 7. Baue noch nichts.
+Zeige einen kurzen Plan und warte auf mein OK.
+
+Regeln:
+${RULES.split('## Regeln\n')[1]}
+
+${LOGIC}
+
+Wortliste, eine Zeile pro Paar, englisch;deutsch:
+${WORDS}
+
+Zeige die Bildschirme, den Rundenablauf und höchstens drei Fragen.`;
+
+/* Platzhalter statt Beispielfehler: Wer nur kopiert, meldet sonst einen Fehler, den es nicht gibt (Test-Befunde A-20, P-4) */
+const BUG=`Ich teste <em>[die Vorschau / die heruntergeladene Datei]</em>.
+Ich habe <em>[was ich getan habe]</em>.
+Passiert ist <em>[was ich sehe]</em>.
+Erwartet hatte ich <em>[Soll-Ergebnis aus der Prüfliste]</em>.
+Finde die Ursache, behebe sie, gib mir die korrigierte vollständige App und sag mir in einem Satz, was du geändert hast.`;
+
+const FINAL=`Gib mir die fertige App als eine einzige Datei vokabeltrainer.html zum Herunterladen.
+Sie soll per Doppelklick im Browser starten, ohne Internet funktionieren und keine Dateien aus dem Internet laden.`;
+
+/* ============ Mockup-Bausteine ============ */
+let RN=0;                                   /* fortlaufende Verzögerung der Ringe */
+const R=n=>n?`<span class="ring" data-n="${n}" style="--rd:${.75+n*.45}s"></span>`:'';
+const mi=k=>svg(k);
+const si=(lbl,ic,ring,act)=>`<div class="si${act?' act':''}${ring?' tgt':''}">${ic?mi(ic):''}<span>${lbl}</span>${R(ring)}</div>`;
+const T=(html,ring,cls='',st='')=>`<span class="${cls}${ring?' tgt':''}" style="${st}">${html}${R(ring)}</span>`;
+function win(url,tool,inner,unchk){return `<div class="tbar"><i></i><i></i><i></i><span class="url">${url}</span><span class="tag"${unchk?' style="color:var(--amber)"':''}>${unchk?'SCHEMATISCH · UNGEPRÜFT':'VEREINFACHTE DARSTELLUNG'}</span></div><div class="mw">${inner}</div>`}
+function app(mode){return `<div class="va ${mode==='sk'?'sk':''}"><h6>Vokabeltrainer</h6><small>Englisch · Klasse 7</small><div class="fc"><span>the forest</span></div><div class="bt"><i>Nochmal</i><i>Gewusst ✓</i></div><div class="pb"><b></b></div><div class="lt">Lernstand 3 / 10</div></div>`}
+const ph=w=>`<div class="ph" style="width:${w}%"></div>`;
+
+/* ---------- Claude (claude.ai) ---------- */
+/* BELEGT durch Screenshots der deutschen Claude-Desktop-App (NACHTRAG 2, 11.11.2026): Seitenleiste „+ Neu“, „Suchen“, „Projekte“, „Artefakte“, „Geplant“, „Design“,
+   „Anpassungen“, „Angepinnt ›“, „Letzte Elemente ›“, unten Konto „Name · Pro ⌄“; Seite „Projekte“ mit Knopf „Neues Projekt“ oben rechts.
+   Gleiche Beschriftung wie in teil2-oberflaechen.html. Neutraler Beispielname statt echter Namen. */
+function cSide(o={}){return `<div class="ms"><div class="brand">Claude</div>
+ ${si('Neu','plus')}${si('Suchen','search')}${si('Projekte','folder',o.proj,o.act==='p')}${si('Artefakte','grid')}${si('Geplant','clock')}${si('Design','edit')}${si('Anpassungen','sliders')}
+ <div class="lab" style="letter-spacing:0;font-size:13px">Angepinnt ›</div><div class="lab" style="letter-spacing:0;font-size:13px;padding-top:6px">Letzte Elemente ›</div>${ph(80)}${ph(62)}
+ <div class="usr">${si('Ihr Name · Pro ⌄','who')}</div></div>`}
+function cProjList(o){return `<div class="mm"><div class="top"><div class="pt" style="margin:0">Projekte</div><span class="sp"></span>${T(`<span class="btn pri">Neues Projekt</span>`,o.nb,'','display:inline-block;border-radius:9px')}</div>
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px">${[1,2].map(()=>`<div class="kcard" style="height:96px">${ph(55)}${ph(35)}</div>`).join('')}</div>
+ ${o.modal?`<div class="modal" style="left:110px;top:220px;width:520px"><h5>Neues Projekt erstellen</h5><label>WORAN ARBEITEN SIE?</label><div class="fld">Vokabeltrainer 7</div><label>BESCHREIBUNG (OPTIONAL)</label><div class="fld" style="color:var(--dim)">Karteikarten für Englisch</div>
+ <!-- UNSICHER: genaue Feld- und Knopfbeschriftung im Dialog „Neues Projekt“ -->
+ <div class="row"><span class="btn">Abbrechen</span>${T('<span class="btn pri">Projekt erstellen</span>',o.cr,'','display:inline-block;border-radius:9px')}</div></div>`:''}</div>`}
+function cProj(o={}){return `<div class="mm"><div class="crumb">← Alle Projekte</div><div class="pt">Vokabeltrainer 7</div>
+ <div class="cols"><div class="l">
+  ${T(`<div class="inp"><div class="tx${o.txt?' f':''}">${o.txt||'Wie kann ich dir heute helfen?'}</div><div class="tl2"><span class="ib">${mi('plus')}</span>${T(`<span class="snd">${mi('send')}</span>`,o.snd,'','display:inline-block;border-radius:10px')}</div></div>`,o.inp,'','display:block;border-radius:16px')}
+  <div class="chats" style="margin-top:18px">${ph(70)}${ph(50)}${ph(60)}</div></div>
+ <div class="r">
+  <div class="kcard"><h6>Anweisungen</h6>${o.ins2?'<div class="mt">Klasse 7, eine HTML-Datei, offline …</div>':T('<span class="lk">Projektanweisungen festlegen</span>',o.ins,'','display:inline-block;border-radius:6px')}</div>
+  <!-- UNSICHER: Platzhalter im Eingabefeld der Projektseite (belegt nur für die Startseite: „Wie kann ich dir heute helfen?“), Beschriftung des Wissensbereichs (Hilfe: „Projektwissen“; „Kontext“ nur für Cowork-Projekte belegt) und Einträge im Plus-Menü. Die Projektseite selbst ist nicht im Screenshot. -->
+  <div class="kcard" style="position:relative"><h6>Projektwissen ${T(`<span class="plus">${mi('plus')}</span>`,o.add,'','display:inline-block;border-radius:8px')}</h6>
+   ${o.file?`<span class="file">${mi('file')}wortliste.txt</span>`:'<div class="mt">Dateien hinzufügen, die Claude in jedem Chat nutzt.</div>'}
+   ${o.menu?`<div class="menu" style="right:0;top:52px;width:240px">${si('Vom Gerät hochladen','share',o.menu)}${si('Textinhalt hinzufügen','edit')}</div>`:''}</div>
+ </div></div>
+ ${o.modal?`<div class="modal" style="left:20px;top:170px;width:440px"><h5>Projektanweisungen festlegen</h5><div class="fld area">${RULES.split('\n').slice(0,8).join('\n')}</div><div class="row"><span class="btn">Abbrechen</span>${T('<span class="btn pri">Anweisungen speichern</span>',o.save,'','display:inline-block;border-radius:9px')}</div></div>`:''}
+ </div>`}
+function cChat(o={}){return `<div class="mm" style="padding:20px 22px"><div class="crumb">Vokabeltrainer 7 › Vokabeltrainer planen</div>
+ <div style="flex:1;display:flex;flex-direction:column;margin-top:14px;min-height:0;padding-right:16px">
+  <div class="bub">${o.u}</div>
+  <div class="ans">${o.a}</div>
+  ${T(`<div class="achip"><span class="ai">${mi('code')}</span><div>Vokabeltrainer<small>Artefakt · HTML</small></div></div>`,o.chip,'','display:block;border-radius:12px;margin-top:16px')}
+ </div>
+ ${T(`<div class="inp" style="min-height:76px"><div class="tx${o.txt?' f':''}">${o.txt||'Antworten …'}</div><div class="tl2"><span class="snd">${mi('send')}</span></div></div>`,o.inp,'','display:block;border-radius:16px;margin-top:12px')}
+ </div>
+ <div class="mp"><div class="hd"><span class="nm">Vokabeltrainer</span>
+  <!-- UNSICHER: Anordnung und Beschriftung der Knöpfe oben im Artefakt-Panel (Kopieren, Herunterladen, „Teilen“) -->
+  <span class="btn ico">${mi('copy')}</span>${T(`<span class="btn ico">${mi('dl')}</span>`,o.dl,'','display:inline-block;border-radius:9px')}${T(`<span class="btn pri">${mi('share')}Teilen</span>`,o.sh,'','display:inline-block;border-radius:9px')}</div>
+  <div class="bd">${T(app(o.app||'full'),o.appt,'','display:block;border-radius:14px;padding:8px')}</div></div>`}
+
+/* ---------- ChatGPT (Desktop-App bzw. chatgpt.com) ---------- */
+/* BELEGT durch Screenshots der deutschen ChatGPT-Desktop-App (design/screenshots/chatgpt-desktop-1..4.webp, 11.11.2026):
+   „ChatGPT ⌄“, „Neuer Chat“, „Angeheftet“, „Letzte ›“, „…“-Menü (Projekte, Sites, Karten, GPTs, Code Review), Umschalter „Chat | Work“,
+   „Woran sollen wir arbeiten?“, „Mit ChatGPT arbeiten“, „Für mich genehmigen“, „GPT-6.1 Sol Mittel ⌄“, „Projekt auswählen“/„Dateien“/„Plugins“,
+   Seitenfenster „Ausgaben“ („Ausgabe erstellen“), „Seiten-Chats“ („Nebenchat“), „Quellen“ („Dateien anhängen oder Apps verbinden“),
+   „… lang gearbeitet ›“ und Link „App öffnen“.
+   UNSICHER: „Einstellungen“ unten (Screenshot zeigt nur das Profilbild); Projektseite selbst ist nicht im Screenshot (Tabs „Chats“/„Quellen“ laut Hilfeartikel). */
+/* „…“ liegt wie in teil2-oberflaechen.html in der schmalen Symbolleiste ganz links (Screenshot 3). */
+function gSide(o={}){return `<div class="rail"><span class="ri">${mi('chat')}</span><span class="ri">${mi('layers')}</span><span class="ri">${mi('clock')}</span><span class="ri">${mi('lib')}</span><span class="ri">${mi('plug')}</span>
+ <span class="ri${o.more?' tgt':''}">${mi('dots')}${R(o.more)}</span><span class="ri">${mi('grid')}</span></div>
+ ${o.menu?`<div class="gmenu" style="left:52px;top:206px">${si('Projekte','folder',o.menu)}${si('Sites','grid')}${si('Karten','layers')}${si('GPTs','spark')}${si('Code Review','code')}</div>`:''}
+ <div class="ms"><div class="brand">ChatGPT ⌄</div>
+ ${si('Neuer Chat','edit')}
+ <div class="lab" style="letter-spacing:0;font-size:13px">Angeheftet</div>${o.has?si('Vokabeltrainer 7','folder',o.pin,1):''}${ph(78)}${ph(58)}
+ <div class="lab" style="letter-spacing:0;font-size:13px">Letzte ›</div>${ph(70)}${ph(54)}
+ <!-- UNSICHER: Beschriftung unten (Screenshot zeigt nur das Profilbild) -->
+ <div class="usr">${si('Profil','who')}</div></div>`}
+/* Genehmigung: wie in teil2-oberflaechen.html empfohlen „Genehmigung anfordern“ (ChatGPT fragt vor Aktionen nach) */
+const gInp=(o={},ph0='Mit ChatGPT arbeiten')=>`<div class="inp g"><div class="tx${o.txt?' f':''}">${o.txt||ph0}</div><div class="tl2"><span class="ib">${mi('plus')}</span><span class="gx">Genehmigung anfordern</span><span class="mdl">GPT-6.1 Sol <i>Mittel ⌄</i></span>${T(`<span class="snd">${mi('send')}</span>`,o.snd,'','display:inline-block;border-radius:10px')}</div></div>`;
+const gUnder=p=>`<div class="gund"><span>${mi('folder')}${p||'Projekt auswählen'}</span><span>${mi('file')}Dateien</span><span>${mi('spark')}Plugins</span></div>`;
+/* Referenzzustand wie auf den Screenshots 2–4: „Work“ aktiv */
+const gCW=()=>`<span class="cw"><span>Chat</span><span class="on">Work</span></span>`;
+function gHome(o){return `<div class="mm" style="align-items:center"><div>${gCW()}</div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center"><div style="font-size:26px;font-weight:600;margin-bottom:22px">Woran sollen wir arbeiten?</div>
+ <div style="width:600px">${gInp()}${gUnder()}</div></div>
+ ${o.modal?`<div class="modal" style="left:250px;top:150px;width:440px"><h5>Neues Projekt</h5><label>PROJEKTNAME</label><div class="fld">Vokabeltrainer 7</div>
+ <!-- UNSICHER: Weg nach „…“ › „Projekte“ zum Anlegen sowie Titel und Knopf des Dialogs („Projekt erstellen“) -->
+ <div class="row">${T('<span class="btn pri">Projekt erstellen</span>',o.cr,'','display:inline-block;border-radius:9px')}</div></div>`:''}</div>`}
+function gProj(o={}){return `<div class="mm"><div class="top"><div class="pt" style="margin:0">${mi('folder')}Vokabeltrainer 7</div><span class="sp"></span>${gCW()}${T(`<span class="btn ico">${mi('dots')}</span>`,o.dots,'','display:inline-block;border-radius:9px')}</div>
+ <div style="margin-top:22px">${T(gInp(o),o.inp,'','display:block;border-radius:16px')}${gUnder('Vokabeltrainer 7')}</div>
+ <!-- Belegt (de, Hilfeartikel): Tabs „Chats“ und „Quellen“, Dateien liegen unter „Quellen“. UNSICHER: Projektseite der Desktop-App und Knopf „Hinzufügen“ -->
+ <div class="ptabs">${T('Chats',0,o.src?'':'on')}${T('Quellen',o.src,o.src?'on':'')}</div>
+ ${o.src?`<div style="display:flex;gap:12px;align-items:center;margin-top:16px">${T(`<span class="btn">${mi('plus')}Hinzufügen</span>`,o.files,'','display:inline-block;border-radius:9px')}${o.file?`<span class="file">${mi('file')}wortliste.txt</span>`:''}</div>`:`<div class="chats" style="margin-top:14px">${ph(66)}${ph(48)}</div>`}
+ ${o.menu?`<div class="menu" style="right:24px;top:70px;width:250px">${si('Projekteinstellungen','gear',o.menu)}${si('Projekt umbenennen','edit')}<hr>${si('Projekt löschen','lock')}</div>`:''}
+ ${o.modal?`<div class="modal" style="left:20px;top:230px;width:460px"><h5>Projekteinstellungen</h5><label>ANWEISUNGEN</label><div class="fld area" style="height:140px">${RULES.split('\n').slice(0,7).join('\n')}</div>
+ <!-- Belegt (de): Feld „Anweisungen“ in den Projekteinstellungen. UNSICHER: Knopf „Speichern“ sowie Menüeinträge „Projekt umbenennen“/„Projekt löschen“ -->
+ <div class="row"><span class="btn">Abbrechen</span>${T('<span class="btn pri">Speichern</span>',o.save,'','display:inline-block;border-radius:9px')}</div></div>`:''}
+ </div>`}
+function gChat(o={}){return `<div class="mm" style="padding:20px 22px"><div class="top" style="min-height:30px"><div class="crumb" style="color:var(--ink);font-weight:600">Vokabeltrainer bauen</div><span class="sp"></span><span class="btn ico">${mi('dots')}</span><span class="btn ico">${mi('grid')}</span></div>
+ <div style="flex:1;display:flex;flex-direction:column;margin-top:14px;min-height:0;padding-right:10px">
+  <div class="bub">${o.u}</div>
+  ${o.wk?`<div class="wk">${o.wk} lang gearbeitet ›</div>`:''}<div class="ans" style="margin-top:8px">${o.a}</div>
+  <!-- Datei- bzw. Vorschau-Link in der Antwort: Wortlaut je nach Ergebnis, „App öffnen“ nur als Beispiel (Screenshot 1) -->
+  ${o.fl?T(`<span class="file">${mi('file')}vokabeltrainer.html</span>`,o.fl,'','display:inline-block;border-radius:8px;align-self:flex-start;margin-top:10px'):''}
+  ${o.open!==undefined?T(`<span class="aop">${mi('code')}App öffnen</span>`,o.open,'','display:inline-block;border-radius:8px;align-self:flex-start'):''}
+ </div>
+ ${T(gInp(o),o.inp,'','display:block;border-radius:16px;margin-top:12px')}
+ </div>
+ ${o.pv?`<div class="gsp" style="width:350px">
+  <!-- UNSICHER: Ob „App öffnen“ die Vorschau im eingebauten Browser-Tab des Seitenfensters oder in einem eigenen Fenster zeigt (Screenshot-Text: „eigenes Vorschaufenster“, „Pop-ups erlauben“) -->
+  <div class="tabh">${mi('code')}Vokabeltrainer<span style="margin-left:auto;color:var(--mute)">✕</span></div>
+  <div class="pvb">${T(app(o.app||'full'),o.appt,'','display:block;border-radius:14px;padding:8px')}</div></div>`
+ :`<div class="gsp" style="width:250px">
+  <div class="sec"><h6>Ausgaben <span>+</span></h6>${o.out?T(`<span class="file">${mi('file')}vokabeltrainer.html</span>`,o.outr,'','display:inline-block;border-radius:8px'):'<div class="mt">Ausgabe erstellen</div>'}</div>
+  <!-- UNSICHER: Darstellung der Datei unter „Ausgaben“ und der genaue Weg zum Speichern auf dem Rechner -->
+  <div class="sec"><h6>Seiten-Chats</h6><div class="mt">${mi('chat').replace('<svg','<svg style="width:13px;height:13px;vertical-align:-2px;margin-right:6px"')}Nebenchat</div></div>
+  <div class="sec"><h6>Quellen <span>+</span></h6><div class="mt">Dateien anhängen oder Apps verbinden</div></div></div>`}`}
+
+/* ============ Schritte ============ */
+/* Korrekturen nach Anfänger-Test (A-…), Profi-Test (P-…) und ChatGPT-Prüfung der Kursleitung (Pruefung-ChatGPT-2026-11-11), siehe design/tests/umsetzung-testbefunde.md.
+   ChatGPT: Referenz ist die Desktop-App im Zustand „Work“ wie auf den Screenshots. Projektanlage, „Quellen › Hinzufügen“ und Projekteinstellungen sind NICHT fotografiert:
+   UNSICHER, deshalb sichtbar als ungeprüft markiert (chk) und mit Ersatzweg in einem Chat (FALLBACK). */
+const UNCHK='Ungeprüft: vor dem Workshop im eigenen Konto prüfen';
+const STEPS=[
+ {h:'Ein Projekt <em>anlegen.</em>',x:['Ersatzweg kopieren',()=>FALLBACK],
+  C:{path:['Seitenleiste','Projekte','Neues Projekt'],
+     txt:'Öffnen Sie Claude und klicken Sie links auf <b>Projekte</b>, dann oben rechts auf <b>Neues Projekt</b>. Name: <b>Vokabeltrainer 7</b>. Ein Projekt ist ein Ordner für alle Chats zu einem Thema.',
+     mock:()=>cSide({proj:1,act:'p'})+cProjList({nb:2,modal:1,cr:3}),
+     note:['VORAB PRÜFEN','Oben links steht der Umschalter Chat / Code. Bleiben Sie bei <b class="in">Chat</b>. Kostenlose Konten haben ein Nutzungslimit (Hinweis z. B. „5-Stunden-Limit fast erreicht“). Senden Sie jeden Prompt nur einmal. Ist das Limit erreicht, arbeiten Sie bei Ihrer Nachbarin oder Ihrem Nachbarn mit.'],
+     alt:['Projekte fehlen?','Je nach Tarif oder Organisation gibt es keine Projekte. Dann klicken Sie links auf <b>+ Neu</b>, kopieren den <b>Ersatzweg</b> (Knopf unten) in den Chat und senden ihn. Weiter geht es bei Schritt 4.','Der Ersatzweg enthält Regeln und Wörter. Sie brauchen dann kein Projekt und keinen Upload.','Claude sieht gerade nicht bei allen gleich aus. Suchen Sie links nach dem Wort Projekte, nicht nach der Stelle.']},
+  G:{path:['Leiste ganz links','…','Projekte','Neues Projekt'],chk:1,
+     txt:'Öffnen Sie die <b>ChatGPT-Desktop-App</b>. Ganz links in der schmalen Leiste klicken Sie auf <b>…</b>, dann auf <b>Projekte</b> und <b>Neues Projekt</b>. Name: <b>Vokabeltrainer 7</b>. Ein Projekt ist ein Ordner für alle Chats zu einem Thema.',
+     mock:()=>gSide({more:1,menu:2})+gHome({modal:1,cr:3}),
+     note:['VORAB PRÜFEN','Die Anleitung folgt der Desktop-App im Zustand <b class="in">Work</b> wie auf den Bildern. Im Eingabefeld <b class="in">Genehmigung anfordern</b> wählen: Dann fragt ChatGPT vor Aktionen nach. Kostenloses Konto ohne Work oder Projekt? Nehmen Sie den Ersatzweg in einem neuen Chat.'],
+     /* UNSICHER: ob Projekte, Vorschau-Link und Datei-Download auch im Modus „Chat“ und in kostenlosen Konten so erscheinen (nicht getestet) */
+     alt:['Kein „Projekte“ oder kein Work?','Fehlt die schmale Leiste, ist die Seitenleiste eingeklappt. Fehlen Projekte oder Work, klicken Sie auf <b>Neuer Chat</b>, kopieren den <b>Ersatzweg</b> (Knopf unten) hinein und senden ihn. Weiter geht es bei Schritt 4.','Der Ersatzweg enthält Regeln und Wörter. Sie brauchen dann kein Projekt und keinen Upload.','Diese Anleitung beschreibt nur die Desktop-App. Im Browser liegen Menüs anders. Suchen Sie dort nach dem Begriff, nicht nach der Stelle.']}},
+ {h:'Die Wortliste <em>hinzufügen.</em>',words:1,
+  C:{path:['Projekt','Projektwissen','+','Vom Gerät hochladen'],
+     txt:'Klicken Sie unten auf <b>Als .txt herunterladen</b>. Die Datei landet in <b>Downloads</b>. Im Projekt rechts beim <b>Projektwissen</b> (Dateien für alle Chats) auf <b>+</b> › <b>Vom Gerät hochladen</b> › <b>wortliste.txt</b>.',
+     mock:()=>cSide({act:'p'})+cProj({add:1,menu:2}),
+     alt:['Hochladen klappt nicht?','Wählen Sie im Plus-Menü <b>Textinhalt hinzufügen</b> und fügen Sie die kopierte Wortliste ein. Heißt der Kasten bei Ihnen <b>Kontext</b>, ist es derselbe.','Kontrolle: Danach steht wortliste.txt im Kasten Projektwissen. Eine Zeile pro Wort: englisch;deutsch.','Später ersetzen Sie die Liste durch Ihre Unit-Wörter, im selben Format. Keine Namen oder Noten hochladen.']},
+  G:{path:['Angeheftet','Vokabeltrainer 7','Quellen','Hinzufügen'],chk:1,
+     txt:'Klicken Sie links unter <b>Angeheftet</b> auf <b>Vokabeltrainer 7</b>. Laden Sie die Wortliste unten herunter (Ordner <b>Downloads</b>). Dann <b>Quellen</b> › <b>Hinzufügen</b> › <b>wortliste.txt</b>.',
+     mock:()=>gSide({has:1,pin:1})+gProj({src:1,files:2,file:1}),
+     alt:['Projekt oder „Quellen“ nicht zu sehen?','Steht das Projekt nicht unter Angeheftet, öffnen Sie es über <b>…</b> › <b>Projekte</b>. Klappt der Upload nicht, nehmen Sie den Ersatzweg aus Schritt 1. Er enthält die Wörter schon.','Kontrolle: Danach steht wortliste.txt im Projekt. Eine Zeile pro Wort: englisch;deutsch.','Quellen gelten für alle Chats im Projekt, an einen Chat angehängte Dateien nur für diesen Chat.']}},
+ {h:'Die Regeln <em>festlegen.</em>',prompt:()=>RULES,plab:'PROJEKTANWEISUNGEN',
+  C:{path:['Projekt','Projektanweisungen festlegen','Anweisungen speichern'],
+     txt:'Klicken Sie rechts auf <b>Projektanweisungen festlegen</b> (Regeln für jeden Chat im Projekt). Unten auf <b>Kopieren</b>, ins Feld klicken, <b>Strg+V</b> (Mac: Cmd+V). Dann <b>Anweisungen speichern</b>.',
+     mock:()=>cSide({act:'p'})+cProj({file:1,ins:1,modal:1,save:2}),
+     alt:['Wozu Regeln?','Projektanweisungen gelten ab jetzt in jedem Chat dieses Projekts. Sie müssen sie nicht noch einmal eingeben.','Die Offline-Regel verhindert, dass die App Schriften oder Bibliotheken aus dem Internet lädt.','Wenige, klare Regeln wirken besser als viele. Datenschutz gehört immer hinein.']},
+  G:{path:['Projektseite oben rechts','•••','Projekteinstellungen'],chk:1,
+     txt:'Oben rechts auf der Projektseite <b>•••</b> › <b>Projekteinstellungen</b> (nicht „…“ links). Unten auf <b>Kopieren</b>, ins Feld <b>Anweisungen</b> klicken, <b>Strg+V</b> (Mac: Cmd+V). Dann speichern.',
+     mock:()=>gSide({has:1})+gProj({dots:1,menu:2,modal:1,save:3}),
+     alt:['Keine Projekteinstellungen?','Nehmen Sie den Ersatzweg aus Schritt 1 in einem neuen Chat. Er enthält dieselben Regeln.','Die Offline-Regel verhindert, dass die App Schriften oder Bibliotheken aus dem Internet lädt.','Projektanweisungen gelten nur in diesem Projekt und haben Vorrang vor Ihren allgemeinen Anweisungen.']}},
+ {h:'Erst <em>planen lassen.</em>',prompt:()=>PLAN,plab:'PROMPT',x:['Antworthilfe kopieren',()=>ANSWER],
+  C:{path:['Projekt','Eingabefeld','Senden'],
+     txt:'Kopieren Sie den Prompt in das Eingabefeld und senden Sie ihn. Lesen Sie den Plan. Rückfragen beantworten Sie mit der <b>Antworthilfe</b> oder: „Entscheide du, halte es einfach.“ Passt der Plan, weiter zu Schritt 5.',
+     mock:()=>cSide({act:'p'})+cProj({file:1,ins2:1,inp:1,snd:2,txt:'Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts. Nutze die Wörter aus wortliste.txt …'}),
+     alt:['Der Plan passt nicht?','Sagen Sie konkret, was anders sein soll, zum Beispiel: „Keine Punkte, nur ein Fortschrittsbalken.“ Lassen Sie den Plan neu zeigen.','Die Antworthilfe legt Richtung, Reihenfolge und Rundenende fest. Sie passt zum Bau-Auftrag in Schritt 5.','Claude fängt trotzdem an zu bauen? Dann fehlt die Regel „erst planen“.']},
+  G:{path:['Projekt','Mit ChatGPT arbeiten','Senden'],
+     txt:'Kopieren Sie den Prompt in das Feld <b>Mit ChatGPT arbeiten</b> und senden Sie ihn. Rückfragen beantworten Sie mit der <b>Antworthilfe</b> oder: „Entscheide du, halte es einfach.“ Passt der Plan, weiter zu Schritt 5.',
+     mock:()=>gSide({has:1})+gProj({inp:1,snd:2,txt:'Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts. Nutze die Wörter aus wortliste.txt …'}),
+     alt:['Der Plan passt nicht?','Sagen Sie konkret, was anders sein soll, zum Beispiel: „Keine Punkte, nur ein Fortschrittsbalken.“ Lassen Sie den Plan neu zeigen.','Modell und Denkstufe stehen lassen. Referenz auf den Bildern: GPT-6.1 Sol, Denkstufe Mittel.','ChatGPT baut trotzdem sofort? Dann fehlt die Regel „erst planen“.']}},
+ {h:'Jetzt <em>bauen lassen.</em>',prompt:t=>BUILD[t],plab:'PROMPT',pnote:'Kleine App: ein Auftrag reicht',
+  C:{path:['Eingabefeld','Senden','rechts erscheint die App'],
+     txt:'Senden Sie den Bau-Auftrag und warten Sie, bis die Antwort fertig ist. Die App erscheint rechts als <b>Artefakt</b> (fertiges Ergebnis mit Vorschau). Sonst klicken Sie im Chat auf das Kästchen <b>Vokabeltrainer</b>.',
+     mock:()=>cSide({act:'p'})+cChat({u:'Der Plan passt. Baue jetzt den Vokabeltrainer als eine einzige HTML-Datei …',a:'Gern. Ich erstelle den Vokabeltrainer mit Karteikarten, „Nochmal“ und „Gewusst“ sowie einer Lernstand-Anzeige.',chip:1,appt:2,app:'sk'}),
+     alt:['Kein Panel rechts?','Erscheint statt eines Artefakts eine Datei vokabeltrainer.html, ist das auch richtig: anklicken, ansehen, herunterladen. Sonst schreiben Sie: „Zeige die App als Artefakt an.“ Fragt Claude um Erlaubnis, bestätigen Sie.','Bricht der Code ab, schreiben Sie: „Die Datei ist unvollständig. Gib sie noch einmal vollständig aus, kürzer, ohne Kommentare.“','Für diese kleine App reicht im Workshop ein Auftrag. Größere Apps bauen Sie im Alltag Schritt für Schritt (Vorlage „Bauen“).']},
+  G:{path:['Antwort','Datei- oder Vorschau-Link','öffnen'],
+     txt:'Senden Sie den Bau-Auftrag und warten Sie, bis die Antwort fertig ist („… lang gearbeitet“). Öffnen Sie den angebotenen Datei- oder Vorschau-Link, z. B. <b>App öffnen</b>.',
+     mock:()=>gSide({has:1})+gChat({u:'Der Plan passt. Baue jetzt den Vokabeltrainer als eine einzige HTML-Datei …',wk:'1m 12s',a:'Fertig: Karteikarten, „Nochmal“ und „Gewusst“, dazu eine Lernstand-Anzeige.',fl:2,open:1}),
+     /* UNSICHER: ob die Datei automatisch unter „Ausgaben“ abgelegt wird (Screenshot zeigt „Ausgaben“ leer) */
+     alt:['Kein Link, nur Code?','Schreiben Sie: „Gib mir die vollständige Datei vokabeltrainer.html zum Herunterladen.“ Eine Datei kann auch rechts unter <b>Ausgaben</b> stehen. Sicher ist das nicht. Rechts leer? Oben rechts im Chat das Symbol mit den vier Quadraten.','Bricht der Code ab, schreiben Sie: „Die Datei ist unvollständig. Gib sie noch einmal vollständig aus, kürzer, ohne Kommentare.“','Für diese kleine App reicht im Workshop ein Auftrag. Größere Apps bauen Sie im Alltag Schritt für Schritt (Vorlage „Bauen“).']}},
+ {h:'Testen und <em>Fehler melden.</em>',prompt:()=>BUG,plab:'PROMPT-MUSTER',pnote:'[Klammern] selbst ausfüllen',x:['Prüfliste',null,'test'],
+  C:{path:['Vorschau','Prüfliste','Chat'],
+     txt:'Testen Sie die App mit der <b>Prüfliste</b> (Knopf unten). Fehler melden: Muster kopieren, einfügen, Teile in [Klammern] durch Ihre Worte ersetzen. Kein Fehler gefunden? Weiter zu Schritt 7.',
+     mock:()=>cSide({act:'p'})+cChat({u:'Der Plan passt. Baue jetzt den Vokabeltrainer …',a:'Fertig. Der Vokabeltrainer ist rechts geöffnet. Probiere ihn aus und sag mir, was nicht passt.',appt:1,inp:2,txt:'Ich teste die Vorschau. Ich habe auf „Gewusst“ geklickt …'}),
+     alt:['Kein Fehler gefunden?','Gut so, weiter zu Schritt 7. Oder lassen Sie selbst prüfen: „Alles funktioniert. Prüfe noch einmal Umdrehen, Nochmal, Gewusst und Neu starten.“ Reagiert die App gar nicht, beschreiben Sie, was Sie sehen.','Immer nur einen Fehler pro Nachricht melden. Beispiel: „Ich habe auf ‚Gewusst‘ geklickt. Passiert ist: dieselbe Karte kommt wieder.“','Ob die Vorschau den Lernstand speichert, hängt von der Vorschau ab. Prüfen Sie das in der heruntergeladenen Datei. Ohne Speicher muss die App trotzdem laufen.']},
+  G:{path:['Link öffnen','Prüfliste','Chat'],
+     txt:'Öffnen Sie den Link und testen Sie die App mit der <b>Prüfliste</b> (Knopf unten). Fehler melden: Muster kopieren, einfügen, Teile in [Klammern] ersetzen. Kein Fehler gefunden? Weiter zu Schritt 7.',
+     mock:()=>gSide({has:1})+gChat({u:'Der Plan passt. Baue jetzt den Vokabeltrainer …',wk:'1m 12s',a:'Fertig. Probiere die App aus und sag mir, was nicht passt.',open:0,pv:1,appt:1,inp:2,txt:'Ich teste die Vorschau. Ich habe auf „Gewusst“ geklickt …'}),
+     alt:['Kein Fehler gefunden?','Gut so, weiter zu Schritt 7. Oder lassen Sie selbst prüfen: „Alles funktioniert. Prüfe noch einmal Umdrehen, Nochmal, Gewusst und Neu starten.“ Öffnet sich nichts, erlauben Sie Pop-ups und klicken Sie den Link erneut.','Immer nur einen Fehler pro Nachricht melden. Gibt es keine Vorschau, laden Sie die Datei herunter (Schritt 7) und testen dort.','Ob die Vorschau den Lernstand speichert, hängt von der Vorschau ab. Prüfen Sie das in der heruntergeladenen Datei. Ohne Speicher muss die App trotzdem laufen.']}},
+ {h:'Herunterladen <em>und teilen.</em>',prompt:()=>FINAL,plab:'FALLS KEIN DOWNLOAD',
+  C:{path:['Artefakt-Panel','Pfeil nach unten','Downloads'],
+     txt:'Oben im Panel auf den <b>Pfeil nach unten</b> (Herunterladen). Die Datei landet in <b>Downloads</b>, Doppelklick öffnet sie im Browser. Dann offline testen: WLAN aus, Prüfliste wiederholen.',
+     mock:()=>cSide({act:'p'})+cChat({u:'Danke, jetzt passt alles.',a:'Gern. Die App ist fertig und läuft offline als eine HTML-Datei.',dl:1,sh:2}),
+     alt:['Kein Pfeil oder falsches Programm?','Der Knopf kann auch im Menü <b>…</b> stecken. Sonst senden Sie den Prompt aus dem Kasten. Öffnet sich ein Editor statt des Browsers: Rechtsklick › Öffnen mit › Edge oder Chrome.','Zur Klasse am einfachsten über die Lernplattform. Auf dem iPad läuft die Datei meist nur über die Lernplattform im Browser.','Über <b>Teilen</b> entsteht ein Link zum Anbieter, zunächst ist das Artefakt privat. Prüfen Sie, ob das an Ihrer Schule erlaubt ist.']},
+  G:{path:['Datei-Link','Herunterladen','Downloads'],
+     /* UNSICHER: genauer Speicherweg in der Desktop-App (nicht fotografiert); „Ausgaben“ nur als mögliche Stelle */
+     txt:'Laden Sie die Datei über den Datei-Link in der Antwort herunter. Prüfen Sie in <b>Downloads</b> den Namen <b>vokabeltrainer.html</b>. Doppelklick öffnet sie im Browser. Dann offline testen: WLAN aus, Prüfliste wiederholen.',
+     mock:()=>gSide({has:1})+gChat({u:'Danke, jetzt passt alles.',a:'Gern. Hier ist die fertige Datei zum Herunterladen.',fl:1}),
+     alt:['Kein Datei-Link?','Senden Sie den Prompt aus dem Kasten. Steht die Datei rechts unter <b>Ausgaben</b>, können Sie sie auch dort öffnen. Heißt sie vokabeltrainer.html.txt, fordern Sie die Datei neu an.','Öffnet sich ein Editor statt des Browsers: Rechtsklick › Öffnen mit › Edge oder Chrome.','Für den Unterricht die Datei weitergeben, nicht den Chat. Am einfachsten über die Lernplattform, auf dem iPad dort im Browser öffnen.']}}
+];
+/* Prüfliste mit Soll-Ergebnissen (BAUANLEITUNG.md, kompakt) */
+const TESTS=[['Neue Runde öffnen','Fortschritt 0/10, englisches Wort sichtbar'],['Karte umdrehen','„the forest“ zeigt „der Wald“'],['„Nochmal“','Fortschritt bleibt, Karte kommt später wieder'],['Umdrehen, „Gewusst“','Fortschritt +1, nächste Karte'],['Alle gewusst','„Geschafft“ bei 10/10'],['„Neu starten“ abbrechen','Lernstand bleibt'],['„Neu starten“ bestätigen','Neue Runde bei 0/10'],['Datei ohne Internet','Alles funktioniert offline']];
+const DONE=[
+ {ic:'lock',t:'Keine Schülerdaten',s:'Keine Namen, Noten oder Texte von Lernenden in KI-Werkzeuge eingeben.',e:'Beispieldaten und Wortlisten sind in Ordnung.'},
+ {ic:'rule',t:'Freigegebene Werkzeuge',s:'Für dienstliche Zwecke die vom Land oder Schulträger freigegebenen Werkzeuge nutzen.',e:'Mit Privatkonto nur Beispieldaten. Training mit Ihren Chats in den Einstellungen ausschalten.'},
+ {ic:'test',t:'Selbst prüfen',s:'Inhalte, Bedienung und Barrierefreiheit testen, bevor die App in die Klasse geht.',e:'Die Verantwortung bleibt bei Ihnen, nicht bei der KI.'}
+];
+const TOOLS={
+ C:{n:'Claude',url:'Desktop-App · claude.ai',f:['Projekt mit Projektwissen','Projektanweisungen als Regeln','App als Artefakt, Vorschau rechts']},
+ G:{n:'ChatGPT',url:'Desktop-App · Work',f:['Projekt über „…“ › Projekte (ungeprüft)','Ersatzweg: alles in einem Chat','Datei- oder Vorschau-Link in der Antwort']}
+};
+
+/* ============ Aufbau ============ */
+let TOOL='C';try{const s=localStorage.getItem('lft-mitbauen-tool');if(s==='C'||s==='G')TOOL=s}catch(e){}
+const QT=new URLSearchParams(location.search).get('t');if(QT&&/^[cg]$/i.test(QT))TOOL=QT.toUpperCase();
+
+$('gPick').innerHTML=['C','G'].map((k,i)=>`<div class="tile pick rise" data-t="${k}" style="--d:${.25+i*.12}s"><span class="grp">WERKZEUG ${i+1}</span><h3>Mit ${TOOLS[k].n}</h3><div class="url">${TOOLS[k].url}</div><ul>${TOOLS[k].f.map(x=>`<li>${x}</li>`).join('')}</ul><div class="key">Taste <kbd>${k}</kbd></div></div>`).join('');
+[...$('gPick').children].forEach(el=>{el.onclick=()=>{setTool(el.dataset.t);go(cur+1)};el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')})});
+$('gDone').innerHTML=DONE.map((o,i)=>`<div class="tile rise c-green" style="--d:${.4+i*.15}s;cursor:default"><div class="ic">${svg(o.ic)}</div><h3 style="font-size:34px">${o.t}</h3><p style="font-size:22px">${o.s}</p><p style="margin-top:20px;font-size:20px;color:var(--acc2)">${o.e}</p></div>`).join('');
+
+const STEP_PAGES=[...document.querySelectorAll('.page.step')];
+const HINT_CP='<b>Kopieren</b> › ins Eingabefeld klicken › <kbd>Strg</kbd>+<kbd>V</kbd> &nbsp;·&nbsp; <kbd>C</kbd> / <kbd>G</kbd> Werkzeug &nbsp;·&nbsp; <kbd>→</kbd> weiter';
+STEP_PAGES.forEach((pg,i)=>{
+ pg.dataset.hint=STEPS[i].prompt||STEPS[i].words?HINT_CP:'<kbd>C</kbd> / <kbd>G</kbd> Werkzeug wechseln &nbsp;·&nbsp; <kbd>→</kbd> weiter';
+ pg.innerHTML=`<div class="head"><div class="kick rise">10 · MITBAUEN · SCHRITT ${i+1} VON ${STEPS.length}</div><h1 class="rise" style="--d:.12s">${STEPS[i].h}</h1></div>
+ <div class="mock rise" style="--d:.3s"></div><div class="guide rise" style="--d:.45s"></div>`;
+});
+const copyIc=svg('copy'),dlIc=svg('dl'),helpIc=svg('help');
+const altBtn=(st='')=>`<button class="alt" data-alt${st}>${helpIc.replace('<svg','<svg style="width:16px;height:16px;vertical-align:-3px;margin-right:6px"')}Falls es anders aussieht</button>`;
+const xBtn=S=>S.x?`<button class="cp sec" data-x>${S.x[1]?copyIc:svg('test')}${S.x[0]}</button>`:'';
+function renderStep(i){
+ const S=STEPS[i],o=S[TOOL],pg=STEP_PAGES[i];
+ const m=pg.querySelector('.mock');m.className='mock rise '+(TOOL==='C'?'cl':'gp');
+ m.innerHTML=win(TOOL==='C'?'Claude · Desktop-App':'ChatGPT · Desktop-App',TOOL,o.mock(),o.chk);
+ let box='';
+ if(S.words)box=`<div class="gbox"><div class="lb">WORTLISTE · wortliste.txt<span>englisch;deutsch</span></div><pre>${WORDS}</pre>
+  <div class="gbtn"><button class="cp" data-dl>${dlIc}Als .txt herunterladen</button><button class="cp sec" data-cp>${copyIc}Kopieren</button>${altBtn()}</div></div>`;
+ else if(S.prompt)box=`<div class="gbox"><div class="lb">${o.plab||S.plab}<span>${S.pnote||''}</span></div><pre>${S.prompt(TOOL)}</pre>
+  <div class="gbtn"><button class="cp" data-cp>${copyIc}Kopieren</button>${xBtn(S)}${altBtn()}</div></div>`;
+ else box=`<div class="note"><b>${o.note[0]}</b><div>${o.note[1]}</div></div><div style="flex:1"></div><div class="gbtn">${xBtn(S)}${altBtn(S.x?'':' style="margin-left:0"')}</div>`;
+ const g=pg.querySelector('.guide');
+ g.innerHTML=`<div class="gin"><div class="gtool">IN ${TOOLS[TOOL].n.toUpperCase()} · ${TOOLS[TOOL].url}</div>
+  <div class="path">${o.path.map(x=>`<span>${x}</span>`).join('<i>›</i>')}</div>
+  ${o.chk?`<div class="unchk">⚠ ${UNCHK}</div>`:''}<p class="gtxt"${o.chk?' style="margin-top:8px"':''}>${o.txt}</p>${box}</div>`;
+ g.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>copyText(b,g.querySelector('pre').innerText));
+ g.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>S.x[1]?copyText(b,S.x[1]()):openCard(b,testCard(i)));
+ g.querySelectorAll('[data-dl]').forEach(b=>b.onclick=()=>dlWords(b));
+ g.querySelectorAll('[data-alt]').forEach(b=>b.onclick=()=>openCard(b,altCard(o.alt,i)));
+}
+function testCard(i){return `<div class="fx"><div class="top"><div class="ic">${svg('test')}</div><div><div class="kick">SCHRITT ${i+1} · PRÜFLISTE</div><h2>Was soll passieren?</h2></div></div>
+ <table class="ttab">${TESTS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+ <div class="def" style="font-size:22px;margin-top:20px;color:var(--mute)">Erst in der Vorschau testen, dann noch einmal mit der heruntergeladenen Datei ohne Internet.</div></div>`}
+function renderAll(){STEP_PAGES.forEach((_,i)=>renderStep(i))}
+function setTool(k){
+ if(k!=='C'&&k!=='G')return;const changed=k!==TOOL;TOOL=k;try{localStorage.setItem('lft-mitbauen-tool',k)}catch(e){}
+ [...$('tsw').children].forEach(b=>b.classList.toggle('on',b.dataset.t===k));
+ [...$('gPick').children].forEach(b=>b.classList.toggle('sel',b.dataset.t===k));
+ if(changed){closeCard(true);renderAll();sfx('close')}
+}
+[...$('tsw').children].forEach(b=>b.onclick=()=>setTool(b.dataset.t));
+
+/* ============ Kopieren & Herunterladen ============ */
+function flash(b,txt){const lbl=b.lastChild,old=lbl.textContent;b.classList.add('ok');lbl.textContent=txt;setTimeout(()=>{b.classList.remove('ok');lbl.textContent=old},1800)}
+const esc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+/* Kopiererfolg wirklich prüfen; bei Fehler den Text markiert zeigen und das Kopieren von Hand erklären */
+function copyText(b,t){const ok=()=>flash(b,'Kopiert ✓');
+ if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,fallback);else fallback();
+ function fallback(){const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();let done=false;try{done=document.execCommand('copy')}catch(e){}a.remove();if(done)ok();else manualCopy(b,t)}}
+function manualCopy(b,t){openCard(b,`<div class="fx"><div class="top"><div class="ic">${svg('copy')}</div><div><div class="kick">KOPIEREN HAT NICHT GEKLAPPT</div><h2>Bitte von Hand kopieren</h2></div></div>
+ <div class="def" style="font-size:24px">Der Text unten ist markiert. Drücken Sie <b>Strg+C</b> (Mac: Cmd+C), klicken Sie in Claude bzw. ChatGPT ins Eingabefeld und drücken Sie <b>Strg+V</b>.</div><pre class="mc">${esc(t)}</pre></div>`);
+ setTimeout(()=>{const p=$('cbody').querySelector('pre.mc');if(!p)return;const r=document.createRange();r.selectNodeContents(p);const s=getSelection();s.removeAllRanges();s.addRange(r)},250)}
+function dlWords(b){const blob=new Blob([WORDS+'\n'],{type:'text/plain;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wortliste.txt';document.body.appendChild(a);a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},800);flash(b,'Download gestartet ✓')}
+
+/* ============ Detail-Karte (wächst aus dem Knopf) ============ */
+function altCard(a,i){return `<div class="fx"><div class="top"><div class="ic">${svg('help')}</div><div><div class="kick">SCHRITT ${i+1} · ${TOOLS[TOOL].n.toUpperCase()}</div><h2>${a[0]}</h2></div></div>
+ <div class="def">${a[1]}</div><div class="boxes"><div class="box"><b>TIPP</b><div>${a[2]}</div></div><div class="box"><b>MERKE</b><div>${a[3]}</div></div></div></div>`}
+let srcEl=null;
+function stageRect(el){const r=el.getBoundingClientRect(),s=$('stage').getBoundingClientRect();return{x:(r.left-s.left)/SC,y:(r.top-s.top)/SC,w:Math.max(r.width/SC,1),h:Math.max(r.height/SC,1)}}
+function openCard(el,html){
+ const c=$('card');$('cbody').innerHTML=html;srcEl=el;
+ c.style.transition='none';c.style.opacity=1;c.classList.add('on');c.classList.remove('show');
+ const f={x:310,y:0,w:1300,h:c.offsetHeight};f.y=Math.max(150,(1080-f.h)/2);c.style.top=f.y+'px';
+ const r=stageRect(el);c.style.transform=`translate(${r.x-f.x}px,${r.y-f.y}px) scale(${r.w/f.w},${r.h/f.h})`;c.style.borderRadius='40px';
+ c.getBoundingClientRect();
+ c.style.transition='transform .55s cubic-bezier(.2,.85,.2,1),border-radius .55s';c.style.transform='none';c.style.borderRadius='24px';
+ $('veil').classList.add('on');setTimeout(()=>c.classList.add('show'),180);sfx('open');
+}
+function closeCard(quiet){
+ const c=$('card');if(!c.classList.contains('on'))return;c.classList.remove('show');
+ const f={x:310,y:parseFloat(c.style.top),w:1300,h:c.offsetHeight};
+ if(srcEl&&srcEl.isConnected){const r=stageRect(srcEl);c.style.transition='transform .4s cubic-bezier(.5,0,.75,0),opacity .4s';c.style.transform=`translate(${r.x-f.x}px,${r.y-f.y}px) scale(${r.w/f.w},${r.h/f.h})`}
+ else c.style.transition='opacity .3s';
+ c.style.opacity=0;$('veil').classList.remove('on');c.classList.remove('on');if(quiet!==true)sfx('close');
+}
+$('cx').onclick=closeCard;$('veil').onclick=closeCard;
+$('nPrev').onclick=()=>{closeCard(true);go(cur-1)};$('nNext').onclick=()=>{closeCard(true);go(cur+1)};
+
+/* ============ Seiten-Steuerung ============ */
+const PAGES=[...document.querySelectorAll('.page')];let cur=-1;
+function go(n){
+ n=Math.max(0,Math.min(PAGES.length-1,n));if(n===cur)return;closeCard(true);
+ const old=PAGES[cur];if(old){old.classList.add('out');setTimeout(()=>{old.classList.remove('on','out')},450)}
+ const pg=PAGES[n];setTimeout(()=>{pg.classList.remove('on');void pg.offsetWidth;pg.classList.add('on')},old?380:0);
+ $('tsw').classList.toggle('on',pg.classList.contains('step'));
+ cur=n;$('prog').style.width=((n+1)/PAGES.length*100)+'%';
+ const h=$('hint');h.classList.remove('on');setTimeout(()=>{h.innerHTML=pg.dataset.hint||'';h.classList.add('on')},1400);
+ if(old)sfx('page');
+}
+addEventListener('keydown',e=>{
+ if(!$('start').classList.contains('gone'))return;
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ const k=e.key;
+ if(k==='Escape'){closeCard();return}
+ /* Enter, Leertaste und Rücktaste gehören fokussierten Knöpfen, Links und Eingaben: dann nicht blättern */
+ if([' ','Enter','Backspace'].includes(k)&&e.target.closest&&e.target.closest('button,a,input,textarea,select,[contenteditable],[tabindex]'))return;
+ if(['ArrowRight','PageDown',' ','Enter'].includes(k)){e.preventDefault();if($('card').classList.contains('on'))closeCard();else go(cur+1)}
+ else if(['ArrowLeft','PageUp','Backspace'].includes(k)){e.preventDefault();if($('card').classList.contains('on'))closeCard();else go(cur-1)}
+ else if(k==='Home')go(0);else if(k==='End')go(PAGES.length-1);
+ else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}
+ else if(k==='m'||k==='M'){muted=!muted}
+ else if(k==='c'||k==='C')setTool('C');
+ else if(k==='g'||k==='G')setTool('G');
+});
+let idle;addEventListener('mousemove',()=>{document.body.classList.remove('hidecursor');clearTimeout(idle);idle=setTimeout(()=>document.body.classList.add('hidecursor'),2500)});
+
+/* ============ Skalierung 1920×1080 ============ */
+let SC=1;
+function fit(){SC=Math.min(innerWidth/1920,innerHeight/1080);const st=$('stage');st.style.transform=`translate(${(innerWidth-1920*SC)/2}px,${(innerHeight-1080*SC)/2}px) scale(${SC})`;
+ const cv=$('bg'),d=devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d}
+addEventListener('resize',fit);fit();
+
+/* ============ Hintergrund wie im Intro ============ */
+const cv=$('bg'),ctx=cv.getContext('2d');
+function hexA(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+function bg(ts){const t=ts/1000,d=devicePixelRatio||1,ox=(innerWidth-1920*SC)/2,oy=(innerHeight-1080*SC)/2;
+ ctx.setTransform(d,0,0,d,0,0);ctx.fillStyle='#07003D';ctx.fillRect(0,0,innerWidth,innerHeight);
+ ctx.setTransform(d*SC,0,0,d*SC,d*ox,d*oy);
+ const g=ctx.createLinearGradient(0,0,0,1080);g.addColorStop(0,'#0b0548');g.addColorStop(1,'#07003D');ctx.fillStyle=g;ctx.fillRect(0,0,1920,1080);
+ const sp=60,sx=(t*5)%sp,sy=(t*3)%sp;ctx.fillStyle='rgba(255,255,255,.045)';for(let x=-sp;x<1980;x+=sp)for(let y=-sp;y<1140;y+=sp)ctx.fillRect(x+sx,y+sy,2,2);
+ const gx=1920*.72+120*Math.sin(t*.08),gy=1080*.28+60*Math.cos(t*.06),rg=ctx.createRadialGradient(gx,gy,0,gx,gy,1000);rg.addColorStop(0,hexA('#B158ED',.14));rg.addColorStop(1,hexA('#B158ED',0));ctx.fillStyle=rg;ctx.fillRect(0,0,1920,1080);
+ const vg=ctx.createRadialGradient(960,540,1080*.35,960,540,1080);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.55)');ctx.fillStyle=vg;ctx.fillRect(0,0,1920,1080);
+ requestAnimationFrame(bg)}
+requestAnimationFrame(bg);
+
+/* ============ Klänge (leise, im Browser erzeugt) ============ */
+let AC=null,muted=false;
+function sfx(k){if(muted)return;if(!AC){try{AC=new AudioContext()}catch(e){return}}const t=AC.currentTime+.01;
+ const tone=(f,v,d,type='sine',f2)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d*.6);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)};
+ if(k==='open'){tone(880,.05,.5);tone(1320,.02,.6)}
+ else if(k==='close'){tone(660,.035,.25,'sine',520)}
+ else if(k==='page'){const n=AC.createBufferSource(),b=AC.createBuffer(1,AC.sampleRate*.8,AC.sampleRate),x=b.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;n.buffer=b;
+  const f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=1.1;f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(2400,t+.45);f.frequency.exponentialRampToValueAtTime(600,t+.75);
+  const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.45);g.gain.linearRampToValueAtTime(0,t+.78);n.connect(f).connect(g).connect(AC.destination);n.start(t)}}
+
+/* ============ Start ============ */
+renderAll();setTool(TOOL);
+$('go').onclick=()=>{$('start').classList.add('gone');setTimeout(()=>$('start').style.display='none',700);sfx('open');go(0);try{document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
+const QP=new URLSearchParams(location.search).get('p');
+if(QP!==null){$('start').classList.add('gone');$('start').style.display='none';go(+QP||0)}
+</script>
+</body>
+</html>

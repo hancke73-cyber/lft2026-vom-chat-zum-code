@@ -1,0 +1,976 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Die Oberfläche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<!--
+  Teil 2 · 09 Die Oberfläche: Wo finde ich was in Claude und ChatGPT?
+  Kommt direkt VOR teil2-mitbauen.html.
+  Faktengrundlage: design/ui-begriffe-claude-chatgpt.md (Recherche, Stand 11.11.2026).
+  Es werden nur Begriffe aus dieser Datei verwendet. Was dort UNSICHER ist, steht unten als
+  Kommentar mit „UNSICHER:“ und ist im sichtbaren Text neutral beschrieben.
+  ChatGPT-Mockup, -Zonen und -Demos folgen dem Abschnitt NACHTRAG (Screenshots der echten deutschen
+  ChatGPT-Desktop-App, design/screenshots/chatgpt-desktop-1..4.webp); diese Angaben haben Vorrang.
+  Mockups sind vereinfachte, neutrale Nachzeichnungen ohne Original-Logos oder kopierte Grafiken.
+  Eingestellte Funktionen (Canvas, Agentenmodus, Atlas, Pulse, Gruppenchats, GPTs ab 11.12.2026)
+  erscheinen nur als „früher“ bzw. „nicht mehr aktuell“.
+-->
+<style>
+:root{--bg:#0b0548;--ink:#ffffff;--mute:#B9B6E3;--dim:#9A96CC;--acc:#B158ED;--acc2:#E6F0FF;--amber:#f2b24c;--green:#4cc9a0;--red:#FF6B72;--panel:#110a5a;--panel2:#14006E;--line:rgba(230,240,255,.14);--hw-standard:#14006E;--hw-dark:#07003D;--hw-kick:#E6F0FF;--hw-focus:#B158ED}
+/* Mockups von Claude/ChatGPT behalten ihre eigene (neutrale) Produktoptik: alte Tokens lokal */
+.mock,.bm,.dm{--ink:#eef2f8;--mute:#93a1b5;--dim:#5d6b80;--acc:#5b9cff;--acc2:#9cc2ff;--red:#e0643f;--panel:#101a2b;--panel2:#13203a;--line:rgba(255,255,255,.1)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#07003D;color:var(--ink);font-family:"Plus Jakarta Sans","Segoe UI",Arial,sans-serif;overflow:hidden}
+body.hidecursor{cursor:none}
+canvas#bg{position:fixed;inset:0;width:100vw;height:100vh;display:block}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.mono{font-family:"JetBrains Mono",Consolas,monospace}
+
+/* Kopfzeile wie im Intro */
+.chrome{position:absolute;left:160px;right:160px;top:88px;display:flex;justify-content:space-between;font-size:15px;font-weight:600;color:var(--dim);letter-spacing:5px}
+.chrome b{letter-spacing:1px;font-weight:600}
+.bar{position:absolute;left:160px;width:1600px;top:1042px;height:2px;background:rgba(255,255,255,.07)}
+.bar i{display:block;height:100%;background:rgba(177,88,237,.7);width:0;transition:width .9s cubic-bezier(.2,.8,.2,1)}
+.hint{position:absolute;left:0;right:0;top:1000px;text-align:center;color:var(--dim);font-size:17px;opacity:0;transition:opacity .8s}
+.hint.on{opacity:1}
+kbd{font:600 13px "JetBrains Mono",monospace;border:1px solid var(--line);border-radius:5px;padding:2px 7px;color:var(--mute)}
+
+/* Seiten */
+.page{position:absolute;inset:0;visibility:hidden}
+.page.on{visibility:visible}
+.rise{opacity:0;transform:translateY(26px)}
+.page.on .rise{animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d,0s)}
+@keyframes rise{to{opacity:1;transform:none}}
+.page.out .rise{animation:fall .45s ease forwards}
+@keyframes fall{from{opacity:1;transform:none}to{opacity:0;transform:translateY(-18px)}}
+.kick{font-size:19px;font-weight:600;color:var(--amber);letter-spacing:4px}
+h1{font-size:62px;font-weight:700;letter-spacing:-1px;margin:18px 0 0;line-height:1.1;white-space:nowrap}
+h1 em{font-style:normal;color:var(--acc)}
+.lead{font-size:27px;color:var(--mute);margin-top:18px;max-width:1100px;line-height:1.45}
+.head{position:absolute;left:160px;top:170px}
+
+/* Titelseite */
+.title{position:absolute;left:0;right:0;top:330px;text-align:center}
+.title .kick{letter-spacing:10px;font-size:24px}
+.title h2{font-size:124px;font-weight:800;letter-spacing:-3px;margin:34px 0 0;line-height:1.02}
+.title h2 span{display:inline-block}
+.title h2 .a{color:var(--acc)}
+.title p{font-size:32px;color:var(--mute);margin-top:36px}
+.title .line{width:640px;height:3px;margin:0 auto;background:linear-gradient(90deg,transparent,#14006E 12%,var(--acc) 45%,#E6F0FF 55%,var(--acc) 65%,transparent);transform:scaleX(0)}
+.page.on .title .line{animation:grow 1.4s cubic-bezier(.2,.8,.2,1) .2s forwards}
+@keyframes grow{to{transform:scaleX(1)}}
+
+/* Kacheln */
+.grid{position:absolute;left:160px;width:1600px;display:grid;gap:24px}
+.tile{position:relative;background:var(--panel);border:1.5px solid var(--line);border-radius:18px;padding:26px 28px;cursor:pointer;
+  box-shadow:0 16px 40px rgba(0,0,0,.4);transition:border-color .25s,background .25s,transform .25s;overflow:hidden}
+.tile::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 220px at var(--mx,30%) var(--my,0%),rgba(177,88,237,.16),transparent 70%);opacity:0;transition:opacity .3s}
+.tile:hover{border-color:rgba(177,88,237,.55);transform:translateY(-4px)}
+.tile:hover::before{opacity:1}
+.tile .ic{width:54px;height:54px;border-radius:14px;display:grid;place-items:center;background:rgba(177,88,237,.12);color:var(--acc);margin-bottom:18px}
+.tile .ic svg{width:30px;height:30px}
+.tile .grp{position:absolute;right:24px;top:26px;font-size:13px;font-weight:600;letter-spacing:2px;color:var(--dim);max-width:300px;text-align:right}
+.tile h3{margin:0;font-size:30px;font-weight:700;letter-spacing:-.3px}
+.tile p{margin:8px 0 0;font-size:19px;color:var(--mute);line-height:1.4}
+.tile.c-amber .ic{background:rgba(242,178,76,.13);color:var(--amber)}
+.tile.c-green .ic{background:rgba(76,201,160,.13);color:var(--green)}
+.tile.seen::after{content:"";position:absolute;right:22px;bottom:22px;width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}
+.tile .play{position:absolute;left:28px;bottom:22px;font-size:14px;font-weight:600;letter-spacing:2px;color:var(--acc2)}
+.chip{display:inline-flex;align-items:center;gap:10px;border:1.5px solid rgba(76,201,160,.6);background:rgba(76,201,160,.1);color:var(--green);border-radius:999px;padding:9px 20px;font-size:20px;font-weight:600}
+.was{position:absolute;left:160px;width:1600px;top:924px;display:flex;align-items:center;gap:14px;font-size:18px;color:var(--mute);white-space:nowrap;overflow:hidden}
+.was b{font-size:13px;letter-spacing:3px;color:var(--red);font-weight:700;flex:none}
+.was span{border:1px solid rgba(224,100,63,.35);border-radius:8px;padding:5px 11px;color:#d8b2a6;text-decoration:line-through;text-decoration-color:rgba(224,100,63,.6)}
+.was span i{font-style:normal;text-decoration:none;display:inline-block;color:var(--dim);margin-left:6px;font-size:15px}
+
+/* Umschalter Claude / ChatGPT */
+#tsw{position:absolute;right:160px;top:166px;display:flex;gap:6px;padding:6px;border-radius:999px;background:var(--panel);border:1.5px solid var(--line);opacity:0;pointer-events:none;transition:opacity .5s;z-index:2}
+#tsw.on{opacity:1;pointer-events:auto}
+#tsw button{font:600 18px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;color:var(--mute);background:none;border:0;border-radius:999px;padding:10px 20px;cursor:pointer;display:flex;gap:10px;align-items:center;transition:all .25s}
+#tsw button kbd{font-size:12px}
+#tsw button.on{color:#07101e;background:var(--acc);box-shadow:0 0 24px rgba(177,88,237,.45)}
+#tsw button.on kbd{color:#07101e;border-color:rgba(7,16,30,.35)}
+#zc{position:absolute;right:160px;top:244px;font-size:17px;color:var(--dim);text-align:right}
+#zc b{color:var(--green);font-weight:700}
+
+/* ===== Mockup-Bausteine (wie im Mitbau-Tutorial) ===== */
+.tbar{display:flex;align-items:center;gap:8px;height:48px;padding:0 20px;background:rgba(255,255,255,.03);border-bottom:1px solid var(--line);font-size:15px;color:var(--dim);font-weight:600;letter-spacing:1px;flex:none}
+.tbar i{width:12px;height:12px;border-radius:50%;background:#2a364b}
+.tbar .url{margin-left:18px;font:400 15px "JetBrains Mono",monospace;letter-spacing:0;color:var(--mute);background:rgba(255,255,255,.05);border-radius:8px;padding:5px 16px;width:420px}
+.tbar .tag{margin-left:auto;font-size:13px;letter-spacing:3px;color:var(--dim)}
+.mw{position:absolute;top:48px;left:0;right:0;bottom:0;display:flex;animation:ln .45s ease}
+@keyframes ln{from{opacity:0;transform:translateY(8px)}}
+.ms{width:250px;flex:none;background:rgba(255,255,255,.025);border-right:1px solid var(--line);padding:14px 12px;display:flex;flex-direction:column;gap:2px;border-radius:0 0 0 18px}
+.bm.cl .ms{background:rgba(242,178,76,.035)}
+.ms .brand{font-weight:700;font-size:19px;padding:4px 10px 12px;color:var(--ink);letter-spacing:-.2px}
+.si{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;font-size:16px;color:#c3cede;white-space:nowrap}
+.si svg{width:18px;height:18px;color:var(--mute);flex:none}
+.si.act{background:rgba(255,255,255,.08);color:var(--ink)}
+.si .r{margin-left:auto;color:var(--dim);font-size:13px}
+.si .old{margin-left:auto;font-size:11px;letter-spacing:1px;color:var(--red);border:1px solid rgba(224,100,63,.4);border-radius:5px;padding:1px 5px}
+.ms .lab{font-size:12px;letter-spacing:2px;color:var(--dim);padding:12px 10px 3px}
+.ph{height:10px;border-radius:5px;background:rgba(255,255,255,.07);margin:9px 10px}
+.ms .usr{margin-top:auto;border-top:1px solid var(--line);padding-top:10px}
+.mm{flex:1;position:relative;padding:22px 26px;display:flex;flex-direction:column;min-width:0}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:9px;border:1px solid rgba(255,255,255,.16);font-size:15px;color:var(--ink);background:rgba(255,255,255,.04);white-space:nowrap}
+.btn svg{width:16px;height:16px}
+.btn.pri{background:var(--ink);color:#07101e;border-color:var(--ink);font-weight:600}
+.btn.ico{padding:8px 9px}
+.ib{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;color:var(--ink)}
+.ib svg{width:18px;height:18px}
+.snd{width:38px;height:38px;border-radius:10px;background:var(--ink);color:#07101e;display:grid;place-items:center;flex:none}
+.snd svg{width:18px;height:18px}
+.bub{align-self:flex-end;max-width:82%;background:rgba(255,255,255,.07);border-radius:14px;padding:11px 15px;font-size:16px;line-height:1.45;color:var(--ink)}
+.ans{font-size:16px;color:#c3cede;line-height:1.5;margin-top:16px}
+.achip{border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:10px 14px;display:flex;gap:12px;align-items:center;margin-top:14px;font-size:16px;background:rgba(255,255,255,.03);width:330px}
+.achip .ai{width:36px;height:36px;border-radius:8px;background:rgba(91,156,255,.14);color:var(--acc);display:grid;place-items:center}
+.achip .ai svg{width:18px;height:18px}
+.achip small{display:block;color:var(--dim);font-size:13px}
+.mp{width:620px;flex:none;border-left:1px solid var(--line);background:#09111e;display:flex;flex-direction:column;border-radius:0 0 18px 0}
+.mp .hd{height:56px;display:flex;align-items:center;gap:8px;padding:0 16px;border-bottom:1px solid var(--line);font-size:16px;font-weight:600;flex:none}
+.mp .hd .nm{margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp .pb{flex:1;display:grid;place-items:center;padding:20px}
+.seg{display:inline-flex;border:1px solid rgba(255,255,255,.16);border-radius:10px;padding:3px}
+.seg span{padding:7px 16px;font-size:15px;color:var(--mute);border-radius:8px}
+.seg span.on{background:rgba(255,255,255,.11);color:var(--ink)}
+.menu{background:#16233b;border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px;box-shadow:0 18px 40px rgba(0,0,0,.6)}
+.menu .si{font-size:15px}
+.menu hr{border:0;border-top:1px solid var(--line);margin:5px 6px}
+.menu .mh{font-size:11px;letter-spacing:2.5px;color:var(--dim);padding:8px 10px 4px;font-weight:600}
+.menu .mt2{font-size:13px;color:var(--mute);padding:6px 10px 4px}
+.eff{display:flex;gap:4px;padding:4px 8px 8px;flex-wrap:nowrap}
+.eff span{font-size:13px;padding:6px 9px;border-radius:7px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
+.eff span.on{border-color:var(--acc);color:var(--ink);background:rgba(91,156,255,.15)}
+.sw{width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,.18);position:relative;flex:none;margin-left:auto}
+.sw::after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff}
+.sw.on{background:var(--green)}.sw.on::after{left:19px}
+.pop{display:none;position:absolute;z-index:3;animation:popIn .35s ease}
+@keyframes popIn{from{opacity:0}}
+
+/* ===== Große Übersicht (Seite 2) ===== */
+.bm{position:absolute;left:160px;top:300px;width:1600px;height:680px;background:#0c1422;border:1.5px solid var(--line);border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.bm .tbar{border-radius:18px 18px 0 0}
+.z{position:relative;cursor:pointer;border-radius:10px}
+.z:hover{box-shadow:0 0 0 2px rgba(242,178,76,.35)}
+.hs{position:absolute;top:-13px;right:-13px;width:32px;height:32px;border-radius:50%;border:0;background:var(--amber);color:#07101e;font:800 15px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;cursor:pointer;z-index:4;display:grid;place-items:center;padding:0;animation:hsp 2s ease-out infinite}
+.hs:hover{filter:brightness(1.12)}
+@keyframes hsp{0%{box-shadow:0 0 0 0 rgba(242,178,76,.6),0 4px 12px rgba(0,0,0,.5)}70%{box-shadow:0 0 0 15px rgba(242,178,76,0),0 4px 12px rgba(0,0,0,.5)}100%{box-shadow:0 0 0 0 rgba(242,178,76,0),0 4px 12px rgba(0,0,0,.5)}}
+.hs.seen{animation:none;background:#c99a4c;box-shadow:0 4px 12px rgba(0,0,0,.5)}
+.hs.seen::after{content:"";position:absolute;right:-4px;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);border:2px solid #0c1422}
+.cmain{padding:18px 26px 22px}
+.cmain .tabs{display:flex;justify-content:flex-start;flex:none}
+.conv{flex:1;display:flex;flex-direction:column;margin-top:22px;min-height:0}
+.inp2{border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:14px 14px 12px 18px;background:rgba(255,255,255,.035);font-size:16px;color:var(--mute);flex:none}
+.inp2 .ir{display:flex;align-items:center;gap:10px;margin-top:14px}
+.inp2 .sp{flex:1}
+.mdl{display:inline-flex;align-items:center;gap:6px;font-size:15px;color:var(--ink);padding:7px 10px;border-radius:9px}
+.mdl svg{width:14px;height:14px;color:var(--mute)}
+.mic{width:36px;height:36px;display:grid;place-items:center;color:var(--mute)}
+.mic svg{width:19px;height:19px}
+.quiz{width:470px;background:var(--panel2);border:1.5px solid rgba(91,156,255,.35);border-radius:16px;padding:22px 24px}
+.quiz .qn{font-size:13px;letter-spacing:2px;color:var(--dim);font-weight:600}
+.quiz .qq{font-size:21px;font-weight:700;margin:8px 0 14px;line-height:1.3}
+.quiz .op{border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:16px;color:#c3cede;margin-top:8px}
+.quiz .op.ok{border-color:rgba(76,201,160,.7);color:var(--green);background:rgba(76,201,160,.08)}
+.quiz .qb{height:8px;border-radius:4px;background:rgba(255,255,255,.08);margin-top:16px;overflow:hidden}.quiz .qb b{display:block;height:100%;width:37%;background:var(--green)}
+.gmain{padding:16px 26px 22px}
+.gtop{display:flex;align-items:center;flex:none}
+.gcol{width:760px;margin:0 auto;flex:1;display:flex;flex-direction:column;position:relative;min-height:0;padding-top:16px}
+.wblk{border:1px solid rgba(255,255,255,.2);border-radius:14px;background:rgba(255,255,255,.035);margin-top:14px}
+.wblk .wh{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);font-size:15px;font-weight:600}
+.wblk .wh span{margin-right:auto}
+.wblk .wh svg{width:16px;height:16px;color:var(--mute)}
+.wblk .wbd{padding:12px 16px;font-size:15px;line-height:1.6;color:#d4dcea}
+
+/* ChatGPT-Desktop-App */
+.rail{width:48px;flex:none;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 0;background:rgba(0,0,0,.18);border-radius:0 0 0 18px}
+.rail .ri{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;color:var(--mute)}
+.rail .ri svg{width:18px;height:18px}
+.rail .z.ri{background:rgba(255,255,255,.08);color:var(--ink)}
+.gms{width:240px;border-radius:0;padding-top:12px}
+.ghd{display:flex;align-items:center;gap:10px;padding:4px 10px 10px;color:var(--mute)}
+.ghd b{font-size:19px;color:var(--ink)}.ghd svg{width:17px;height:17px}.ghd .sp{flex:1}
+.si.sub{padding-left:38px;font-size:15px;color:#aab6c8}
+.gtop2{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;flex:none}
+.gtop2 .gt{font-size:16px;font-weight:600;white-space:nowrap}
+.gbody{flex:1;display:flex;gap:18px;margin-top:16px;min-height:0}
+.gchat{flex:1;min-width:0;display:flex;flex-direction:column}
+.wk{font-size:15px;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:8px}
+.lnk{color:var(--acc2);display:inline-flex;align-items:center;gap:6px}.lnk svg{width:15px;height:15px}
+.ovc{width:250px;flex:none;align-self:flex-start;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(255,255,255,.04);padding:14px 16px}
+.ovr{display:flex;justify-content:space-between;font-size:15px;color:var(--ink)}.ovr b{font-weight:600}.ovr span{color:var(--mute)}
+.ovs{font-size:13.5px;color:var(--dim);margin-top:6px;line-height:1.35}
+.apr{display:inline-flex;align-items:center;gap:6px;font-size:15px;color:var(--mute);white-space:nowrap}.apr svg{width:16px;height:16px}
+.gub{display:flex;align-items:center;gap:22px;margin:6px 14px 0;padding:9px 16px;border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;font-size:15px;color:#c3cede;background:rgba(255,255,255,.02)}
+.gub span{display:inline-flex;align-items:center;gap:7px}.gub svg{width:16px;height:16px;color:var(--mute)}.gub .sp{flex:1}
+.side{width:520px;flex:none;border-left:1px solid var(--line);background:#09111e;display:flex;flex-direction:column;border-radius:0 0 18px 0}
+.btab{display:flex;align-items:center;gap:8px;height:54px;padding:0 12px;border-bottom:1px solid var(--line);flex:none}
+.btab .tb{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:8px;font-size:14px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
+.btab .tb.on{background:rgba(255,255,255,.08);color:var(--ink);min-width:200px}.btab .tb i{font-style:normal;margin-left:auto;color:var(--dim)}
+.btab svg{width:15px;height:15px}
+.addr{display:flex;align-items:center;gap:12px;padding:12px 14px;flex:none}
+.addr .ab2{flex:1;border-radius:9px;background:rgba(255,255,255,.07);padding:9px 14px;font-size:14px;color:var(--mute);text-align:center}
+.bsec{padding:14px 30px 6px}.bsec h6{margin:0 0 10px;font-size:15px;font-weight:600;color:var(--ink)}
+.trow{display:flex;align-items:center;gap:10px;font-size:15px;border-radius:9px;background:rgba(255,255,255,.05);padding:10px 12px;width:300px}.trow svg{width:16px;height:16px;color:var(--mute)}
+.trow .kb{margin-left:auto;font:12px "JetBrains Mono",monospace;color:var(--dim);border:1px solid var(--line);border-radius:5px;padding:1px 6px}
+.sugg{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;text-align:center;font-size:13px;color:#c3cede;margin-top:6px}
+.sugg span{display:block;color:var(--mute);margin-bottom:8px}.sugg svg{width:30px;height:30px}
+
+/* Spotlight + Zonen-Karte */
+#shade{position:absolute;inset:0;z-index:8;display:none}
+#shade.on{display:block}
+#spot{position:absolute;left:960px;top:540px;width:0;height:0;z-index:9;pointer-events:none;border:3px solid var(--amber);border-radius:14px;box-shadow:0 0 0 4000px rgba(4,8,15,.74),0 0 40px rgba(242,178,76,.35);opacity:0;
+  transition:opacity .35s,left .45s cubic-bezier(.2,.85,.2,1),top .45s cubic-bezier(.2,.85,.2,1),width .45s cubic-bezier(.2,.85,.2,1),height .45s cubic-bezier(.2,.85,.2,1)}
+#spot.on{opacity:1}
+#hc{position:absolute;left:0;top:0;width:640px;z-index:10;background:linear-gradient(180deg,#1c0a80,#0e0558);border:1.5px solid rgba(242,178,76,.55);border-radius:22px;padding:32px 38px 26px;box-shadow:0 40px 120px rgba(0,0,0,.65);opacity:0;pointer-events:none;transform-origin:0 0}
+#hc.on{pointer-events:auto}
+#hc .x{position:absolute;right:20px;top:20px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--mute);font-size:19px;cursor:pointer}
+#hc .x:hover{color:var(--ink);border-color:var(--amber)}
+#hc .hk{font-size:14px;font-weight:600;letter-spacing:3px;color:var(--amber)}
+#hc h2{margin:10px 0 0;font-size:36px;font-weight:800;letter-spacing:-.6px;line-height:1.15;padding-right:36px}
+#hc h2 .en{font-size:21px;font-weight:500;color:var(--mute);letter-spacing:0;white-space:nowrap}
+#hc .hd2{font-size:21px;line-height:1.5;margin:14px 0 0;color:var(--ink)}
+#hc .path{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:14px}
+#hc .path span{font-size:15px;font-weight:600;border:1px solid rgba(242,178,76,.45);color:var(--amber);background:rgba(242,178,76,.06);border-radius:8px;padding:4px 10px}
+#hc .path i{font-style:normal;color:var(--dim)}
+#hc .hb{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:13px 18px;background:rgba(255,255,255,.025)}
+#hc .hb b{display:block;font-size:12px;letter-spacing:3px;color:var(--acc2);margin-bottom:5px}
+#hc .hb div{font-size:18px;line-height:1.45;color:#c9d3e1}
+#hc .hb.nw{border-color:rgba(76,201,160,.4);background:rgba(76,201,160,.06)}#hc .hb.nw b{color:var(--green)}
+#hc .hb.tp b{color:var(--amber)}
+#hc .hf{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:15px;color:var(--dim)}
+#hc .nx{font:600 16px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;color:#07101e;background:var(--amber);border:0;border-radius:999px;padding:9px 18px;cursor:pointer}
+#hc .fx>*{opacity:0;transform:translateY(12px);transition:opacity .4s,transform .4s}
+#hc.show .fx>*{opacity:1;transform:none}
+
+/* Vergleich */
+.cmph{position:absolute;left:160px;width:1600px;top:304px;display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+.cmph div{display:grid;grid-template-columns:1fr 56px 1fr;font-size:14px;letter-spacing:4px;font-weight:600;color:var(--dim);padding:0 24px}
+.cmph div span:last-child{color:var(--acc2)}
+.cmph div span:first-child{color:var(--amber)}
+.pairs{position:absolute;left:160px;width:1600px;top:336px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(7,76px);grid-auto-flow:column;gap:10px 28px}
+.pair{display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;background:var(--panel);border:1.5px solid var(--line);border-radius:14px;padding:0 24px;cursor:pointer;position:relative;transition:border-color .25s,transform .25s;min-width:0}
+.pair:hover{border-color:rgba(177,88,237,.55);transform:translateY(-3px)}
+.pair>div{min-width:0}
+.pair b{font-size:23px;font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pair small{display:block;font-size:15px;color:var(--mute);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pair .eq{text-align:center;font-size:30px;color:var(--acc);font-weight:700}
+.pair.warn{border-color:rgba(224,100,63,.5);background:rgba(224,100,63,.05)}.pair.warn .eq{color:var(--red)}
+.pair.seen::after{content:"";position:absolute;right:10px;top:10px;width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+
+/* Abschluss */
+.cta{display:inline-flex;align-items:center;gap:16px;font:700 34px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;color:#07101e;background:var(--ink);border-radius:999px;padding:22px 44px;text-decoration:none;box-shadow:0 0 60px rgba(177,88,237,.35);transition:transform .25s,box-shadow .25s}
+.cta:hover{transform:translateY(-3px);box-shadow:0 0 80px rgba(177,88,237,.55)}
+.cta span{color:var(--acc);transition:transform .25s}.cta:hover span{transform:translateX(6px)}
+
+/* Detail-Karte */
+#veil{position:absolute;inset:0;background:rgba(5,9,16,.7);backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .35s;z-index:6}
+#veil.on{opacity:1;pointer-events:auto}
+#card{position:absolute;left:310px;top:190px;width:1300px;min-height:520px;background:linear-gradient(180deg,#1c0a80,#0e0558);border:1.5px solid rgba(177,88,237,.45);border-radius:24px;
+  padding:50px 60px 48px;box-shadow:0 40px 120px rgba(0,0,0,.6);opacity:0;pointer-events:none;transform-origin:0 0;z-index:7}
+#card.on{pointer-events:auto}
+#card .x{position:absolute;right:28px;top:26px;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--mute);font-size:22px;cursor:pointer}
+#card .x:hover{color:var(--ink);border-color:var(--acc)}
+#card .top{display:flex;gap:26px;align-items:center}
+#card .ic{width:84px;height:84px;border-radius:20px;display:grid;place-items:center;background:rgba(177,88,237,.13);color:var(--acc);flex:none}
+#card .ic svg{width:46px;height:46px}
+#card h2{margin:6px 0 0;font-size:50px;font-weight:800;letter-spacing:-1px}
+#card .def{font-size:25px;line-height:1.5;margin:0;color:var(--ink)}
+#card .box{border:1px solid var(--line);border-radius:16px;padding:18px 22px;background:rgba(255,255,255,.025)}
+#card .box b{display:block;font-size:14px;letter-spacing:3px;color:var(--amber);margin-bottom:8px}
+#card .box div{font-size:20px;line-height:1.45;color:#c9d3e1}
+#card .fgrid{display:grid;grid-template-columns:1fr 600px;gap:36px;margin-top:30px;align-items:start}
+#card .cmp{display:grid;grid-template-columns:1fr 70px 1fr;margin-top:32px;align-items:stretch}
+#card .cmp .side{border:1px solid rgba(242,178,76,.4);border-radius:16px;padding:22px 26px;background:rgba(255,255,255,.025)}
+#card .cmp .side.g{border-color:rgba(177,88,237,.45)}
+#card .cmp .side h5{margin:0;font-size:14px;letter-spacing:3px;color:var(--amber)}
+#card .cmp .side.g h5{color:var(--acc2)}
+#card .cmp .side div{font-size:30px;font-weight:700;margin-top:10px}
+#card .cmp .side p{font-size:19px;color:var(--mute);margin:6px 0 0;line-height:1.4}
+#card .cmp .mid{display:grid;place-items:center;font-size:40px;color:var(--acc);font-weight:700}
+#card .boxes{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:24px}
+#card .fx>*{opacity:0;transform:translateY(14px);transition:opacity .45s,transform .45s}
+#card.show .fx>*{opacity:1;transform:none}
+#card.show .fx>*:nth-child(2){transition-delay:.06s}#card.show .fx>*:nth-child(3){transition-delay:.12s}
+
+/* ===== Animierte Mini-Demos (Mockup-Stil) ===== */
+.dm{position:relative;width:600px;height:400px;border-radius:16px;background:#0b1320;border:1px solid rgba(255,255,255,.14);overflow:hidden;font-size:16px;color:#c3cede;box-shadow:0 18px 40px rgba(0,0,0,.4)}
+.dm svg{width:16px;height:16px;flex:none}
+.dm .db{height:34px;display:flex;align-items:center;gap:7px;padding:0 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.03);font-size:12px;font-weight:600;letter-spacing:2.5px;color:var(--dim)}
+.dm .db i{width:9px;height:9px;border-radius:50%;background:#2a364b}
+.dm .db span{margin-left:8px}
+.dm .db em{margin-left:auto;font-style:normal;color:var(--amber);letter-spacing:2px}
+.dm .bd{position:absolute;top:34px;left:0;right:0;bottom:0;padding:18px}
+.dm [data-in]{opacity:0;transform:translateY(10px);transition:opacity .5s,transform .5s cubic-bezier(.2,.8,.2,1)}
+.dm [data-out]{transition:opacity .4s}
+.dm [data-hl]{transition:background .4s,box-shadow .4s;border-radius:7px}
+.dm .l{height:9px;border-radius:5px;background:rgba(255,255,255,.09);margin:9px 0}
+.dm .u{margin-left:auto;max-width:82%;background:rgba(255,255,255,.08);border-radius:14px;padding:9px 13px;color:var(--ink);font-size:15px;line-height:1.4;width:fit-content}
+.dm .cd{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.025)}
+.dm .cd h6{margin:0 0 8px;font-size:14px;font-weight:600;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dm .fc{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(76,201,160,.45);border-radius:7px;padding:4px 9px;font:12.5px "JetBrains Mono",monospace;color:var(--green);background:rgba(76,201,160,.06);margin:3px 4px 3px 0;white-space:nowrap}
+.dm .tg{width:36px;height:20px;border-radius:10px;background:rgba(255,255,255,.15);position:relative;transition:background .4s;flex:none;margin-left:auto}
+.dm .tg::after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .4s}
+.dm .tg.on{background:var(--green)}.dm .tg.on::after{transform:translateX(16px)}
+.dm .ck{width:20px;height:20px;border-radius:6px;border:1.5px solid rgba(255,255,255,.3);flex:none;display:grid;place-items:center;transition:all .4s;color:transparent;font-size:13px;font-weight:800}
+.dm .row{display:flex;align-items:center;gap:10px;padding:6px 6px;font-size:15px}
+.dm .sg{display:inline-flex;border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:2px}
+.dm .sg span{padding:5px 14px;font-size:14px;border-radius:7px;color:var(--mute);transition:all .4s}
+.dm .sg span.on{background:rgba(255,255,255,.12);color:var(--ink)}
+.dm .pg{height:10px;border-radius:5px;background:rgba(255,255,255,.08);overflow:hidden}
+.dm .pg b{display:block;height:100%;width:0;background:var(--acc);transition:width .9s ease}
+.dm .tag{display:inline-block;font-size:12px;letter-spacing:.5px;padding:3px 8px;border-radius:6px;background:rgba(91,156,255,.14);color:var(--acc2);white-space:nowrap}
+.dm .tag.gr{background:rgba(76,201,160,.14);color:var(--green)}
+.dm .ai{width:34px;height:34px;border-radius:8px;background:rgba(91,156,255,.14);color:var(--acc);display:grid;place-items:center;flex:none}
+.dm .mn{position:absolute;background:#16233b;border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:5px;box-shadow:0 14px 30px rgba(0,0,0,.6);z-index:3;font-size:14px}
+.dm .mn div{padding:7px 10px;border-radius:7px;white-space:nowrap}
+.dm .comp{position:absolute;left:18px;right:18px;bottom:16px;display:flex;align-items:center;gap:10px;min-height:50px;border:1px solid rgba(255,255,255,.18);border-radius:13px;padding:6px 10px;background:rgba(255,255,255,.035)}
+.dm .comp .pl{width:30px;height:30px;border-radius:8px;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;color:var(--ink);flex:none}
+.dm .comp .tx{position:relative;flex:1;height:24px;font-size:14px}
+.dm .comp .tx>*{position:absolute;left:0;top:2px;white-space:nowrap}
+/* Artefakt-Panel */
+.dm .ach{position:absolute;inset:0;padding:18px;transition:right .8s cubic-bezier(.2,.8,.2,1)}
+.dm.s3 .ach{right:330px}
+.dm .apn{position:absolute;top:0;bottom:0;right:0;width:330px;border-left:1px solid var(--line);background:#09111e;transform:translateX(102%);transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.dm.s3 .apn{transform:none}
+.dm .ah{height:44px;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--line);font-size:14px;font-weight:600;color:var(--ink)}
+.dm .ah .mb{margin-left:auto;font-size:11.5px;font-weight:600;border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:4px 8px;white-space:nowrap}
+.dm .ab{position:absolute;top:44px;left:0;right:0;bottom:0;padding:16px}
+.dm .qq{position:relative;font-size:16px;font-weight:700;color:var(--ink);line-height:1.35;padding:4px 6px;margin:6px -6px 10px}
+.dm .qq .nw{position:absolute;left:6px;top:4px;right:6px}
+.dm .op{border:1px solid var(--line);border-radius:8px;padding:7px 10px;font-size:13.5px;margin-top:6px}
+.dm .op.ok{border-color:rgba(76,201,160,.6);color:var(--green)}
+.dm .pp{position:absolute;left:24px;right:24px;bottom:16px;background:#16233b;border:1px solid rgba(242,178,76,.55);border-radius:10px;padding:9px 12px;font-size:14px;color:var(--ink)}
+/* Text- und Codeblöcke */
+.dm .wb{position:absolute;left:46px;right:46px;top:132px;height:210px;z-index:2;background:#111c2e;transition:all .8s cubic-bezier(.2,.8,.2,1)}
+.dm.s4 .wb{left:8px;right:8px;top:8px;height:350px}
+.dm .wt{font-size:14.5px;line-height:1.5;color:#d4dcea;padding:2px 6px;margin:0 -6px}
+.dm .fs{position:absolute;right:12px;bottom:10px;font-size:12px;color:var(--amber);letter-spacing:1px}
+/* Fortschritt */
+.dm.s2 .pgA b{width:35%}.dm.s3 .pgA b{width:70%}.dm.s4 .pgA b{width:100%}
+.dm .pgB b{transition:width 1.4s ease}.dm.s4 .pgB b{width:100%}
+/* Plugins / Bibliothek */
+.dm .pt2{border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13.5px;display:flex;flex-direction:column;gap:6px;position:relative;min-height:84px;color:var(--ink)}
+.dm .pt2 .pi{width:28px;height:28px;border-radius:7px;background:rgba(91,156,255,.13);color:var(--acc);display:grid;place-items:center}
+.dm .pt2 .tag{position:absolute;right:8px;top:8px}
+.dm .me{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.35;padding:6px 0;border-top:1px solid var(--line)}
+.dm .me .tp{font-size:11px;letter-spacing:.5px;padding:2px 6px;border-radius:5px;background:rgba(242,178,76,.14);color:var(--amber);flex:none}
+
+/* Startbildschirm */
+#start{position:fixed;inset:0;display:grid;place-items:center;background:rgba(7,0,61,.78);backdrop-filter:blur(10px);z-index:20;transition:opacity .6s}
+#start.gone{opacity:0;pointer-events:none}
+#start .c{text-align:center;max-width:780px;padding:24px}
+#start .k{letter-spacing:.32em;font-size:14px;font-weight:600;color:var(--amber)}
+#start h1{font-size:clamp(38px,6vw,68px);margin:14px 0 8px;font-weight:800;letter-spacing:-.02em;white-space:normal}
+#start p{color:var(--mute);font-size:18px;margin:0 0 30px}
+#start button{font:600 18px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;color:#07101e;background:var(--ink);border:0;border-radius:999px;padding:16px 34px;cursor:pointer}
+#start .keys{margin-top:34px;color:var(--dim);font-size:14px;line-height:2}
+#nav{position:absolute;right:160px;top:990px;display:flex;gap:10px;z-index:2}
+#nav button{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--panel);color:var(--mute);font:600 20px "Plus Jakarta Sans","Segoe UI",Arial,sans-serif;cursor:pointer}
+#nav button:hover{color:var(--ink);border-color:var(--acc)}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div id="stage">
+  <div class="chrome"><span>LANDESFACHTAG 2026</span><b>Vom Chat zum Code</b></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="hint" id="hint"></div>
+  <div id="tsw"><button data-t="C">Claude <kbd>C</kbd></button><button data-t="G">ChatGPT <kbd>G</kbd></button></div>
+  <div id="nav"><button id="nPrev" aria-label="Zurück" title="Zurück">‹</button><button id="nNext" aria-label="Weiter" title="Weiter">›</button></div>
+
+  <!-- 0 · Titel -->
+  <section class="page" data-hint="&lt;kbd&gt;→&lt;/kbd&gt; weiter">
+    <div class="title">
+      <!-- PLATZHALTER Absender/Marke: Hier erst die offizielle, freigegebene Logo-Datei der Hessischen Lehrkräfteakademie (SVG, Negativ-Version) einsetzen; nicht nachbauen. Siehe design/hessen-umsetzung.md -->
+      <div class="kick rise" style="--d:.1s">09 · DIE OBERFLÄCHE</div>
+      <h2><span class="rise" style="--d:.35s">Wo&nbsp;finde&nbsp;</span><span class="rise" style="--d:.5s">ich&nbsp;</span><span class="rise a" style="--d:.65s">was?</span></h2>
+      <div class="line" style="margin-top:40px"></div>
+      <p class="rise" style="--d:1s">Claude und ChatGPT im Überblick, Stand November 2026</p>
+    </div>
+  </section>
+
+  <!-- 1 · Interaktive Übersicht -->
+  <section class="page tw" id="pOv" data-hint="Nummer anklicken oder Taste &lt;kbd&gt;1&lt;/kbd&gt;…&lt;kbd&gt;9&lt;/kbd&gt;, &lt;kbd&gt;0&lt;/kbd&gt; = 10 &nbsp;·&nbsp; &lt;kbd&gt;Esc&lt;/kbd&gt; schließen &nbsp;·&nbsp; &lt;kbd&gt;C&lt;/kbd&gt; / &lt;kbd&gt;G&lt;/kbd&gt; Werkzeug &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
+    <div class="head">
+      <div class="kick rise">09 · DIE OBERFLÄCHE · ÜBERSICHT</div>
+      <h1 class="rise" style="--d:.12s">Alles <em>auf einen Blick.</em></h1>
+    </div>
+    <div id="zc" class="rise" style="--d:.4s"></div>
+    <div class="bm rise" id="bm" style="--d:.3s"></div>
+  </section>
+
+  <!-- 2 · Neue Funktionen -->
+  <section class="page tw" id="pNew" data-hint="Kachel anklicken für die Vorführung &nbsp;·&nbsp; &lt;kbd&gt;C&lt;/kbd&gt; / &lt;kbd&gt;G&lt;/kbd&gt; Werkzeug &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
+    <div class="head">
+      <div class="kick rise">09 · DIE OBERFLÄCHE · NEU</div>
+      <h1 class="rise" style="--d:.12s">Neue Funktionen <em>im Überblick.</em></h1>
+    </div>
+    <div class="grid" id="gNew" style="top:330px;grid-template-columns:repeat(3,1fr);grid-auto-rows:270px"></div>
+    <div class="was rise" id="was" style="--d:.9s"></div>
+  </section>
+
+  <!-- 3 · Vergleich -->
+  <section class="page" id="pCmp" data-hint="Paar anklicken für Details &nbsp;·&nbsp; &lt;kbd&gt;Esc&lt;/kbd&gt; schließen &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
+    <div class="head">
+      <div class="kick rise">09 · DIE OBERFLÄCHE · CLAUDE UND CHATGPT</div>
+      <h1 class="rise" style="--d:.12s">Dieselbe Idee, <em>andere Namen.</em></h1>
+    </div>
+    <div class="cmph rise" style="--d:.25s"><div><span>CLAUDE</span><span></span><span>CHATGPT</span></div><div><span>CLAUDE</span><span></span><span>CHATGPT</span></div></div>
+    <div class="pairs" id="gCmp"></div>
+  </section>
+
+  <!-- 4 · Weiter -->
+  <section class="page" id="pEnd" data-hint="&lt;kbd&gt;→&lt;/kbd&gt; weiter zum Mitbauen &nbsp;·&nbsp; &lt;kbd&gt;←&lt;/kbd&gt; zurück &nbsp;·&nbsp; &lt;kbd&gt;Pos1&lt;/kbd&gt; zum Anfang">
+    <div class="head">
+      <div class="kick rise">09 · DIE OBERFLÄCHE</div>
+      <h1 class="rise" style="--d:.12s">Weiter: <em>Jetzt bauen wir mit.</em></h1>
+      <div class="lead rise" style="--d:.25s">Sie wissen jetzt, wo was liegt. Drei Stellen reichen für den Anfang:</div>
+    </div>
+    <div class="grid" style="top:430px;grid-template-columns:repeat(3,1fr);grid-auto-rows:320px" id="gEnd"></div>
+    <div class="rise" style="--d:1s;position:absolute;left:160px;top:800px;display:flex;align-items:center;gap:40px">
+      <a class="cta" id="next" href="teil2-mitbauen.html">Weiter: Jetzt bauen wir mit <span>→</span></a>
+      <div style="font-size:21px;color:var(--mute);line-height:1.45;max-width:760px">Menüs ändern sich oft. Suchen Sie nach dem Begriff, nicht nach der Stelle auf dem Bildschirm.</div>
+    </div>
+  </section>
+
+  <div id="veil"></div>
+  <div id="card"><button class="x" id="cx" aria-label="Schließen">✕</button><div id="cbody"></div></div>
+  <div id="shade"></div>
+  <div id="spot"></div>
+  <div id="hc"></div>
+</div>
+
+<div id="start"><div class="c">
+  <div class="k">LANDESFACHTAG 2026 · TEIL 2</div>
+  <h1>Die Oberfläche: Wo finde ich was?</h1>
+  <p>Claude und ChatGPT im Überblick · Zonen anklicken, Funktionen ansehen, Begriffe vergleichen</p>
+  <button id="go">▶&nbsp; Starten</button>
+  <div class="keys"><kbd>→</kbd> <kbd>←</kbd> oder Präsenter: Seite vor/zurück &nbsp; <kbd>C</kbd> Claude &nbsp; <kbd>G</kbd> ChatGPT &nbsp; <kbd>1</kbd>…<kbd>0</kbd> Zone öffnen &nbsp; <kbd>Esc</kbd> schließen<br><kbd>F</kbd> Vollbild &nbsp; <kbd>M</kbd> Klänge aus/an &nbsp; <kbd>Pos1</kbd> Anfang</div>
+</div></div>
+
+<script>
+/* ============ Symbole (Linien-Icons, selbst gezeichnet) ============ */
+const P={
+ plus:'<path d="M12 5v14M5 12h14"/>',
+ chat:'<path d="M4 5h16v11H9l-5 4z"/>',
+ folder:'<path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+ search:'<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+ edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+ send:'<path d="M12 19V5M6 11l6-6 6 6"/>',
+ dots:'<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+ dl:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+ copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
+ file:'<path d="M6 2.5h8l4 4V21a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 21z"/><path d="M14 2.5v4h4"/>',
+ code:'<path d="m8 9-4 3 4 3M16 9l4 3-4 3M13.5 6l-3 12"/>',
+ who:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/>',
+ sliders:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+ clock:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+ mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>',
+ globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.5 5.4 3.5 8.5s-1 5.9-3.5 8.5c-2.5-2.6-3.5-5.4-3.5-8.5s1-5.9 3.5-8.5z"/>',
+ panel:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M13 4v16"/>',
+ brain:'<path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 3 3 2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-3 3 2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/>',
+ plug:'<path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/>',
+ lib:'<path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="m16 5 3.5-1 2.5 15-3.5 1z"/>',
+ layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',
+ expand:'<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',
+ task:'<path d="M10 6h10M10 12h10M10 18h10"/><path d="m3.5 6 1.5 1.5L7.5 5M3.5 12l1.5 1.5 2.5-2.5M3.5 18l1.5 1.5 2.5-2.5"/>',
+ cloud:'<path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 10a4 4 0 0 1 0 8z"/>',
+ vs:'<path d="M5 7h10M11 3l4 4-4 4M19 17H9M13 13l-4 4 4 4"/>',
+ chev:'<path d="m7 10 5 5 5-5"/>',
+ bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+ shield:'<path d="M12 3 5 6v5.5c0 4.2 3 7.8 7 9.5 4-1.7 7-5.3 7-9.5V6z"/><path d="m9 12 2.2 2.2L15.5 10"/>',
+ tabs:'<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M8 6V4h8v2"/>',
+ left:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',
+ tool:'<path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.4 2.4-2.6-.6-.6-2.6z"/>'
+};
+const svg=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${P[k]}</svg>`;
+const $=id=>document.getElementById(id);
+const mi=k=>svg(k);
+const si=(lbl,ic,extra='')=>`<div class="si">${ic?mi(ic):''}<span>${lbl}</span>${extra}</div>`;
+const ph=w=>`<div class="ph" style="width:${w}%"></div>`;
+function win(url,inner){return `<div class="tbar"><i></i><i></i><i></i><span class="url">${url}</span><span class="tag">VEREINFACHTE DARSTELLUNG</span></div><div class="mw">${inner}</div>`}
+
+/* ============ Mockup: Claude (claude.ai / Claude Desktop) ============ */
+function cMock(){return win('Claude · Desktop-App',`
+<div class="ms">
+ <div class="brand">Claude</div>
+ <!-- BELEGT durch Screenshots der deutschen Claude-Desktop-App (NACHTRAG 2): „+ Neu“, „Suchen“, „Projekte“, „Artefakte“, „Geplant“, „Design“, „Anpassungen“, „Angepinnt ›“, „Letzte Elemente ›“, Konto „Name · Pro ⌄“. Neutraler Beispielname. -->
+ <div class="z" data-z="1">${si('Neu','plus')}${si('Suchen','search')}</div>
+ <div class="z" data-z="2">${si('Projekte','folder')}</div>
+ <div class="z" data-z="3">${si('Artefakte','grid')}</div>
+ <div class="z" data-z="5">${si('Geplant','clock')}</div>
+ ${si('Design','edit')}
+ <div class="z" data-z="4">${si('Anpassungen','sliders')}</div>
+ <div class="lab" style="letter-spacing:0;font-size:13px">Angepinnt ›</div><div class="lab" style="letter-spacing:0;font-size:13px;padding-top:4px">Letzte Elemente ›</div>${ph(82)}${ph(64)}${ph(74)}
+ <!-- UNSICHER: dass die Einstellungen über das Konto unten links erreichbar sind (Menü nicht fotografiert) -->
+ <div class="usr"><div class="z" data-z="6">${si('Ihr Name · Pro ⌄','who')}</div></div>
+</div>
+<div class="mm cmain">
+ <div class="tabs"><div class="z" data-z="7"><span class="seg"><span class="on">Chat</span><span>‹/› Code</span></span></div></div>
+ <div class="pop menu" data-for="7" style="left:26px;top:76px;width:400px">
+  <div class="mh">CODE · UMGEBUNG AUSWÄHLEN</div>
+  <div class="eff"><span class="on">Lokal</span><span>Cloud</span><span>WSL</span></div>
+  <div class="mt2">Lokal heißt „Dieser Computer“. Dazu „Ordner zum Arbeiten auswählen“.</div>
+ </div>
+ <div class="conv">
+  <div class="bub">Erstelle ein Quiz zur Fotosynthese für Klasse 8, acht Fragen mit Rückmeldung.</div>
+  <div class="ans">Gern. Das Quiz hat acht Fragen und gibt nach jeder Antwort eine kurze Rückmeldung. Es ist rechts geöffnet.</div>
+  <div class="achip"><span class="ai">${mi('code')}</span><div>Quiz Fotosynthese<small>Artefakt</small></div></div>
+ </div>
+ <!-- UNSICHER: Platzhaltertext im Eingabefeld -->
+ <div class="inp2"><div>Antworten …</div><div class="ir">
+  <span class="z" data-z="8" data-hp="top:-26px;right:-16px"><span class="ib">${mi('plus')}</span></span><span class="sp"></span>
+  <span class="z" data-z="9" data-hp="top:-30px;right:-6px"><span class="mdl">Opus 5.5 <span style="color:var(--mute)">Mittel</span> ${mi('chev')}</span></span><span class="snd">${mi('send')}</span></div></div>
+ <div class="pop menu" data-for="8" style="left:26px;bottom:126px;width:330px">
+  <!-- UNSICHER: genaue Beschriftung des Eintrags zum Hochladen von Dateien -->
+  ${si('Dateien','file')}${si('Konnektoren','plug','<span class="r">›</span>')}${si('Recherche','search')}
+  ${si('Websuche','globe','<span class="old">BISHER</span>')}<hr>
+  <div class="si">${mi('brain')}<span>Memory</span><i class="sw on"></i></div>
+ </div>
+ <div class="pop menu" data-for="9" style="right:26px;bottom:126px;width:420px">
+  <div class="mh">MODELL</div>${si('Opus 5.5','spark','<span class="r" style="color:var(--green)">✓</span>')}${si('Sonnet 5.5','spark')}${si('Fable 5.2','spark','<span class="old">BIS 16.11.</span>')}${si('Haiku 5.5','spark')}<hr>
+  ${si('Aufwand','',`<span class="r">Mittel ›</span>`)}${si('Weitere Modelle','',`<span class="r">›</span>`)}${si('Schnellmodus','')}
+ </div>
+</div>
+<div class="mp z" data-z="10" data-hp="top:70px;left:-16px;right:auto">
+ <div class="hd"><span class="nm">Quiz Fotosynthese</span><span class="btn">${mi('edit')}Mit Claude bearbeiten</span><span class="btn ico">${mi('copy')}</span><span class="btn ico">${mi('dl')}</span></div>
+ <div class="pb"><div class="quiz"><div class="qn">FRAGE 3 VON 8</div><div class="qq">Was braucht die Pflanze für die Fotosynthese?</div>
+  <div class="op ok">Licht, Wasser und Kohlenstoffdioxid ✓</div><div class="op">Zucker und Sauerstoff</div><div class="op">Nur Wasser</div><div class="qb"><b></b></div></div></div>
+</div>`)}
+
+/* ============ Mockup: ChatGPT-Desktop-App ============
+   Nachgezeichnet nach den Screenshots der Kursleitung (design/screenshots/chatgpt-desktop-1..4.webp),
+   Abschnitt NACHTRAG in der Recherche-Datei: diese Beschriftungen sind BELEGT (Original-Oberfläche, deutsch). */
+function gMock(){return win('ChatGPT · Desktop-App',`
+<div class="rail">
+ <span class="ri">${mi('chat')}</span><span class="ri">${mi('layers')}</span><span class="ri">${mi('clock')}</span><span class="ri">${mi('lib')}</span><span class="ri">${mi('plug')}</span>
+ <span class="z ri" data-z="3" data-hp="top:-10px;right:-18px">${mi('dots')}</span><span class="ri">${mi('grid')}</span>
+</div>
+<div class="pop menu" data-for="3" style="left:56px;top:250px;width:250px">
+ ${si('Projekte','folder')}${si('Sites','globe')}${si('Karten','layers')}${si('GPTs','grid','<span class="old">BIS 11.12.</span>')}${si('Code Review','code')}
+</div>
+<div class="ms gms">
+ <div class="z" data-z="1" data-hp="top:46px;right:-12px"><div class="ghd"><b>ChatGPT</b>${mi('chev')}<span class="sp"></span>${mi('bell')}${mi('search')}</div>${si('Neuer Chat','edit')}</div>
+ <div class="pop menu" data-for="1" style="left:60px;top:62px;width:260px">${si('ChatGPT','chat','<span class="r" style="color:var(--green)">✓</span>')}${si('Codex','code')}</div>
+ <div class="z" data-z="2" data-hp="top:2px;right:-12px" style="margin-top:6px"><div class="lab" style="letter-spacing:0;font-size:14px;font-weight:600">Angeheftet</div>
+  ${si('Quiz Brüche erstellen','chat')}${si('Deutsch 6a','folder')}<div class="si sub">Lesetagebuch planen</div><div class="si sub">Elternbrief Wandertag</div>${si('Klassenfahrt planen','chat')}
+  <div class="lab" style="letter-spacing:0;font-size:14px;font-weight:600;margin-top:4px">Letzte ›</div></div>
+</div>
+<div class="mm gmain">
+ <div class="gtop2"><span class="gt">Quiz Brüche erstellen</span>
+  <div class="z" data-z="4" style="justify-self:center"><span class="seg"><span>Chat</span><span class="on">Work</span></span></div>
+  <span style="justify-self:end;display:flex;gap:6px;color:var(--mute)"><span class="ib" style="border:0">${mi('dots')}</span><span class="ib">${mi('task')}</span></span></div>
+ <div class="gbody">
+  <div class="gchat">
+   <div class="bub">Baue ein Quiz zu Brüchen für Klasse 6, als Web-App.</div>
+   <div class="z" data-z="5" data-hp="top:-12px;left:-14px;right:auto" style="margin-top:16px;padding:4px 6px">
+    <div class="wk">1m 6s lang gearbeitet ›</div>
+    <div class="ans" style="margin-top:10px">Fertig. Das Quiz hat zehn Aufgaben mit Rückmeldung.</div>
+    <div class="ans" style="margin-top:8px"><span class="lnk">${mi('code')}App öffnen</span> und ausprobieren.</div></div>
+  </div>
+  <div class="z ovc" data-z="9" data-hp="top:-13px;left:-13px;right:auto">
+   <div class="ovr"><b>Ausgaben</b><span>+</span></div><div class="ovs">Ausgabe erstellen</div>
+   <div class="ovr" style="margin-top:12px"><b>Seiten-Chats</b></div><div class="ovs" style="color:var(--ink)">○ Nebenchat</div>
+   <div class="ovr" style="margin-top:12px"><b>Quellen</b><span>+</span></div><div class="ovs">Dateien anhängen oder Apps verbinden</div>
+  </div>
+ </div>
+ <div class="inp2" style="margin-top:12px"><div>Mit ChatGPT arbeiten</div><div class="ir">
+  <span class="z" data-z="6" data-hp="top:-30px;right:-6px" style="display:inline-flex;align-items:center;gap:12px;padding:2px 6px 2px 2px"><span class="ib">${mi('plus')}</span><span class="apr">${mi('shield')}Genehmigung anfordern</span></span><span class="sp"></span>
+  <span class="z" data-z="7" data-hp="top:-30px;right:-6px"><span class="mdl"><b style="font-weight:600">GPT-6.1 Sol</b> <span style="color:var(--mute)">Mittel</span> ${mi('chev')}</span></span>
+  <span class="mic">${mi('mic')}</span><span class="snd" style="background:var(--acc);border-radius:50%">${mi('send')}</span></div></div>
+ <div class="z gub" data-z="8"><span>${mi('folder')}Projekt auswählen</span><span>${mi('lib')}Dateien</span><span>${mi('plug')}Plugins</span><span class="sp"></span>${mi('cloud')}</div>
+ <div class="pop menu" data-for="6" style="left:26px;bottom:150px;width:300px">
+  <div class="mh">GENEHMIGUNG</div>${si('Genehmigung anfordern','shield','<span class="r" style="color:var(--green)">✓</span>')}${si('Für mich genehmigen','shield')}</div>
+ <div class="pop menu" data-for="7" style="right:26px;bottom:150px;width:300px">
+  <div class="mh">GPT-6.1 SOL · DENKSTUFE</div>${si('Instant','spark')}${si('Mittel','spark','<span class="r" style="color:var(--green)">✓</span>')}${si('Hoch','spark')}${si('Sehr hoch','spark','<span class="r">ab Pro</span>')}</div>
+</div>
+<div class="side z" data-z="10" data-hp="top:120px;left:-16px;right:auto">
+ <div class="btab"><span class="tb on">${mi('globe')}Neuer Tab <i>×</i></span><span class="tb">○ Nebenchat</span><span style="color:var(--mute);font-size:20px;padding:0 6px">+</span></div>
+ <div class="addr"><span style="color:var(--dim)">‹ › ↻</span><span class="ab2">Suchen oder URL eingeben</span></div>
+ <div class="bsec"><h6>Tools</h6><div class="trow">${mi('file')}Dateien<span class="kb">Strg+P</span></div></div>
+ <div class="bsec"><h6>Vorgeschlagen</h6><div class="sugg">${['127.0.0.1','Lernplattform','Schulhomepage','quiz.html'].map(x=>`<div><span>${mi('globe')}</span>${x}</div>`).join('')}</div></div>
+</div>`)}
+
+/* ============ Zonen-Texte ============ */
+const ZONES={
+ C:[
+  {t:'Neu und Suchen',d:'Oben in der Seitenleiste starten Sie mit „+ Neu“ ein neues Gespräch oder durchsuchen Ihre früheren Chats.',ex:'Sie suchen nach „Fotosynthese“ und finden das Quiz aus der letzten Woche wieder.',tp:'Für Vertrauliches gibt es den Inkognito-Chat. Er landet nicht im Verlauf und nicht im Memory.'},
+  {t:'Projekte',en:'Projects',d:'Ein Projekt bündelt Chats, Projektanweisungen und Projektwissen zu einem Thema. Was Sie dort hinterlegen, gilt in jedem Chat des Projekts.',path:['Projekte','Neues Projekt'],ex:'Ein Projekt „Biologie 8b“ mit dem Lehrplanauszug als Projektwissen und Ihren Regeln für Arbeitsblätter.',nw:'Eine neue Projektform mit Threads, Übersicht und Bibliothek gibt es als Beta, bisher nur in Claude Code.'},
+  {t:'Artefakte',en:'Artifacts',d:'Hier sammelt Claude alles, was es für Sie erstellt hat: Dokumente, Folien, Designs und kleine Apps. Dazu gibt es Vorlagen wie Claude Docs, Claude Slides und Claude Design.',ex:'Das Quiz von gestern öffnen Sie hier wieder und passen es für die Parallelklasse an.',nw:'Neue Artefakt-Generation seit 16.09.2026, für alle Pläne inklusive Free.'},
+  {t:'Anpassungen',en:'Customize',d:'Bündelt Skills, Konnektoren und Plugins an einem Ort. Konnektoren verbinden Claude mit Diensten wie Google Drive oder Microsoft 365.',path:['Anpassungen','Skills','Konnektoren','Plugins'],ex:'Ein Skill sorgt dafür, dass jedes Arbeitsblatt dasselbe Layout mit Lösungsteil bekommt.',nw:'An einem Ort seit 25.02.2026. Früher sagte man oft „Integrationen“, heute heißen sie Konnektoren.',tp:'Verbinden Sie nur Dienste, die Ihre Schule freigegeben hat.'},
+  {t:'Geplant und Verlauf',en:'Scheduled, Recents',d:'Unter „Geplant“ verwalten Sie wiederkehrende Aufgaben. Weiter unten stehen „Angepinnt ›“ und „Letzte Elemente ›“ mit Ihren Gesprächen.',ex:'Eine wiederkehrende Aufgabe fasst jeden Freitag die neuen Dateien in Ihrem Materialordner zusammen.',nw:'Gemeinsame Liste seit 16.09.2026, zuerst für Pro und Max. Geplante Aufgaben seit 25.02.2026.'},
+  {t:'Konto und Einstellungen',en:'Settings › Your Claude',d:'Unten links stehen Ihr Name und Ihr Tarif. In den Einstellungen unter „Ihr Claude“ steuern Sie Memory, die Suche in früheren Chats und die Anweisungen für Claude, die in allen Gesprächen gelten. Unter Funktionen schalten Sie das Erstellen und Bearbeiten von Dateien ein.',ex:'Unter Anweisungen für Claude steht: „Ich unterrichte Biologie in Klasse 5 bis 10. Antworte kurz.“',nw:'Memory als einzelne Einträge seit 10.07.2026, bearbeitbare Themen seit 25.08.2026. Früher hieß der Bereich „Speicher“.'},
+  {t:'Chat und Code',en:'Umschalter oben links',d:'Oben links wechseln Sie zwischen Chat (Sprechblase) und Code (‹/›). Code ist Claude Code. Dort wählen Sie unter „Umgebung auswählen“, wo gearbeitet wird: Lokal („Dieser Computer“), Cloud oder WSL.',ex:'Cowork sortiert einen Ordner mit Unterrichtsmaterial und legt eine Übersicht als Tabelle an.',nw:'Seit 16.09.2026 steckt Cowork in jedem Gespräch, eine eigene Cowork-Auswahl gibt es dort nicht mehr. Ältere Oberflächen zeigen noch Chat · Cowork · Code.'},
+  {t:'Plus-Schaltfläche',en:'+ button',d:'Öffnet das Menü für Dateien, Konnektoren, Recherche und Memory für diesen Chat. In der bisherigen Oberfläche steht hier auch der Schalter Websuche.',path:['+','Recherche'],ex:'Sie hängen ein Arbeitsblatt als PDF an und bitten um eine leichtere Fassung.',nw:'In der neuen Claude-Erfahrung gibt es den Websuche-Schalter nicht mehr. Claude sucht selbstständig.'},
+  {t:'Modellmenü',en:'model picker',d:'Ein Klick auf „Opus 5.5 Mittel“. Dort wählen Sie Opus 5.5, Sonnet 5.5, Haiku 5.5 oder befristet Fable 5.2. „Mittel“ ist der Aufwand, unter „Aufwand ›“ stellen Sie ihn um.',path:['Opus 5.5 Mittel','Aufwand ›'],ex:'Für eine schnelle Umformulierung reicht Niedrig. Für die Planung einer Unterrichtsreihe lohnt Hoch.',nw:'Fable 5.2 ist nur befristet enthalten. Kostenlose Konten sehen weniger Modelle.'},
+  {t:'Artefakt-Panel',en:'neben dem Chat',d:'Ergebnisse öffnen sich neben dem Chat, mit Vorschau. Sie markieren eine Stelle, beschreiben die Änderung, und Claude ändert genau dort.',path:['Artefakt-Panel','Mit Claude bearbeiten'],ex:'Sie markieren Frage 3 im Quiz und schreiben: „Einfacher formulieren.“',nw:'Entwürfe an Ort und Stelle bearbeiten seit 12.06.2026. Neue Artefakte seit 16.09.2026.'}
+ ],
+ /* ChatGPT: Beschriftungen laut NACHTRAG (Screenshots der echten deutschen Desktop-App) */
+ G:[
+  {t:'Kopf der Seitenleiste',en:'ChatGPT ⌄, Neuer Chat',d:'Über „ChatGPT ⌄“ wechseln Sie in der Desktop-App zwischen ChatGPT und Codex. Daneben liegen die Glocke für Benachrichtigungen und die Lupe für die Suche. „Neuer Chat“ startet ein neues Gespräch.',ex:'Mit der Lupe finden Sie den Elternbrief vom letzten Wandertag wieder.',nw:'ChatGPT und Codex sind seit 09.07.2026 in einer Desktop-App vereint.'},
+  {t:'Angeheftet und Letzte',d:'Unter „Angeheftet“ stehen Chats und Projektordner, die Sie festhalten. Ein Projektordner zeigt seine Chats direkt darunter. „Letzte ›“ öffnet alle übrigen Gespräche.',ex:'Ein Projektordner „Deutsch 6a“ hält alle Chats zur Klasse zusammen.'},
+  {t:'Symbolleiste und Menü „…“',d:'Ganz links liegt eine schmale Symbolleiste. Das Menü „…“ enthält Projekte, Sites, Karten, GPTs und Code Review.',path:['…','Projekte'],ex:'Über Projekte legen Sie für jede Klasse einen eigenen Arbeitsbereich mit Quellen und Anweisungen an.',nw:'Eigene GPTs werden am 11.12.2026 eingestellt. Als Ersatz empfiehlt OpenAI Plugins oder Projekte.',tp:'Sites sind kleine Webseiten, die ChatGPT für Sie erstellt und verwaltet.'},
+  {t:'Chat | Work',d:'Oben in der Mitte wählen Sie Chat für das Gespräch oder Work für längere Aufgaben in mehreren Schritten. Am Ende von Work stehen fertige Dokumente, Tabellen oder Präsentationen.',ex:'Work macht aus Ihren Stichpunkten eine Präsentation und ein Handout für den Elternabend.',nw:'ChatGPT Work seit 09.07.2026, nicht für Free und Go. Löst den früheren Agentenmodus ab.'},
+  {t:'Arbeitsschritte und „App öffnen“',d:'„1m 6s lang gearbeitet ›“ zeigt, wie lange ChatGPT gearbeitet hat. Ein Klick klappt die einzelnen Schritte auf. Für gebaute Apps bietet ChatGPT einen Datei- oder Vorschau-Link an, zum Beispiel „App öffnen“.',ex:'Sie bauen ein Bruch-Quiz und öffnen es über den Link in der Antwort zum Testen.',tp:'Angehängte .html-Dateien öffnen sich per Klick in einem eigenen Vorschaufenster.'},
+  {t:'Plus und Genehmigung',d:'Mit „+“ fügen Sie Dateien und Werkzeuge hinzu. Der Schalter daneben legt fest, ob ChatGPT vor Aktionen fragt: „Genehmigung anfordern“ oder „Für mich genehmigen“.',ex:'Für die ersten Versuche lassen Sie „Genehmigung anfordern“ stehen. So sehen Sie jeden Schritt, bevor er passiert.'},
+  {t:'Modellwahl',en:'GPT-6.1 Sol Mittel',d:'Hier stehen das Modell und die Denkstufe. Die Stufen heißen Instant, Mittel, Hoch und Sehr hoch.',path:['GPT-6.1 Sol','Mittel ⌄'],ex:'Instant für eine schnelle Vokabelliste, Hoch für eine Klassenarbeit mit Erwartungshorizont.',nw:'Stufen seit 10.06.2026, sie ersetzen die früheren Thinking-Stufen. Sehr hoch gibt es erst ab Pro oder Business.'},
+  {t:'Projekt, Dateien, Plugins',d:'Unter dem Eingabefeld ordnen Sie den Chat einem Projekt zu, holen Dateien dazu oder nutzen Plugins.',path:['Projekt auswählen','Dateien','Plugins'],ex:'„Projekt auswählen“ › „Deutsch 6a“: Der Chat nutzt dann Quellen und Anweisungen des Projekts.',nw:'Plugins gibt es seit 09.07.2026. Früher hießen sie Apps, davor Konnektoren.',tp:'Verbinden Sie nur Dienste, die Ihre Schule freigegeben hat.'},
+  {t:'Seitenfenster',en:'Ausgaben, Seiten-Chats, Quellen',d:'Das Seitenfenster zeigt, was zum Chat gehört. Unter Ausgaben können fertige Ergebnisse stehen, sicher ist das nicht. Seiten-Chats sind Nebengespräche. Quellen sind angehängte Dateien und verbundene Apps.',ex:'Sie fragen im Nebenchat schnell etwas nach, ohne den Hauptchat zu unterbrechen.',tp:'Seiten-Chats öffnen sich als eigene Registerkarte oben rechts. Mit „+“ kommen weitere dazu.'},
+  {t:'Eingebauter Browser',en:'Neuer Tab',d:'Im Seitenfenster öffnet „Neuer Tab“ einen Browser. In die Adresszeile geben Sie eine Suche oder eine URL ein. Unter Tools öffnet „Dateien“ (Strg+P) Ihre Dateien.',ex:'Sie öffnen Ihre gebaute App neben dem Chat und testen sie, während Sie Änderungen beschreiben.',nw:'Der frühere Browser Atlas ist seit 09.08.2026 eingestellt. Browserarbeit läuft jetzt in der Desktop-App.'}
+ ]};
+
+/* ============ Neue Funktionen (Seite 3) ============ */
+const NEW={
+ C:[
+  {ic:'panel',demo:'art',t:'Artefakt-Panel',s:'Ergebnisse neben dem Chat, mit Vorschau und Bearbeiten an Ort und Stelle.',since:'NEU SEIT 16.09.2026',d:'Dokumente, Folien, Designs und kleine Apps öffnen sich neben dem Chat. Sie markieren eine Stelle und sagen, was anders werden soll.',ex:'Ein Quiz zur Fotosynthese bauen, Frage 3 markieren und „einfacher formulieren“ schreiben.',w:'Im Chat rechts. Alle Artefakte finden Sie in der Seitenleiste unter Artefakte.'},
+  {ic:'folder',demo:'proj',t:'Projekte',s:'Anweisungen und Projektwissen gelten in jedem Chat des Projekts.',since:'NEUE FORM ALS BETA',d:'Sie legen einmal fest, wofür das Projekt da ist und was es wissen soll. Danach müssen Sie das nicht in jedem Chat neu erklären.',ex:'„Biologie 8b“: Lehrplanauszug als Projektwissen, Ihre Regeln als Projektanweisungen.',w:'Seitenleiste › Projekte › Neues Projekt › Projektanweisungen festlegen'},
+  {ic:'task',demo:'cow',t:'Cowork und Umgebung',s:'Längere Aufgaben mit Aufgabenliste, lokal oder in der Cloud.',since:'IN JEDEM GESPRÄCH SEIT 16.09.2026',d:'Cowork arbeitet mehrere Schritte nacheinander ab und zeigt eine Aufgabenliste. Die Berechtigungen legen fest, ob Claude vorher fragt. Die Umgebung bestimmt, wo gearbeitet wird.',ex:'Einen Ordner mit Materialien sortieren und eine Übersichtstabelle anlegen lassen.',w:'Im Gespräch. Berechtigungen in der Code-Ansicht: Auto, Manuell, Plan und weitere.'},
+  {ic:'search',demo:'res',t:'Recherche',s:'Mehrstufige Suche über Web und Konnektoren, am Ende ein Bericht.',since:'IN DEN BEZAHLPLÄNEN',d:'Claude sucht in mehreren Runden, wertet Quellen aus und schreibt einen Bericht mit Belegen.',ex:'Aktuelle Studien zu Handyregeln an Schulen zusammentragen, mit Quellenangaben.',w:'Plus-Schaltfläche › Recherche, oder den Befehl /deep-research eingeben.'},
+  {ic:'sliders',demo:'cus',t:'Anpassungen',s:'Skills, Konnektoren und Plugins an einem Ort.',since:'SEIT 25.02.2026',d:'Skills sind gespeicherte Arbeitsweisen. Konnektoren verbinden Dienste. Plugins bündeln Skills, Konnektoren und Befehle.',ex:'Ein Skill „Arbeitsblatt“ sorgt immer für dasselbe Layout, einen Lösungsteil und Quellenangaben.',w:'Seitenleiste › Anpassungen. Pro Gespräch: Plus-Schaltfläche › Konnektoren.'},
+  {ic:'brain',demo:'mem',t:'Memory',s:'Claude merkt sich Kontext als einzelne, bearbeitbare Einträge.',since:'THEMEN SEIT 25.08.2026',d:'Memory speichert, was in früheren Chats wichtig war, geordnet nach Themen. Sie können Einträge ansehen, ändern und pro Chat abschalten.',ex:'Claude weiß, dass Sie Arbeitsblätter immer mit Lösungsteil möchten.',w:'Einstellungen › Ihr Claude. Pro Chat: Plus-Schaltfläche › Memory.'}
+ ],
+ /* ChatGPT: Funktionen laut NACHTRAG (echte Desktop-App) */
+ G:[
+  {ic:'panel',demo:'gside',t:'Seitenfenster',s:'Ausgaben, Seiten-Chats und Quellen zum Chat auf einen Blick.',since:'DESKTOP-APP',d:'Rechts neben dem Chat sehen Sie, was entstanden ist und womit ChatGPT arbeitet. Fertige Ergebnisse können unter Ausgaben stehen, Dateien und Apps unter Quellen.',ex:'Die angehängte Aufgabensammlung als PDF steht unter Quellen.',w:'Symbol oben rechts im Chat. Quellen: „+“, dann „Dateien anhängen oder Apps verbinden“.'},
+  {ic:'chat',demo:'gsch',t:'Seiten-Chats',s:'Ein Nebenchat in eigener Registerkarte, der Hauptchat bleibt sauber.',since:'DESKTOP-APP',d:'Ein Seiten-Chat ist ein Nebengespräch neben dem Hauptchat. Er öffnet sich als eigene Registerkarte rechts, mit eigenem Eingabefeld.',ex:'Während das Quiz entsteht, klären Sie im Nebenchat, wie man Brüche kürzt.',w:'Seitenfenster › Seiten-Chats › Nebenchat. Weitere mit „+“ oben rechts.'},
+  {ic:'globe',demo:'gbrw',t:'Eingebauter Browser',s:'Webseiten und eigene Apps direkt neben dem Chat öffnen.',since:'ATLAS EINGESTELLT 09.08.2026',d:'Im Seitenfenster öffnet „Neuer Tab“ einen Browser mit Adresszeile. Dort testen Sie Ihre App, ohne das Fenster zu wechseln.',ex:'Das Bruch-Quiz neben dem Chat ausprobieren und Fehler sofort beschreiben.',w:'Seitenfenster › Neuer Tab › „Suchen oder URL eingeben“. Tools: Dateien mit Strg+P.'},
+  {ic:'task',demo:'work',t:'Chat | Work',s:'Work erledigt lange Aufgaben und liefert fertige Dateien.',since:'SEIT 09.07.2026',d:'Work plant die Schritte selbst und zeigt, wie lange es gearbeitet hat. Am Ende stehen Dokumente, Tabellen oder Präsentationen. Für Free und Go ist Work nicht verfügbar.',ex:'Aus Stichpunkten eine Präsentation und ein Handout für den Elternabend machen.',w:'Umschalter oben in der Mitte: Chat | Work.'},
+  {ic:'shield',demo:'gappr',t:'Genehmigung',s:'Sie bestimmen, ob ChatGPT vor Aktionen fragt.',since:'IM EINGABEFELD',d:'„Genehmigung anfordern“ heißt: ChatGPT fragt vor Aktionen nach. „Für mich genehmigen“ heißt: Es arbeitet ohne Rückfrage weiter.',ex:'Beim ersten Bau einer App lassen Sie Genehmigungen anfordern und sehen jeden Schritt.',w:'Eingabefeld, neben dem „+“.'},
+  {ic:'spark',demo:'gmdl',t:'Modell und Denkstufe',s:'GPT-6.1 Sol mit Instant, Mittel, Hoch oder Sehr hoch.',since:'STUFEN SEIT 10.06.2026',d:'Die Modellwahl zeigt das Modell und die Denkstufe. Mehr Denken heißt gründlicher, aber langsamer. Darunter wählen Sie Projekt, Dateien und Plugins.',ex:'Für eine Vokabelliste reicht Instant. Für eine Klassenarbeit mit Erwartungshorizont lohnt Hoch.',w:'Eingabefeld rechts: „GPT-6.1 Sol Mittel ⌄“.'}
+ ]};
+const WAS={
+ C:[['Websuche-Schalter','sucht selbst'],['Chat · Cowork · Code','jetzt Chat / Code'],['„Integrationen“','heißen Konnektoren'],['„Erweitertes Denken“','jetzt Aufwand']],
+ G:[['Canvas','nicht mehr'],['Agentenmodus','jetzt Work'],['Atlas','jetzt in der App'],['Pulse','jetzt Geplant'],['Gruppenchats','laufen aus'],['Eigene GPTs','bis 11.12.2026']]};
+
+/* ============ Vergleich (Seite 4) ============ */
+const CMP=[
+ {c:'Projekte',cs:'Seitenleiste › Projekte',g:'Projekte',gs:'„…“ › Projekte',same:'Ein Arbeitsbereich pro Thema oder Klasse, mit eigenen Chats.',diff:'Claude testet eine neue Projektform mit Threads und Bibliothek (Beta, bisher in Claude Code).'},
+ {c:'Projektanweisungen',cs:'Projektanweisungen festlegen',g:'Anweisungen',gs:'••• › Projekteinstellungen',same:'Regeln, die in jedem Chat des Projekts gelten.',diff:'Bei ChatGPT überschreiben die Projektanweisungen Ihre allgemeinen benutzerdefinierten Anweisungen.'},
+ {c:'Projektwissen',cs:'Kasten im Projekt, „+“',g:'Quellen',gs:'Projekt › Quellen',same:'Dateien und Texte, die das Projekt in jedem Chat kennt.',diff:'Claude wechselt bei großen Mengen in einen Suchmodus mit bis zu 10-facher Kapazität. ChatGPT: Quellen im Projekt gelten für alle Chats, Quellen im Seitenfenster nur für diesen Chat.'},
+ {c:'Artefakt-Panel',cs:'neben dem Chat',g:'Datei-Link',gs:'in der Antwort, z. B. „App öffnen“',same:'Fertige Ergebnisse ansehen und weiterverwenden.',diff:'Claude zeigt das Ergebnis mit Vorschau im Artefakt-Panel. ChatGPT bietet einen Datei- oder Vorschau-Link in der Antwort an. Ergebnisse können auch unter Ausgaben im Seitenfenster stehen, sicher ist das nicht.'},
+ {c:'Konnektoren, Plugins',cs:'unter Anpassungen, dazu Skills',g:'Plugins',gs:'früher Apps, davor Konnektoren',same:'Verbindungen zu anderen Diensten und fertige Arbeitspakete.',diff:'Bei Claude sind Konnektoren, Skills und Plugins getrennt aufgeführt. Bei ChatGPT stecken Verbindungen und Skills in Plugins.'},
+ {c:'Memory',cs:'auch „Speicher“',g:'Erinnerung',gs:'Personalisierung',same:'Die KI merkt sich Wichtiges aus früheren Chats.',diff:'Gleiche Idee, anderes Wort. „Erinnerung“ ist der ChatGPT-Begriff. Claude sagt Memory, Speicher oder Gedächtnis.'},
+ {c:'Recherche',cs:'+ › Recherche, /deep-research',g:'Deep Research',gs:'+ › Deep Research',same:'Ausführliche, mehrstufige Suche mit Bericht.',diff:'Bei ChatGPT bearbeiten Sie vorab den Plan. Claude bezieht auf Wunsch auch Konnektoren ein.'},
+ {c:'Cowork',cs:'in jedem Gespräch',g:'ChatGPT Work',gs:'Umschalter Chat | Work',same:'Längere Aufgaben in mehreren Schritten, am Ende Dateien.',diff:'Cowork steckt bei Claude im normalen Gespräch. Bei ChatGPT schalten Sie oben in der Mitte auf Work um.'},
+ {c:'Berechtigungen',cs:'Auto, Manuell, Plan …',g:'Genehmigung',gs:'Schalter im Eingabefeld',same:'Sie legen fest, ob die KI vor Aktionen nachfragt.',diff:'Claude: Menü „Berechtigungen“ mit Auto, Manuell, Bearbeitungen automatisch akzeptieren und Plan. ChatGPT: „Genehmigung anfordern“ oder „Für mich genehmigen“. Für den Anfang: fragen lassen (Manuell bzw. Genehmigung anfordern).'},
+ {c:'Code',cs:'Umschalter Code ‹/›',g:'Codex',gs:'Ansicht in der Desktop-App',same:'Programmier-Agent mit eigenem Verlauf.',diff:'Beide arbeiten in einer Umgebung. Claude: „Umgebung auswählen“ mit Lokal, Cloud oder WSL. Codex: wählbare Cloud-Umgebungen.'},
+ {c:'Aufwand',cs:'„Opus 5.5 Mittel“',g:'Denkstufe',gs:'„GPT-6.1 Sol Mittel“',same:'Sie entscheiden, wie gründlich die KI nachdenkt.',diff:'Bei Claude steht der Aufwand hinter dem Modellnamen, z. B. „Opus 5.5 Mittel“, umstellbar unter „Aufwand ›“. Bei ChatGPT hängt die Stufe direkt am Modellnamen: Instant, Mittel, Hoch, Sehr hoch.'},
+ {c:'Claude in Chrome',cs:'Seitenpanel im Chrome-Browser',g:'Eingebauter Browser',gs:'Neuer Tab im Seitenfenster',same:'Die KI arbeitet mit Webseiten, direkt neben dem Gespräch.',diff:'Claude kommt als Erweiterung in Ihr Chrome (nur Bezahlpläne). ChatGPT hat den Browser in der Desktop-App eingebaut.'},
+ /* UNSICHER: deutscher Wortlaut „Temporärer Chat“ bei ChatGPT nicht geprüft */
+ {c:'Inkognito-Chat',cs:'nicht im Verlauf',g:'Temporärer Chat',gs:'ohne Verlauf',same:'Ein Chat ohne Verlauf und ohne Gedächtnis.',diff:'Gut für einmalige Fragen. Für Schülerdaten ist auch dieser Chat nicht gedacht.'},
+ {c:'Bibliothek',cs:'nur Projekt-Beta',g:'Bibliothek',gs:'zentrale Dateiablage',warn:1,same:'Gleiches Wort, andere Sache.',diff:'Bei ChatGPT ist die Bibliothek die Dateiablage für alle Chats. Bei Claude gibt es eine Bibliothek nur in der neuen Projektform, für ein einzelnes Projekt. Die zentrale Sammlung heißt dort Artefakte.'}
+];
+const END=[
+ {ic:'left',t:'Links: Ordnung',s:'Neu, Suchen, Projekte und Verlauf. Hier finden Sie Ihre Arbeit wieder.',e:'Ein Projekt pro Klasse oder Thema.'},
+ {ic:'tool',t:'Unten: Werkzeuge',s:'Plus-Menü und Modellwahl. Hier steuern Sie, was die KI für diese Aufgabe nutzt.',e:'Dateien, Recherche, Aufwand.'},
+ {ic:'panel',t:'Rechts oder im Block: Ergebnisse',s:'Bei Claude das Artefakt-Panel, bei ChatGPT der Datei- oder Vorschau-Link in der Antwort.',e:'Dort testen Sie gleich Ihre App.'}
+];
+const TOOLS={C:{n:'Claude'},G:{n:'ChatGPT'}};
+
+/* ============ Animierte Mini-Demos ============ */
+const DB=(t,n)=>`<div class="db"><i></i><i></i><i></i><span>${t}</span><em>DEMO</em></div>`;
+const L=w=>`<div class="l" style="width:${w}%"></div>`;
+const DEMO={
+ art:()=>`<div class="dm" data-n="6">${DB('CLAUDE · CHAT')}<div class="bd" style="padding:0">
+  <div class="ach"><div class="u" data-in="1">Erstelle ein Quiz zur Fotosynthese für Klasse 8.</div>
+   <div data-in="2" style="margin-top:14px">${L(92)}${L(70)}</div>
+   <div class="cd" data-in="3" style="display:flex;gap:12px;align-items:center;margin-top:14px"><span class="ai">${svg('code')}</span><div style="color:var(--ink);font-size:15px">Quiz Fotosynthese<div style="font-size:12px;color:var(--dim)">Artefakt</div></div></div></div>
+  <div class="apn"><div class="ah">Quiz Fotosynthese<span class="mb">Mit Claude bearbeiten</span></div>
+   <div class="ab"><div data-out="4" style="position:absolute;inset:16px">${L(40)}${L(90)}${L(80)}${L(85)}${L(60)}</div>
+    <div data-in="4"><div style="font-size:11px;letter-spacing:2px;color:var(--dim)">FRAGE 3 VON 8</div>
+     <div class="qq" data-hl="5"><span data-out="6">Welche Edukte benötigt die Fotosynthese?</span><span class="nw" data-in="6">Was braucht die Pflanze für die Fotosynthese?</span></div>
+     <div class="op ok">Licht, Wasser und CO₂ ✓</div><div class="op">Zucker und Sauerstoff</div><div class="op">Nur Wasser</div></div>
+    <div class="pp" data-in="5"><span style="color:var(--amber)">Markiert:</span> „Einfacher formulieren.“</div></div></div></div></div>`,
+ proj:()=>`<div class="dm" data-n="5">${DB('CLAUDE · PROJEKT')}<div class="bd">
+  <div style="font-size:20px;font-weight:700;color:var(--ink)">Biologie 8b</div>
+  <div style="display:flex;gap:16px;margin-top:14px">
+   <div style="flex:1;min-width:0"><div class="cd" style="color:var(--dim);font-size:14px">Neuer Chat in Biologie 8b …</div>
+    <div class="u" data-in="4" style="margin-top:14px">Ein Arbeitsblatt zur Fotosynthese, bitte.</div>
+    <div data-in="5" style="margin-top:12px">${L(92)}${L(76)}<span class="tag gr">nutzt Anweisungen und Lehrplan</span></div></div>
+   <div style="width:230px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div class="cd"><h6>Projektanweisungen</h6><div data-in="3">${L(95)}<div style="font-size:12.5px;color:var(--mute)">Klasse 8, immer mit Lösungsteil …</div></div></div>
+    <div class="cd"><h6>Projektwissen <span style="color:var(--mute)">+</span></h6><div class="fc" data-in="1">Lehrplan_Bio8.pdf</div><div class="fc" data-in="2">Regeln_AB.txt</div></div></div></div></div></div>`,
+ cow:()=>`<div class="dm" data-n="6">${DB('CLAUDE · COWORK')}<div class="bd">
+  <div class="u" data-in="1">Sortiere den Ordner „Material Bio“ und lege eine Übersicht an.</div>
+  <div style="display:flex;gap:14px;margin-top:16px">
+   <div class="cd" style="flex:1"><h6>Aufgabenliste</h6>
+    <div class="row"><span class="ck" data-ck="2">✓</span>Dateien lesen</div><div class="row"><span class="ck" data-ck="3">✓</span>Nach Themen ordnen</div>
+    <div class="row"><span class="ck" data-ck="4">✓</span>Ordner anlegen</div><div class="row"><span class="ck" data-ck="5">✓</span>Übersicht erstellen</div>
+    <div class="fc" data-in="5" style="margin-top:6px">Übersicht.xlsx</div></div>
+   <div style="width:200px;flex:none;display:flex;flex-direction:column;gap:12px">
+    <div class="cd"><h6>Umgebung</h6><div class="sg"><span class="on" data-off="6">Lokal</span><span data-on="6">Cloud</span></div>
+     <div style="position:relative;height:56px;margin-top:10px;font-size:13px;color:var(--mute);line-height:1.4"><span data-out="6" style="position:absolute">Läuft auf diesem Rechner.</span><span data-in="6" style="position:absolute">Läuft in der Cloud, auch wenn der Rechner aus ist.</span></div></div>
+    <div class="cd"><h6>Modus</h6><span class="tag">Manuell genehmigen</span></div></div></div></div></div>`,
+ res:()=>`<div class="dm" data-n="5">${DB('CLAUDE · RECHERCHE')}<div class="bd">
+  <div class="cd" style="display:flex;gap:10px;align-items:center"><span class="tag" data-in="1">+ › Recherche</span><span style="color:var(--ink);font-size:15px">Was sagen Studien zu Handyregeln an Schulen?</span></div>
+  <div class="cd" style="margin-top:14px"><h6>Recherche läuft <span style="font-size:12px;color:var(--dim);font-weight:500">mehrere Runden</span></h6><div class="pg pgA"><b></b></div>
+   <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"><span class="tag" data-in="2">Studie</span><span class="tag" data-in="2">Übersichtsarbeit</span><span class="tag" data-in="3">Ministerium</span><span class="tag" data-in="3">Fachzeitschrift</span><span class="tag" data-in="4">Befragung</span><span class="tag gr" data-in="4">Konnektor: Dateiablage</span></div></div>
+  <div class="cd" data-in="5" style="margin-top:14px"><h6>Bericht <span class="tag gr">14 Quellen</span></h6>${L(96)}${L(88)}${L(58)}</div></div></div>`,
+ cus:()=>`<div class="dm" data-n="5">${DB('CLAUDE · ANPASSEN')}<div class="bd">
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+   <div class="cd"><h6>Skills</h6><div class="row" style="font-size:13.5px;padding:5px 0">Arbeitsblatt<span class="tg" data-tg="1"></span></div><div class="row" style="font-size:13.5px;padding:5px 0">Klausur<span class="tg"></span></div></div>
+   <div class="cd"><h6>Konnektoren</h6><div class="row" style="font-size:13.5px;padding:5px 0">Dateiablage<span class="tg" data-tg="2"></span></div><div class="row" style="font-size:13.5px;padding:5px 0">Kalender<span class="tg"></span></div></div>
+   <div class="cd"><h6>Plugins</h6><div class="row" style="font-size:13.5px;padding:5px 0">Unterricht<span class="tg" data-tg="3"></span></div><div class="row" style="font-size:13.5px;padding:5px 0">Notizen<span class="tg"></span></div></div></div>
+  <div class="u" data-in="4" style="margin-top:22px">Erstelle ein Arbeitsblatt zum Thema Zelle.</div>
+  <div data-in="5" style="margin-top:12px">${L(86)}${L(64)}<span class="tag gr">nutzt Skill „Arbeitsblatt“</span></div></div></div>`,
+ mem:()=>`<div class="dm" data-n="5">${DB('CLAUDE · IHR CLAUDE')}<div class="bd">
+  <div style="display:flex;gap:16px">
+   <div class="cd" style="width:280px;flex:none"><h6>Memory <span class="tag">nach Themen</span></h6>
+    <div class="me" data-in="1"><span class="tp">Beruf</span>Unterrichtet Biologie, Klasse 5 bis 10</div>
+    <div class="me" data-in="2"><span class="tp">Vorlieben</span>Arbeitsblätter immer mit Lösungsteil</div>
+    <div class="me" data-in="3"><span class="tp">Schule</span>Gesamtschule, Tablets ab Klasse 8</div></div>
+   <div style="flex:1;min-width:0"><div class="u" data-in="4">Mach mir ein Arbeitsblatt zur Zelle.</div>
+    <div data-in="5" style="margin-top:12px;font-size:14px;line-height:1.45">Gern. Wie gewohnt mit Lösungsteil und gut lesbar auf dem Tablet.<div style="margin-top:8px"><span class="tag gr">aus Memory</span></div></div></div></div>
+  <div class="row" style="position:absolute;left:18px;bottom:14px;width:270px;font-size:13px;color:var(--mute)">Memory in diesem Chat<span class="tg on"></span></div></div></div>`,
+ /* ChatGPT-Demos nach der echten Desktop-App (NACHTRAG) */
+ gside:()=>`<div class="dm" data-n="5">${DB('CHATGPT · SEITENFENSTER')}<div class="bd">
+  <div style="position:absolute;left:18px;top:18px;width:270px">
+   <div class="u">Baue ein Quiz zu Brüchen für Klasse 6.</div>
+   <div data-in="2" style="margin-top:12px;font-size:13.5px;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:6px">1m 6s lang gearbeitet ›</div>
+   <div data-in="2" style="margin-top:8px;font-size:14px"><span style="color:var(--acc2)">‹/› App öffnen</span> und ausprobieren.</div></div>
+  <div class="cd" data-in="1" style="position:absolute;right:18px;top:18px;width:250px;background:#121d30">
+   <div class="row" style="padding:2px 0;justify-content:space-between;color:var(--ink);font-weight:600">Ausgaben<span style="color:var(--mute)">+</span></div>
+   <div style="position:relative;height:30px;font-size:13px"><span data-out="3" style="position:absolute;top:4px;color:var(--dim)">Ausgabe erstellen</span><span data-in="3" style="position:absolute;top:0"><span class="fc">quiz-brueche.html</span></span></div>
+   <div class="row" style="padding:8px 0 2px;color:var(--ink);font-weight:600">Seiten-Chats</div><div style="font-size:13px;color:#c3cede">○ Nebenchat</div>
+   <div class="row" style="padding:10px 0 2px;justify-content:space-between;color:var(--ink);font-weight:600" data-hl="4">Quellen<span style="color:var(--mute)">+</span></div>
+   <div style="position:relative;height:34px;font-size:13px"><span data-out="5" style="position:absolute;top:4px;color:var(--dim)">Dateien anhängen oder Apps verbinden</span><span data-in="5" style="position:absolute;top:2px"><span class="fc">Aufgaben_Brüche.pdf</span></span></div></div>
+  <div style="position:absolute;left:18px;bottom:16px;font-size:12px;letter-spacing:2px;color:var(--amber)" data-in="3">ERGEBNIS LANDET UNTER AUSGABEN</div></div></div>`,
+ gsch:()=>`<div class="dm" data-n="5">${DB('CHATGPT · SEITEN-CHATS')}<div class="bd" style="padding:0">
+  <div class="ach"><div class="u">Baue ein Quiz zu Brüchen für Klasse 6.</div><div style="margin-top:12px;font-size:13.5px;color:var(--mute)">Ich arbeite daran …</div>${L(90)}${L(70)}${L(80)}</div>
+  <div class="apn"><div class="ah"><span style="border:1px solid var(--line);border-radius:7px;padding:4px 10px;background:rgba(255,255,255,.08)">○ Nebenchat ×</span><span style="color:var(--mute);margin-left:6px">+</span></div>
+   <div class="ab"><div class="u" data-in="4" style="font-size:14px">Wie kürzt man 6/8?</div>
+    <div data-in="5" style="margin-top:10px;font-size:14px;line-height:1.45">Zähler und Nenner durch 2 teilen: 6/8 = 3/4.</div>
+    <div class="comp" style="left:12px;right:12px;bottom:12px;min-height:40px"><span class="tx" style="color:var(--dim)">Mit ChatGPT arbeiten</span></div></div></div>
+  <div style="position:absolute;left:18px;bottom:16px;font-size:12px;letter-spacing:2px;color:var(--amber)" data-in="5">HAUPTCHAT LÄUFT WEITER</div></div></div>`,
+ gbrw:()=>`<div class="dm" data-n="5">${DB('CHATGPT · BROWSER IM SEITENFENSTER')}<div class="bd" style="padding:0">
+  <div class="ach"><div class="u">Das Quiz ist fertig?</div><div style="margin-top:12px;font-size:14px">Ja. <span style="color:var(--acc2)">‹/› App öffnen</span></div>${L(80)}${L(60)}</div>
+  <div class="apn"><div class="ah"><span style="border:1px solid var(--line);border-radius:7px;padding:4px 10px;background:rgba(255,255,255,.08)">◍ Neuer Tab ×</span></div>
+   <div style="padding:10px 12px"><div style="border-radius:8px;background:rgba(255,255,255,.07);padding:7px 10px;font-size:13px;position:relative;height:32px">
+    <span data-out="4" style="position:absolute;left:0;right:0;text-align:center;color:var(--mute)">Suchen oder URL eingeben</span><span data-in="4" style="position:absolute;left:10px;color:var(--ink)">quiz-brueche.html</span></div></div>
+   <div data-out="5" style="position:absolute;top:96px;left:16px;right:16px;font-size:13px"><div style="font-weight:600;color:var(--ink)">Tools</div><div class="row" style="background:rgba(255,255,255,.05);border-radius:8px;margin-top:6px">Dateien<span style="margin-left:auto;color:var(--dim);font-size:11px">Strg+P</span></div><div style="font-weight:600;color:var(--ink);margin-top:12px">Vorgeschlagen</div><div style="display:flex;gap:14px;margin-top:8px;color:var(--mute)">◍ ◍ ◍ ◍</div></div>
+   <div data-in="5" style="position:absolute;top:100px;left:20px;right:20px;border:1.5px solid rgba(91,156,255,.4);border-radius:12px;padding:14px;background:var(--panel2);text-align:center">
+    <div style="font-size:11px;letter-spacing:2px;color:var(--dim)">AUFGABE 2 VON 10</div><div style="font-size:24px;font-weight:800;color:var(--ink);margin:8px 0">6/8 = ?</div>
+    <div style="display:flex;gap:8px;justify-content:center"><span class="op">2/3</span><span class="op ok">3/4</span><span class="op">4/6</span></div></div></div></div></div>`,
+ gappr:()=>`<div class="dm" data-n="6">${DB('CHATGPT · GENEHMIGUNG')}<div class="bd">
+  <div class="u">Speichere das Quiz als Datei und lege eine Kopie für die 6b an.</div>
+  <div class="cd" style="margin-top:14px"><h6>Arbeitsschritte</h6>
+   <div class="row"><span class="ck" data-ck="1">✓</span>Quiz-Datei speichern</div>
+   <!-- UNSICHER: Wortlaut der Rückfrage im Chat ist nicht belegt, hier neutral dargestellt -->
+   <div class="row" data-hl="2" style="position:relative"><span class="ck" data-ck="3">✓</span>Kopie für 6b anlegen<span data-in="2" data-out="3" style="margin-left:auto" class="tag">wartet auf Ihre Freigabe</span></div>
+   <div class="row"><span class="ck" data-ck="6">✓</span>Kopie für 6c anlegen</div></div>
+  <div class="comp"><span class="pl">+</span><span class="tx" style="flex:none;width:250px"><span data-out="5" style="color:var(--mute)">⛉ Genehmigung anfordern</span><span data-in="5" style="color:var(--green)">⛉ Für mich genehmigen</span></span><span style="margin-left:auto;font-size:13px;color:var(--ink)">GPT-6.1 Sol <span style="color:var(--mute)">Mittel</span></span></div>
+  <div class="mn" data-in="4" data-out="5" style="left:50px;bottom:74px;width:240px"><div>Genehmigung anfordern</div><div style="background:rgba(255,255,255,.08)">Für mich genehmigen</div></div>
+  <div data-in="6" style="position:absolute;left:18px;bottom:84px;font-size:12px;letter-spacing:2px;color:var(--amber)">LÄUFT JETZT OHNE RÜCKFRAGE</div></div></div>`,
+ work:()=>`<div class="dm" data-n="6">${DB('CHATGPT · DESKTOP-APP')}<div class="bd">
+  <div style="text-align:center"><span class="sg"><span class="on" data-off="1">Chat</span><span data-on="1">Work</span></span></div>
+  <div class="u" data-in="2" style="margin-top:14px">Mach aus meinen Stichpunkten eine Präsentation für den Elternabend.</div>
+  <div class="cd" data-in="2" style="margin-top:14px"><h6>Arbeitsschritte <span data-in="6" style="font-size:12px;color:var(--mute);font-weight:500">4m 12s lang gearbeitet ›</span></h6>
+   <div class="row"><span class="ck" data-ck="3">✓</span>Stichpunkte ordnen</div><div class="row"><span class="ck" data-ck="4">✓</span>Folien gestalten</div><div class="row"><span class="ck" data-ck="5">✓</span>Handout schreiben</div></div>
+  <div data-in="6" style="margin-top:12px"><span style="font-size:13px;color:var(--mute);margin-right:8px">Ausgaben:</span><span class="fc">Elternabend.pptx</span><span class="fc">Handout.docx</span></div></div></div>`,
+ gmdl:()=>`<div class="dm" data-n="5">${DB('CHATGPT · MODELLWAHL')}<div class="bd">
+  <div style="text-align:center;font-size:22px;color:var(--ink);margin-top:30px">Woran sollen wir arbeiten?</div>
+  <div class="mn" data-in="1" data-out="3" style="right:40px;top:96px;width:220px"><div style="font-size:11px;letter-spacing:2px;color:var(--dim)">DENKSTUFE</div><div>Instant</div><div data-hl="1" style="position:relative">Mittel</div><div data-hl="2">Hoch</div><div>Sehr hoch</div></div>
+  <div class="cd" style="position:absolute;left:18px;right:18px;bottom:62px;padding:10px 12px">
+   <div style="font-size:14px;color:var(--dim)">Mit ChatGPT arbeiten</div>
+   <div style="display:flex;align-items:center;gap:10px;margin-top:10px;font-size:13.5px"><span style="color:var(--ink)">+</span><span style="color:var(--mute)">⛉ Für mich genehmigen</span>
+    <span style="margin-left:auto;position:relative;width:150px;height:20px" data-hl="1"><span data-out="3" style="position:absolute;right:4px;color:var(--ink)">GPT-6.1 Sol <span style="color:var(--mute)">Mittel ⌄</span></span><span data-in="3" style="position:absolute;right:4px;color:var(--ink)">GPT-6.1 Sol <span style="color:var(--amber)">Hoch ⌄</span></span></span></div></div>
+  <div style="position:absolute;left:30px;right:30px;bottom:22px;display:flex;gap:20px;font-size:13px;color:#c3cede">
+   <span data-hl="4" style="position:relative;width:140px;height:20px;padding:0 4px"><span data-out="5" style="position:absolute">▭ Projekt auswählen</span><span data-in="5" style="position:absolute;color:var(--ink)">▭ Deutsch 6a</span></span><span>▥ Dateien</span><span>@ Plugins</span></div></div></div>`
+};
+/* Regeln für die Schritte der Demos erzeugen */
+(()=>{let c='';const K=[...Array(9)].map((_,i)=>i+1);
+ K.forEach(k=>c+=`.dm.s${k} [data-in="${k}"]{opacity:1;transform:none}`);
+ K.forEach(k=>c+=`.dm.s${k} [data-out="${k}"]{opacity:0}`);
+ K.forEach(k=>c+=`.dm.s${k} [data-ck="${k}"]{background:var(--green);border-color:var(--green);color:#07101e}`);
+ K.forEach(k=>c+=`.dm.s${k} [data-tg="${k}"]{background:var(--green)}.dm.s${k} [data-tg="${k}"]::after{transform:translateX(16px)}`);
+ K.forEach(k=>c+=`.dm.s${k} .sg [data-off="${k}"]{background:none;color:var(--mute)}.dm.s${k} .sg [data-on="${k}"]{background:rgba(91,156,255,.25);color:var(--ink)}`);
+ K.forEach(k=>c+=`.dm.s${k} [data-hl="${k}"]{background:rgba(242,178,76,.16);box-shadow:0 0 0 2px var(--amber)}`);
+ for(let n=1;n<=12;n++)c+=`.bm[data-act="${n}"] .pop[data-for="${n}"]{display:block}`;
+ const s=document.createElement('style');s.textContent=c;document.head.appendChild(s)})();
+let DT=null;
+function runDemo(el){stopDemo();if(!el)return;const n=+el.dataset.n;let k=0;
+ const tick=()=>{k++;if(k>n){for(let i=1;i<=n;i++)el.classList.remove('s'+i);k=0;DT=setTimeout(tick,900);return}
+  el.classList.add('s'+k);DT=setTimeout(tick,k===n?3000:1150)};
+ DT=setTimeout(tick,650)}
+function stopDemo(){clearTimeout(DT);DT=null}
+
+/* ============ Zustand ============ */
+let TOOL='C';try{const s=localStorage.getItem('lft-mitbauen-tool');if(s==='C'||s==='G')TOOL=s}catch(e){}
+const QT=new URLSearchParams(location.search).get('t');if(QT&&/^[cg]$/i.test(QT))TOOL=QT.toUpperCase();
+const SEEN={C:new Set(),G:new Set()},SEENF={C:new Set(),G:new Set()};
+
+/* ============ Aufbau Seite 2: Übersicht ============ */
+function renderOverview(){
+ closeZone(true);const m=$('bm');m.className='bm rise '+(TOOL==='C'?'cl':'gp');delete m.dataset.act;
+ m.innerHTML=TOOL==='C'?cMock():gMock();
+ m.querySelectorAll('[data-z]').forEach(z=>{const n=+z.dataset.z;
+  z.insertAdjacentHTML('beforeend',`<button class="hs${SEEN[TOOL].has(n)?' seen':''}" style="${z.dataset.hp||''}" aria-label="Zone ${n}">${n}</button>`);
+  z.onclick=e=>{e.stopPropagation();openZone(n)}});
+ updCount()}
+function updCount(){const N=ZONES[TOOL].length,k=SEEN[TOOL].size;$('zc').innerHTML=`<b>${k}</b> von ${N} Bereichen angesehen${k===N?' ✓':''}`}
+
+/* ============ Aufbau Seite 3: Neue Funktionen ============ */
+function renderNew(){
+ $('gNew').innerHTML=NEW[TOOL].map((o,i)=>`<div class="tile${SEENF[TOOL].has(i)?' seen':''}"><span class="grp">${o.since}</span><div class="ic">${svg(o.ic)}</div><h3>${o.t}</h3><p>${o.s}</p><span class="play">▶ VORFÜHRUNG</span></div>`).join('');
+ [...$('gNew').children].forEach((el,i)=>{el.onclick=()=>{openCard(el,featCard(NEW[TOOL][i]),()=>{SEENF[TOOL].add(i);el.classList.add('seen')})};
+  el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')})});
+ $('was').innerHTML=`<b>NICHT MEHR AKTUELL</b>`+WAS[TOOL].map(x=>`<span>${x[0]}<i>${x[1]}</i></span>`).join('');
+}
+function featCard(o){return `<div class="fx"><div class="top"><div class="ic">${svg(o.ic)}</div><div><div class="kick">${TOOLS[TOOL].n.toUpperCase()} · ${o.since}</div><h2>${o.t}</h2></div></div>
+ <div class="fgrid"><div><p class="def">${o.d}</p><div class="box" style="margin-top:22px"><b>IM UNTERRICHT</b><div>${o.ex}</div></div><div class="box" style="margin-top:16px"><b>SO FINDEN SIE ES</b><div>${o.w}</div></div></div><div>${DEMO[o.demo]()}</div></div></div>`}
+
+/* ============ Aufbau Seite 4 und 5 ============ */
+$('gCmp').innerHTML=CMP.map((o,i)=>`<div class="pair rise${o.warn?' warn':''}" style="--d:${.3+(i%7)*.06+(i>6?.15:0)}s"><div><b>${o.c}</b><small>${o.cs}</small></div><div class="eq">${o.warn?'≠':'≈'}</div><div><b>${o.g}</b><small>${o.gs}</small></div></div>`).join('');
+[...$('gCmp').children].forEach((el,i)=>el.onclick=()=>openCard(el,cmpCard(CMP[i]),()=>el.classList.add('seen')));
+function cmpCard(o){return `<div class="fx"><div class="top"><div class="ic">${svg('vs')}</div><div><div class="kick">${o.warn?'ACHTUNG · GLEICHES WORT':'DIESELBE IDEE · ANDERER NAME'}</div><h2>${o.c} <span style="color:${o.warn?'var(--red)':'var(--amber)'};font-size:40px">${o.warn?'≠':'≈'}</span> ${o.g}</h2></div></div>
+ <div class="cmp"><div class="side"><h5>CLAUDE</h5><div>${o.c}</div><p>${o.cs}</p></div><div class="mid" style="${o.warn?'color:var(--red)':''}">${o.warn?'≠':'≈'}</div><div class="side g"><h5>CHATGPT</h5><div>${o.g}</div><p>${o.gs}</p></div></div>
+ <div class="boxes"><div class="box"><b>${o.warn?'VORSICHT':'GEMEINSAM'}</b><div>${o.same}</div></div><div class="box"><b>UNTERSCHIED</b><div>${o.diff}</div></div></div></div>`}
+$('gEnd').innerHTML=END.map((o,i)=>`<div class="tile rise c-green" style="--d:${.4+i*.15}s;cursor:default"><div class="ic">${svg(o.ic)}</div><h3 style="font-size:32px">${o.t}</h3><p style="font-size:20px">${o.s}</p><p style="margin-top:16px;font-size:19px;color:var(--acc2)">${o.e}</p></div>`).join('');
+function nextUrl(){return `teil2-mitbauen.html?p=0&t=${TOOL.toLowerCase()}`}
+
+function setTool(k){
+ if(k!=='C'&&k!=='G')return;const changed=k!==TOOL;TOOL=k;try{localStorage.setItem('lft-mitbauen-tool',k)}catch(e){}
+ [...$('tsw').children].forEach(b=>b.classList.toggle('on',b.dataset.t===k));
+ $('next').href=nextUrl();
+ if(changed){closeCard(true);closeZone(true);renderOverview();renderNew();sfx('close')}
+}
+[...$('tsw').children].forEach(b=>b.onclick=()=>setTool(b.dataset.t));
+
+/* ============ Zonen: Spotlight + Karte wächst aus dem Hotspot ============ */
+let SC=1,ZA=0,hsEl=null;
+function stageRect(el){const r=el.getBoundingClientRect(),s=$('stage').getBoundingClientRect();return{x:(r.left-s.left)/SC,y:(r.top-s.top)/SC,w:Math.max(r.width/SC,1),h:Math.max(r.height/SC,1)}}
+function union(a,b){const x=Math.min(a.x,b.x),y=Math.min(a.y,b.y);return{x,y,w:Math.max(a.x+a.w,b.x+b.w)-x,h:Math.max(a.y+a.h,b.y+b.h)-y}}
+function zoneCard(o,n,N){return `<button class="x" aria-label="Schließen">✕</button><div class="fx">
+ <div class="hk">${TOOLS[TOOL].n.toUpperCase()} · BEREICH ${n} VON ${N}</div>
+ <h2>${o.t}${o.en?` <span class="en">(${o.en})</span>`:''}</h2>
+ <div class="hd2">${o.d}</div>
+ ${o.path?`<div class="path">${o.path.map(x=>`<span>${x}</span>`).join('<i>›</i>')}</div>`:''}
+ <div class="hb"><b>IM UNTERRICHT</b><div>${o.ex}</div></div>
+ ${o.nw?`<div class="hb nw"><b>NEU</b><div>${o.nw}</div></div>`:''}
+ ${o.tp?`<div class="hb tp"><b>GUT ZU WISSEN</b><div>${o.tp}</div></div>`:''}
+ <div class="hf"><span><kbd>Esc</kbd> schließen</span><button class="nx">${n<N?`Weiter zu ${n+1} ›`:'Zurück zu 1 ›'}</button></div></div>`}
+function openZone(n){
+ const Z=ZONES[TOOL],N=Z.length;if(n<1||n>N)return;closeCard(true);
+ const m=$('bm'),z=m.querySelector(`[data-z="${n}"]`);if(!z)return;
+ const wasOpen=!!ZA;m.dataset.act=n;
+ const pop=m.querySelector(`.pop[data-for="${n}"]`);let r=stageRect(z);if(pop)r=union(r,stageRect(pop));
+ const pd=8;r={x:r.x-pd,y:r.y-pd,w:r.w+2*pd,h:r.h+2*pd};
+ const sp=$('spot');if(!wasOpen){sp.style.transition='none';sp.style.left=(r.x+r.w/2)+'px';sp.style.top=(r.y+r.h/2)+'px';sp.style.width='0px';sp.style.height='0px';sp.getBoundingClientRect();sp.style.transition=''}
+ sp.style.left=r.x+'px';sp.style.top=r.y+'px';sp.style.width=r.w+'px';sp.style.height=r.h+'px';sp.classList.add('on');
+ $('shade').classList.add('on');
+ const c=$('hc');c.innerHTML=zoneCard(Z[n-1],n,N);c.style.transition='none';c.style.opacity=1;c.style.transform='none';c.classList.add('on');c.classList.remove('show');
+ const W=640,H=c.offsetHeight;let x=r.x+r.w+26;if(x+W>1900){x=r.x-26-W;if(x<20)x=Math.max(20,Math.min(1900-W,r.x+r.w/2-W/2))}
+ const y=Math.max(110,Math.min(1060-H,r.y+r.h/2-H/2));c.style.left=x+'px';c.style.top=y+'px';
+ hsEl=z.querySelector('.hs');const h=stageRect(hsEl);
+ c.style.transform=`translate(${h.x-x}px,${h.y-y}px) scale(${h.w/W},${h.h/H})`;c.style.borderRadius='40px';c.getBoundingClientRect();
+ c.style.transition='transform .5s cubic-bezier(.2,.85,.2,1),border-radius .5s';c.style.transform='none';c.style.borderRadius='22px';
+ setTimeout(()=>c.classList.add('show'),160);
+ c.querySelector('.x').onclick=()=>closeZone();c.querySelector('.nx').onclick=()=>openZone(n<N?n+1:1);
+ hsEl.classList.add('seen');SEEN[TOOL].add(n);updCount();ZA=n;sfx('open');
+}
+function closeZone(quiet){
+ if(!ZA)return;const c=$('hc'),m=$('bm');c.classList.remove('show','on');
+ if(hsEl&&hsEl.isConnected){const h=stageRect(hsEl),x=parseFloat(c.style.left),y=parseFloat(c.style.top);
+  c.style.transition='transform .38s cubic-bezier(.5,0,.75,0),opacity .38s';c.style.transform=`translate(${h.x-x}px,${h.y-y}px) scale(${h.w/640},${h.h/c.offsetHeight})`}
+ else c.style.transition='opacity .3s';
+ c.style.opacity=0;$('spot').classList.remove('on');$('shade').classList.remove('on');delete m.dataset.act;ZA=0;if(quiet!==true)sfx('close');
+}
+$('shade').onclick=()=>closeZone();
+
+/* ============ Detail-Karte (wächst aus der Kachel) ============ */
+let srcEl=null,onSeen=null;
+function openCard(el,html,seenCb){
+ closeZone(true);const c=$('card');$('cbody').innerHTML=html;srcEl=el;onSeen=seenCb||null;
+ c.style.transition='none';c.style.opacity=1;c.classList.add('on');c.classList.remove('show');
+ const f={x:310,y:0,w:1300,h:c.offsetHeight};f.y=Math.max(110,(1080-f.h)/2);c.style.top=f.y+'px';
+ const r=stageRect(el);c.style.transform=`translate(${r.x-f.x}px,${r.y-f.y}px) scale(${r.w/f.w},${r.h/f.h})`;c.style.borderRadius='40px';
+ c.getBoundingClientRect();
+ c.style.transition='transform .55s cubic-bezier(.2,.85,.2,1),border-radius .55s';c.style.transform='none';c.style.borderRadius='24px';
+ $('veil').classList.add('on');setTimeout(()=>c.classList.add('show'),180);sfx('open');
+ runDemo($('cbody').querySelector('.dm'));
+}
+function closeCard(quiet){
+ const c=$('card');if(!c.classList.contains('on'))return;c.classList.remove('show');stopDemo();
+ const f={x:310,y:parseFloat(c.style.top),w:1300,h:c.offsetHeight};
+ if(srcEl&&srcEl.isConnected){const r=stageRect(srcEl);c.style.transition='transform .4s cubic-bezier(.5,0,.75,0),opacity .4s';c.style.transform=`translate(${r.x-f.x}px,${r.y-f.y}px) scale(${r.w/f.w},${r.h/f.h})`}
+ else c.style.transition='opacity .3s';
+ c.style.opacity=0;$('veil').classList.remove('on');c.classList.remove('on');if(onSeen){onSeen();onSeen=null}if(quiet!==true)sfx('close');
+}
+$('cx').onclick=()=>closeCard();$('veil').onclick=()=>closeCard();
+$('nPrev').onclick=()=>{closeAll();go(cur-1)};$('nNext').onclick=()=>{closeAll();forward()};
+const anyOpen=()=>ZA||$('card').classList.contains('on');
+function closeAll(){closeZone();closeCard()}
+
+/* ============ Seiten-Steuerung ============ */
+const PAGES=[...document.querySelectorAll('.page')];let cur=-1;
+function go(n){
+ n=Math.max(0,Math.min(PAGES.length-1,n));if(n===cur)return;closeCard(true);closeZone(true);
+ const old=PAGES[cur];if(old){old.classList.add('out');setTimeout(()=>{old.classList.remove('on','out')},450)}
+ const pg=PAGES[n];setTimeout(()=>{pg.classList.remove('on');void pg.offsetWidth;pg.classList.add('on')},old?380:0);
+ $('tsw').classList.toggle('on',pg.classList.contains('tw'));
+ cur=n;$('prog').style.width=((n+1)/PAGES.length*100)+'%';
+ const h=$('hint');h.classList.remove('on');setTimeout(()=>{h.innerHTML=pg.dataset.hint||'';h.classList.add('on')},1400);
+ if(old)sfx('page');
+}
+function forward(){if(cur>=PAGES.length-1){location.href=nextUrl();return}go(cur+1)}
+addEventListener('keydown',e=>{
+ if(!$('start').classList.contains('gone'))return;
+ if(e.ctrlKey||e.metaKey||e.altKey)return;
+ const k=e.key;
+ if(k==='Escape'){closeAll();return}
+ /* Enter, Leertaste und Rücktaste gehören fokussierten Knöpfen, Links und Eingaben: dann nicht blättern */
+ if([' ','Enter','Backspace'].includes(k)&&e.target.closest&&e.target.closest('button,a,input,textarea,select,[contenteditable],[tabindex]'))return;
+ if(['ArrowRight','PageDown',' ','Enter'].includes(k)){e.preventDefault();if(anyOpen())closeAll();else forward()}
+ else if(['ArrowLeft','PageUp','Backspace'].includes(k)){e.preventDefault();if(anyOpen())closeAll();else go(cur-1)}
+ else if(k==='Home')go(0);else if(k==='End')go(PAGES.length-1);
+ else if(/^[0-9]$/.test(k)&&PAGES[cur]&&PAGES[cur].id==='pOv')openZone(k==='0'?10:+k);
+ else if(k==='f'||k==='F'){document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})}
+ else if(k==='m'||k==='M'){muted=!muted}
+ else if(k==='c'||k==='C')setTool('C');
+ else if(k==='g'||k==='G')setTool('G');
+});
+let idle;addEventListener('mousemove',()=>{document.body.classList.remove('hidecursor');clearTimeout(idle);idle=setTimeout(()=>document.body.classList.add('hidecursor'),2500)});
+
+/* ============ Skalierung 1920×1080 ============ */
+function fit(){SC=Math.min(innerWidth/1920,innerHeight/1080);const st=$('stage');st.style.transform=`translate(${(innerWidth-1920*SC)/2}px,${(innerHeight-1080*SC)/2}px) scale(${SC})`;
+ const cv=$('bg'),d=devicePixelRatio||1;cv.width=innerWidth*d;cv.height=innerHeight*d}
+addEventListener('resize',()=>{fit();if(ZA)openZone(ZA)});fit();
+
+/* ============ Hintergrund wie im Intro ============ */
+const cv=$('bg'),ctx=cv.getContext('2d');
+function hexA(h,a){const n=parseInt(h.slice(1),16);return`rgba(${n>>16&255},${n>>8&255},${n&255},${a})`}
+function bg(ts){const t=ts/1000,d=devicePixelRatio||1,ox=(innerWidth-1920*SC)/2,oy=(innerHeight-1080*SC)/2;
+ ctx.setTransform(d,0,0,d,0,0);ctx.fillStyle='#07003D';ctx.fillRect(0,0,innerWidth,innerHeight);
+ ctx.setTransform(d*SC,0,0,d*SC,d*ox,d*oy);
+ const g=ctx.createLinearGradient(0,0,0,1080);g.addColorStop(0,'#0b0548');g.addColorStop(1,'#07003D');ctx.fillStyle=g;ctx.fillRect(0,0,1920,1080);
+ const sp=60,sx=(t*5)%sp,sy=(t*3)%sp;ctx.fillStyle='rgba(255,255,255,.045)';for(let x=-sp;x<1980;x+=sp)for(let y=-sp;y<1140;y+=sp)ctx.fillRect(x+sx,y+sy,2,2);
+ const gx=1920*.72+120*Math.sin(t*.08),gy=1080*.28+60*Math.cos(t*.06),rg=ctx.createRadialGradient(gx,gy,0,gx,gy,1000);rg.addColorStop(0,hexA('#B158ED',.14));rg.addColorStop(1,hexA('#B158ED',0));ctx.fillStyle=rg;ctx.fillRect(0,0,1920,1080);
+ const vg=ctx.createRadialGradient(960,540,1080*.35,960,540,1080);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.55)');ctx.fillStyle=vg;ctx.fillRect(0,0,1920,1080);
+ requestAnimationFrame(bg)}
+requestAnimationFrame(bg);
+
+/* ============ Klänge (leise, im Browser erzeugt) ============ */
+let AC=null,muted=false;
+function sfx(k){if(muted)return;if(!AC){try{AC=new AudioContext()}catch(e){return}}const t=AC.currentTime+.01;
+ const tone=(f,v,d,type='sine',f2)=>{const o=AC.createOscillator(),g=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d*.6);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.02)};
+ if(k==='open'){tone(880,.05,.5);tone(1320,.02,.6)}
+ else if(k==='close'){tone(660,.035,.25,'sine',520)}
+ else if(k==='page'){const n=AC.createBufferSource(),b=AC.createBuffer(1,AC.sampleRate*.8,AC.sampleRate),x=b.getChannelData(0);for(let i=0;i<x.length;i++)x[i]=Math.random()*2-1;n.buffer=b;
+  const f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=1.1;f.frequency.setValueAtTime(300,t);f.frequency.exponentialRampToValueAtTime(2400,t+.45);f.frequency.exponentialRampToValueAtTime(600,t+.75);
+  const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.05,t+.45);g.gain.linearRampToValueAtTime(0,t+.78);n.connect(f).connect(g).connect(AC.destination);n.start(t)}}
+
+/* ============ Start ============ */
+renderOverview();renderNew();setTool(TOOL);
+$('go').onclick=()=>{$('start').classList.add('gone');setTimeout(()=>$('start').style.display='none',700);sfx('open');go(0);try{document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}};
+const QP=new URLSearchParams(location.search).get('p');
+if(QP!==null){$('start').classList.add('gone');$('start').style.display='none';go(+QP||0)}
+</script>
+</body>
+</html>
