@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mitbauen in der IDE Vokabeltrainer</title>
+<title>Mitbauen mit Claude Code Vokabeltrainer</title>
 <!--
-  Teil 2 · 10 Mitbauen in der IDE: Vokabeltrainer mit Visual Studio Code und der Claude-Code-Erweiterung.
+  Teil 2 · 10 Mitbauen mit Claude Code: Vokabeltrainer in der Claude-Code-App (Code-Ansicht der Claude-Desktop-App).
   Kopie von teil2-mitbauen.html (Chat/Projekt-Fassung). Das Original und die Chat-Fassung bleiben unverändert.
-  UNGEPRÜFT: Die Bedienung der IDE ist schematisch nachgezeichnet und noch nicht in einer echten Installation abgeglichen
-  (Menünamen, Lage des Claude-Symbols, Berechtigungsabfrage). Jede Schrittseite trägt deshalb den Hinweis „Ungeprüft“.
-  Sicher bekannt: Datei › Ordner öffnen, Explorer, Neue Datei. Alles zur Claude-Code-Erweiterung vor dem Workshop selbst prüfen.
+  Belegt durch Screenshots der deutschen Claude-Desktop-App (design/screenshots/claude-desktop-collage.webp, NACHTRAG 2): Umschalter Chat / Code oben links,
+  Menü „Berechtigungen“ mit Auto, Manuell, Plan und weiteren, „Umgebung auswählen“ mit Lokal, Cloud, „Opus 5.5 Mittel“.
+  UNGEPRÜFT: Ordnerauswahl, Aufbau der Code-Ansicht, Erlauben-Abfrage, Dateiliste. Jede Schrittseite trägt deshalb den Hinweis „Ungeprüft“.
   Mockups sind vereinfachte Nachzeichnungen ohne Original-Logos.
 -->
 <style>
@@ -212,32 +212,9 @@ h1 em{font-style:normal;color:var(--acc)}
 
 
 /* MOCK-ENDE */
-/* MOCK-ANFANG: Nachzeichnung der IDE, eigene Farben (kein Hessen-CD) */
-.mock.ide{background:#1e1e1e;--ink:#d4d4d4;--mute:#9da1a6;--dim:#7b8088;--line:#3c3c3c}
-.ide .act{width:48px;flex:none;background:#333333;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0}
-.ide .act>span{width:36px;height:36px;display:grid;place-items:center;color:#8b8b8b;border-radius:6px}
-.ide .act>span.on{color:#ffffff}
-.ide .act svg{width:22px;height:22px}
-.ide .ex{width:210px;flex:none;background:#252526;padding:10px 0;font-size:14px;color:#cccccc;display:flex;flex-direction:column}
-.ide .ex .lab{font-size:11px;letter-spacing:1px;padding:4px 16px 8px;color:#bbbbbb}
-.ide .ex .fold{font-weight:700;font-size:12px;padding:4px 12px;display:flex;align-items:center;gap:6px}
-.ide .ex .ic2{margin-left:auto;display:flex;gap:6px}
-.ide .ex .mini svg{width:16px;height:16px;display:block}
-.ide .ex .it{padding:4px 12px 4px 26px;display:flex;align-items:center;gap:8px}
-.ide .ex .it.on{background:#37373d}
-.ide .ex .it svg{width:15px;height:15px;color:#9da1a6}
-.ide .ex .empty{padding:14px 16px;color:#9da1a6;line-height:1.5;font-size:13.5px}
-.ide .ed{flex:1;min-width:0;display:flex;flex-direction:column;background:#1e1e1e}
-.ide .tabs{display:flex;height:36px;background:#252526;flex:none}
-.ide .tab{padding:0 16px;display:flex;align-items:center;font-size:13.5px;color:#ffffff;background:#1e1e1e;border-top:2px solid #007acc}
-.ide .cd{flex:1;overflow:hidden;padding:14px 0;font:13px/1.65 ui-monospace,Consolas,"Courier New",monospace;color:#d4d4d4;white-space:pre}
-.ide .cd div{padding:0 18px}
-.ide .cd .n{color:#6e7681;display:inline-block;width:26px;margin-right:12px;text-align:right}
-.ide .welcome{flex:1;display:grid;place-items:center;text-align:center;color:#9da1a6}
-.ide .cl{width:320px;flex:none;border-left:1px solid #3c3c3c;background:#252526;display:flex;flex-direction:column;padding:12px 14px;gap:10px}
-.ide .hd2{font-size:12px;letter-spacing:1px;color:#bbbbbb;font-weight:700}
-.ide .tool{font:12.5px ui-monospace,Consolas,"Courier New",monospace;color:#4ec9b0;border:1px solid #3c3c3c;border-radius:6px;padding:6px 10px}
-.ide .perm{border:1px solid #007acc;border-radius:8px;padding:10px 12px;font-size:13px;color:#d4d4d4;line-height:1.45}
+/* MOCK-ANFANG: Nachzeichnung der Claude-App, eigene Farben (kein Hessen-CD) */
+.mock .tool{font:12.5px ui-monospace,Consolas,"Courier New",monospace;color:var(--green);border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin-top:12px;align-self:flex-start}
+.mock .perm{border:1px solid var(--acc);border-radius:8px;padding:10px 12px;font-size:13.5px;color:var(--ink);line-height:1.45}
 /* MOCK-ENDE */
 /* Markierungsring */
 .tgt{position:relative}
@@ -337,21 +314,21 @@ a{text-decoration:underline;text-underline-offset:4px}
   <section class="page" data-hint="&lt;kbd&gt;→&lt;/kbd&gt; weiter">
     <div class="title">
       <!-- PLATZHALTER Absender/Marke: Hier erst die offizielle, freigegebene Logo-Datei der Hessischen Lehrkräfteakademie (SVG, Negativ-Version) einsetzen; nicht nachbauen. Siehe design/hessen-umsetzung.md -->
-      <div class="kick rise" style="--d:.1s">10 · MITBAUEN IN DER IDE</div>
+      <div class="kick rise" style="--d:.1s">10 · MITBAUEN MIT CLAUDE CODE</div>
       <h2><span class="rise" style="--d:.35s">Jetzt&nbsp;</span><span class="rise" style="--d:.5s">bauen&nbsp;</span><span class="rise a" style="--d:.65s">wir&nbsp;mit.</span></h2>
       <div class="line" style="margin-top:40px"></div>
-      <p class="rise" style="--d:1s">Der Vokabeltrainer für die 7. Klasse, Schritt für Schritt in VS Code mit Claude Code</p>
+      <p class="rise" style="--d:1s">Der Vokabeltrainer für die 7. Klasse, Schritt für Schritt in der Claude-Code-App</p>
     </div>
   </section>
 
   <!-- 1 · Auswahl -->
   <section class="page" id="pPick" data-hint="Kachel anklicken oder &lt;kbd&gt;→&lt;/kbd&gt; weiter">
     <div class="head">
-      <div class="kick rise">10 · MITBAUEN IN DER IDE</div>
+      <div class="kick rise">10 · MITBAUEN MIT CLAUDE CODE</div>
       <h1 class="rise" style="--d:.12s">Was <em>brauchen Sie?</em></h1>
     </div>
     <div class="grid" id="gPick" style="top:350px;grid-template-columns:1fr;grid-auto-rows:400px"></div>
-    <div class="lead rise" style="--d:.7s;position:absolute;left:160px;top:820px;font-size:23px;max-width:1600px;line-height:1.4"><b style="color:var(--amber);font-weight:600">Vorher erledigen:</b> Visual Studio Code installieren, die Erweiterung Claude Code hinzufügen und anmelden. Prüfen Sie vorab, ob Ihr Zugang Claude Code einschließt. Nur Beispieldaten, keine Schülerdaten. Mit Privatkonto nicht dienstlich arbeiten. <b style="color:var(--amber);font-weight:600">Tipp:</b> VS Code in einem zweiten Fenster neben dieser Präsentation öffnen, wechseln mit <kbd>Alt</kbd>+<kbd>Tab</kbd>.</div>
+    <div class="lead rise" style="--d:.7s;position:absolute;left:160px;top:820px;font-size:23px;max-width:1600px;line-height:1.4"><b style="color:var(--amber);font-weight:600">Vorher erledigen:</b> Claude-Desktop-App installieren und anmelden. Prüfen Sie vorab, ob Ihr Zugang die Code-Ansicht einschließt. Nur Beispieldaten, keine Schülerdaten. Mit Privatkonto nicht dienstlich arbeiten. <b style="color:var(--amber);font-weight:600">Tipp:</b> Die App in einem zweiten Fenster neben dieser Präsentation öffnen, wechseln mit <kbd>Alt</kbd>+<kbd>Tab</kbd>.</div>
   </section>
 
   <!-- 2–8 · Schritte (werden per Skript gefüllt) -->
@@ -366,7 +343,7 @@ a{text-decoration:underline;text-underline-offset:4px}
   <!-- 9 · Geschafft -->
   <section class="page" id="pDone" data-hint="&lt;kbd&gt;←&lt;/kbd&gt; zurück &nbsp;·&nbsp; &lt;kbd&gt;Pos1&lt;/kbd&gt; zum Anfang">
     <div class="head">
-      <div class="kick rise">10 · MITBAUEN IN DER IDE</div>
+      <div class="kick rise">10 · MITBAUEN MIT CLAUDE CODE</div>
       <h1 class="rise" style="--d:.12s">Geschafft. <em>Ihre App läuft.</em></h1>
       <div class="lead rise" style="--d:.25s">Bevor sie in den Unterricht geht, drei Dinge, die immer gelten:</div>
     </div>
@@ -380,9 +357,9 @@ a{text-decoration:underline;text-underline-offset:4px}
 
 <div id="start"><div class="c">
   <div class="k">LANDESFACHTAG 2026 · TEIL 2</div>
-  <h1>Mitbauen in der IDE: Vokabeltrainer</h1>
-  <p>Live in VS Code mit Claude Code · Prompts kopieren, einfügen, ausprobieren</p>
-  <p style="margin-top:-14px">Tipp: Öffnen Sie VS Code in einem zweiten Fenster daneben und wechseln Sie mit Alt+Tab. Vollbild beenden: Taste F oder Esc.</p>
+  <h1>Mitbauen mit Claude Code: Vokabeltrainer</h1>
+  <p>Live in der Claude-Code-App · Prompts kopieren, einfügen, ausprobieren</p>
+  <p style="margin-top:-14px">Tipp: Öffnen Sie die Claude-App in einem zweiten Fenster daneben und wechseln Sie mit Alt+Tab. Vollbild beenden: Taste F oder Esc.</p>
   <button id="go">▶&nbsp; Starten</button>
   <div class="keys"><kbd>→</kbd> <kbd>←</kbd> oder Präsenter: Seite vor/zurück &nbsp; <kbd>Esc</kbd> Karte schließen<br><kbd>F</kbd> Vollbild &nbsp; <kbd>M</kbd> Klänge aus/an &nbsp; <kbd>Pos1</kbd> Anfang</div>
 </div></div>
@@ -441,6 +418,10 @@ Klasse 7, Englisch, Wörter aus wortliste.txt
 - Oberfläche auf Deutsch, einfache Sprache, große Knöpfe, gut lesbar auf dem Tablet.
 - Vor dem ersten Bauen: erst einen Plan zeigen und auf mein OK warten. Kleine Korrekturen danach direkt umsetzen.`;
 
+const MKRULES=`Lege in diesem Ordner die Datei CLAUDE.md an. Der Inhalt soll genau so lauten:
+
+${RULES}`;
+
 const PLAN=`Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts.
 Nutze die Wörter aus wortliste.txt.
 Zeig mir kurz:
@@ -490,67 +471,65 @@ function win(url,tool,inner,unchk){return `<div class="tbar"><i></i><i></i><i></
 function app(mode){return `<div class="va ${mode==='sk'?'sk':''}"><h6>Vokabeltrainer</h6><small>Englisch · Klasse 7</small><div class="fc"><span>the forest</span></div><div class="bt"><i>Nochmal</i><i>Gewusst ✓</i></div><div class="pb"><b></b></div><div class="lt">Lernstand 3 / 10</div></div>`}
 const ph=w=>`<div class="ph" style="width:${w}%"></div>`;
 
-/* ---------- Visual Studio Code mit Claude-Code-Erweiterung (schematisch, ungeprüft) ---------- */
-const FILE_I=n=>mi(n.endsWith('.html')?'code':'file');
-function ide(o={}){
+/* ---------- Claude-Code-App: Code-Ansicht der Claude-Desktop-App (schematisch, ungeprüft) ---------- */
+/* Belegt: Umschalter Chat / Code, „Berechtigungen“ (Auto, Manuell, Plan …), „Umgebung auswählen“ (Lokal, Cloud), „Opus 5.5 Mittel“. UNSICHER: Rest der Anordnung. */
+function cc(o={}){
  const fr=o.fr||{};
- const items=(o.files||[]).map(n=>T(`<div class="it${o.tab===n?' on':''}">${FILE_I(n)}${n}</div>`,fr[n],'','display:block')).join('');
- const ex=o.files&&o.files.length
-  ?`<div class="ex"><div class="lab">EXPLORER</div><div class="fold">▾ VOKABELTRAINER<span class="ic2">${T(`<span class="mini">${mi('plus')}</span>`,o.nf,'','display:inline-block;border-radius:6px')}</span></div>${items}</div>`
-  :`<div class="ex"><div class="lab">EXPLORER</div><div class="empty">Sie haben noch keinen Ordner geöffnet.<br>${T('<span class="btn pri">Ordner öffnen</span>',o.open,'','display:inline-block;border-radius:9px;margin-top:14px')}</div></div>`;
- const code=o.code
-  ?`<div class="tabs"><span class="tab on">${o.tab}</span></div><div class="cd">${o.code.map((l,i)=>`<div><span class="n">${i+1}</span>${esc(l)}</div>`).join('')}</div>`
-  :`<div class="welcome"><div><div style="font-size:26px;color:#d4d4d4;margin-bottom:10px">Visual Studio Code</div><div style="font-size:15px">Datei › Ordner öffnen …</div></div></div>`;
- const p=o.panel;
- const panel=p?`<div class="cl"><div class="hd2">CLAUDE CODE</div>
-  ${p.u?`<div class="bub">${p.u}</div>`:''}${p.a?`<div class="ans">${p.a}</div>`:''}${p.tool?`<div class="tool">${p.tool}</div>`:''}
-  ${p.perm?T(`<div class="perm">Claude möchte die Datei <b>vokabeltrainer.html</b> anlegen.<div style="margin-top:8px;display:flex;gap:8px"><span class="btn">Ablehnen</span><span class="btn pri">Erlauben</span></div></div>`,p.perm,'','display:block;border-radius:8px'):''}
-  <div style="flex:1"></div>
-  ${T(`<div class="inp" style="min-height:70px"><div class="tx${p.txt?' f':''}">${p.txt||'Frage Claude …'}</div><div class="tl2">${T(`<span class="snd">${mi('send')}</span>`,p.snd,'','display:inline-block;border-radius:10px')}</div></div>`,p.inp,'','display:block;border-radius:16px')}</div>`:'';
- return `<div class="act"><span class="on">${mi('file')}</span><span>${mi('search')}</span><span>${mi('code')}</span>${T(`<span style="display:grid">${mi('spark')}</span>`,o.ci,'','display:block;border-radius:8px')}</div>${ex}<div class="ed">${code}</div>${panel}`}
+ const side=`<div class="ms"><div class="brand">Claude</div>
+  <div style="padding:0 10px 12px"><div class="seg"><span>Chat</span>${T('<span class="on">Code</span>',o.sw,'','display:inline-block;border-radius:8px')}</div></div>
+  ${si('Neue Sitzung','plus')}${si('Suchen','search')}${si('Geplant','clock')}
+  <div class="lab" style="letter-spacing:0;font-size:13px">Letzte Elemente ›</div>${ph(80)}${ph(62)}${ph(70)}</div>`;
+ const files=o.files&&o.files.length?o.files.map(n=>T(`<span class="file">${mi(n.endsWith('.html')?'code':'file')}${n}</span>`,fr[n],'','display:inline-block;border-radius:8px;margin-bottom:8px')).join('<br>'):'<div class="mt" style="color:var(--dim);font-size:13.5px">Noch keine Dateien</div>';
+ const body=o.pick
+  ?`<div style="flex:1;display:grid;place-items:center;text-align:center"><div><div style="font-size:24px;font-weight:600;margin-bottom:8px">Woran arbeiten wir?</div><div style="color:var(--mute);font-size:15px;margin-bottom:18px">Wählen Sie einen Ordner für diese Sitzung.</div>${T('<span class="btn pri">Ordner auswählen</span>',o.fo,'','display:inline-block;border-radius:9px')}</div></div>`
+  :`<div style="flex:1;display:flex;flex-direction:column;min-height:0;padding-right:8px">${o.u?`<div class="bub">${o.u}</div>`:''}${o.a?`<div class="ans">${o.a}</div>`:''}${o.tool?`<div class="tool">${o.tool}</div>`:''}
+   ${o.ask?T(`<div class="perm">Claude möchte <b>vokabeltrainer.html</b> anlegen.<div style="margin-top:8px;display:flex;gap:8px"><span class="btn">Ablehnen</span><span class="btn pri">Erlauben</span></div></div>`,o.ask,'','display:block;border-radius:8px;margin-top:12px'):''}</div>`;
+ const inp=`<div class="inp g"><div class="tx${o.txt?' f':''}">${o.txt||'Beschreiben Sie, was Claude tun soll …'}</div><div class="tl2"><span class="ib">${mi('plus')}</span>${T(`<span class="gx">Berechtigungen: ${o.perm||'Manuell'} ⌄</span>`,o.pm,'','display:inline-block;border-radius:8px')}<span class="mdl">Opus 5.5 <i>Mittel ⌄</i></span>${T(`<span class="snd">${mi('send')}</span>`,o.snd,'','display:inline-block;border-radius:10px')}</div></div>`;
+ return `${side}<div class="mm" style="padding:16px 20px"><div class="top"><div class="crumb" style="color:var(--ink);font-weight:600">${o.folder?'Code · '+o.folder:'Code'}</div><span class="sp"></span><span class="gx" style="font-size:13px;color:var(--mute)">${o.pick?'Umgebung auswählen ⌄':'Umgebung: Lokal'}</span></div>${body}${o.pick?'':T(inp,o.inp,'','display:block;border-radius:16px;margin-top:10px')}</div>
+  <div class="mp" style="width:200px"><div class="hd">Dateien</div><div style="padding:14px">${files}</div></div>`}
 
 /* MOCK-ENDE */
 /* ============ Schritte ============ */
 /* Korrekturen nach Anfänger-Test (A-…), Profi-Test (P-…) und ChatGPT-Prüfung der Kursleitung (Pruefung-ChatGPT-2026-11-11), siehe design/tests/umsetzung-testbefunde.md.
    ChatGPT: Referenz ist die Desktop-App im Zustand „Work“ wie auf den Screenshots. Projektanlage, „Quellen › Hinzufügen“ und Projekteinstellungen sind NICHT fotografiert:
    UNSICHER, deshalb sichtbar als ungeprüft markiert (chk) und mit Ersatzweg in einem Chat (FALLBACK). */
-const UNCHK='Ungeprüft: vor dem Workshop in der eigenen Installation prüfen';
+const UNCHK='Ungeprüft: vor dem Workshop in der eigenen App prüfen';
 const STEPS=[
- {h:'Den Ordner <em>öffnen.</em>',
-  C:{path:['VS Code','Datei','Ordner öffnen …','vokabeltrainer'],chk:1,
-     txt:'Legen Sie im Explorer Ihres Rechners einen leeren Ordner <b>vokabeltrainer</b> an, zum Beispiel unter Dokumente. Öffnen Sie dann in VS Code <b>Datei</b> › <b>Ordner öffnen …</b> und wählen Sie ihn aus. Ein Projekt in der IDE ist ein Ordner.',
-     mock:()=>ide({open:1}),
-     note:['VORAB PRÜFEN','VS Code ist installiert, die Erweiterung <b class="in">Claude Code</b> ist hinzugefügt und Sie sind angemeldet. Fragt VS Code, ob Sie dem Ordner vertrauen, bestätigen Sie das für Ihren eigenen Übungsordner.'],
-     alt:['Ordner öffnen fehlt?','Öffnen Sie VS Code neu und ziehen Sie den Ordner per Maus in das Fenster. Oder: Strg+K, dann Strg+O.','Kontrolle: Oben im Explorer steht der Ordnername VOKABELTRAINER.','Arbeiten Sie nur mit Übungsordnern, die keine Dateien mit Schülerdaten enthalten.']}},
+ {h:'Die Code-Ansicht <em>öffnen.</em>',
+  C:{path:['Claude-App','Umschalter Chat / Code','Code','Ordner auswählen'],chk:1,
+     txt:'Legen Sie im Datei-Explorer Ihres Rechners einen leeren Ordner <b>vokabeltrainer</b> an, zum Beispiel unter Dokumente. Öffnen Sie die Claude-App, schalten Sie oben links von <b>Chat</b> auf <b>Code</b> und wählen Sie den Ordner aus. Die Umgebung bleibt auf <b>Lokal</b>.',
+     mock:()=>cc({sw:1,pick:1,fo:2}),
+     note:['VORAB PRÜFEN','In der Code-Ansicht arbeitet Claude <b class="in">direkt in Ihrem Ordner</b> und legt dort Dateien an. Wählen Sie deshalb nur einen eigenen Übungsordner ohne Schülerdaten. Kostenlose Konten haben meist keine Code-Ansicht: dann bei der Nachbarin oder dem Nachbarn mitarbeiten.'],
+     alt:['Kein Umschalter „Code“?','Die Code-Ansicht gibt es je nach Tarif und App-Version nicht überall. Aktualisieren Sie die App und prüfen Sie Ihren Tarif. Sonst nutzen Sie die Chat-Fassung (Mitbauen im Chat).','Kontrolle: Oben steht „Code“ und der Ordnername vokabeltrainer.','Ändern Sie später die Umgebung nur bewusst. Lokal heißt: Claude arbeitet auf Ihrem Rechner.']}},
  {h:'Die Wortliste <em>ablegen.</em>',words:1,
-  C:{path:['Explorer','Neue Datei','wortliste.txt'],chk:1,
-     txt:'Klicken Sie unten auf <b>Als .txt herunterladen</b> und ziehen Sie die Datei aus Downloads in den Explorer von VS Code. Oder: <b>Neue Datei</b>, Name <b>wortliste.txt</b>, Inhalt einfügen.',
-     mock:()=>ide({files:['wortliste.txt'],tab:'wortliste.txt',nf:1,fr:{'wortliste.txt':2},code:WORDS.split('\n')}),
-     alt:['Die Datei erscheint nicht?','Prüfen Sie, ob die Datei wirklich im Ordner liegt (Rechtsklick › Im Datei-Explorer anzeigen). Heißt sie wortliste.txt.txt, benennen Sie sie um.','Kontrolle: Der Explorer zeigt wortliste.txt, im Editor stehen zehn Zeilen englisch;deutsch.','Später ersetzen Sie die Liste durch Ihre Unit-Wörter, im selben Format. Keine Namen oder Noten.']}},
- {h:'Die Regeln <em>festlegen.</em>',prompt:()=>RULES,plab:'CLAUDE.md',
-  C:{path:['Explorer','Neue Datei','CLAUDE.md','Einfügen','Speichern'],chk:1,
-     txt:'Legen Sie mit <b>Neue Datei</b> die Datei <b>CLAUDE.md</b> an. Unten auf <b>Kopieren</b>, in die Datei klicken, <b>Strg+V</b> (Mac: Cmd+V), dann <b>Strg+S</b>. Claude Code liest diese Datei in diesem Ordner zu Beginn jeder Sitzung.',
-     mock:()=>ide({files:['wortliste.txt','CLAUDE.md'],tab:'CLAUDE.md',nf:1,fr:{'CLAUDE.md':2},code:RULES.split('\n').slice(0,9)}),
+  C:{path:['Datei-Explorer','Ordner vokabeltrainer','wortliste.txt'],chk:1,
+     txt:'Klicken Sie unten auf <b>Als .txt herunterladen</b>. Verschieben Sie die Datei aus <b>Downloads</b> in Ihren Ordner <b>vokabeltrainer</b>. Danach erscheint sie rechts in der Dateiliste der App.',
+     mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt'],fr:{'wortliste.txt':1}}),
+     alt:['Die Datei erscheint nicht?','Prüfen Sie im Datei-Explorer, ob wortliste.txt wirklich im Ordner liegt. Heißt sie wortliste.txt.txt, benennen Sie sie um.','Kontrolle: Zehn Zeilen im Format englisch;deutsch.','Später ersetzen Sie die Liste durch Ihre Unit-Wörter, im selben Format. Keine Namen oder Noten.']}},
+ {h:'Die Regeln <em>festlegen.</em>',prompt:()=>MKRULES,plab:'PROMPT',pnote:'legt CLAUDE.md an',
+  C:{path:['Eingabefeld','Einfügen','Senden','Erlauben'],chk:1,
+     txt:'Kopieren Sie den Prompt in das Eingabefeld und senden Sie ihn. Claude legt die Datei <b>CLAUDE.md</b> im Ordner an. Fragt die App vor dem Anlegen, klicken Sie auf <b>Erlauben</b>. Claude liest diese Datei künftig zu Beginn jeder Sitzung in diesem Ordner.',
+     mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt','CLAUDE.md'],fr:{'CLAUDE.md':3},inp:1,snd:2,txt:'Lege in diesem Ordner die Datei CLAUDE.md an. Der Inhalt soll genau so lauten: …'}),
      alt:['Wozu CLAUDE.md?','Die Datei ist das Gedächtnis des Projekts: Regeln, die ab jetzt in jeder Sitzung in diesem Ordner gelten.','Die Offline-Regel verhindert, dass die App Schriften oder Bibliotheken aus dem Internet lädt.','Wenige, klare Regeln wirken besser als viele. Datenschutz gehört immer hinein.']}},
  {h:'Erst <em>planen lassen.</em>',prompt:()=>PLAN,plab:'PROMPT',x:['Antworthilfe kopieren',()=>ANSWER],
-  C:{path:['Claude-Symbol','Eingabefeld','Senden'],chk:1,
-     txt:'Öffnen Sie Claude Code über das Claude-Symbol (Lage je nach Version). Kopieren Sie den Prompt in das Eingabefeld und senden Sie ihn. Rückfragen beantworten Sie mit der <b>Antworthilfe</b> oder: „Entscheide du, halte es einfach.“',
-     mock:()=>ide({files:['wortliste.txt','CLAUDE.md'],tab:'CLAUDE.md',ci:1,code:RULES.split('\n').slice(0,9),panel:{txt:'Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts …',inp:2,snd:3,a:'Ich habe CLAUDE.md und wortliste.txt gelesen. Mein Plan:'}}),
-     alt:['Das Claude-Symbol fehlt?','Öffnen Sie die Befehlspalette mit Strg+Umschalt+P und suchen Sie nach „Claude“. Prüfen Sie unter Erweiterungen, ob Claude Code installiert und angemeldet ist.','Zusätzlich gibt es einen Planmodus, in dem Claude nur plant und nichts verändert. Wo Sie ihn schalten, hängt von der Version ab. Der Satz „Baue noch nichts“ im Prompt genügt für den Anfang.','Lesen Sie den Plan, bevor Sie weitermachen. Einen Plan ändern Sie mit einem Satz.']}},
+  C:{path:['Berechtigungen','Plan','Eingabefeld','Senden'],chk:1,
+     txt:'Stellen Sie unter dem Eingabefeld <b>Berechtigungen</b> auf <b>Plan</b> (Claude plant, ändert aber nichts). Kopieren Sie den Prompt und senden Sie ihn. Rückfragen beantworten Sie mit der <b>Antworthilfe</b> oder: „Entscheide du, halte es einfach.“',
+     mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt','CLAUDE.md'],perm:'Plan',pm:1,inp:2,snd:3,txt:'Plane einen Vokabeltrainer mit Karteikarten. Baue noch nichts …',u:'Lege CLAUDE.md an …',a:'Erledigt. CLAUDE.md liegt im Ordner.'}),
+     alt:['Kein Menü „Berechtigungen“?','Schreiben Sie in den Prompt: „Baue noch nichts.“ Das genügt für den Anfang. Das Menü liegt je nach App-Version an anderer Stelle.','Lesen Sie den Plan, bevor Sie weitermachen. Einen Plan ändern Sie mit einem Satz.','Claude fängt trotzdem an zu bauen? Dann stand die Berechtigung nicht auf Plan.']}},
  {h:'Jetzt <em>bauen lassen.</em>',prompt:()=>BUILD,plab:'PROMPT',pnote:'Kleine App: ein Auftrag reicht',
-  C:{path:['Eingabefeld','Senden','Erlauben'],chk:1,
-     txt:'Senden Sie den Bau-Auftrag. Claude Code fragt vor dem Anlegen einer Datei um Erlaubnis. Lesen Sie, was angelegt wird, und klicken Sie auf <b>Erlauben</b>. Danach erscheint <b>vokabeltrainer.html</b> im Explorer.',
-     mock:()=>ide({files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],tab:'CLAUDE.md',code:RULES.split('\n').slice(0,9),panel:{u:'Der Plan passt. Baue jetzt den Vokabeltrainer …',tool:'Write vokabeltrainer.html',perm:1,txt:'',inp:0}}),
-     alt:['Es wird nichts angelegt?','Sagen Sie: „Lege die Datei vokabeltrainer.html in diesem Ordner an.“ Prüfen Sie, ob der richtige Ordner geöffnet ist.','Fragt Claude bei jedem Schritt, ist das gewollt. Bestätigen Sie nur, was Sie verstehen.','Für diese kleine App reicht im Workshop ein Auftrag. Größere Apps bauen Sie im Alltag Schritt für Schritt.']}},
+  C:{path:['Berechtigungen','Manuell','Senden','Erlauben'],chk:1,
+     txt:'Stellen Sie <b>Berechtigungen</b> auf <b>Manuell</b>, damit Claude vor jeder Änderung fragt. Senden Sie den Bau-Auftrag. Lesen Sie, was angelegt wird, und klicken Sie auf <b>Erlauben</b>. Danach erscheint <b>vokabeltrainer.html</b> rechts in der Dateiliste.',
+     mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],perm:'Manuell',pm:1,u:'Der Plan passt. Baue jetzt den Vokabeltrainer …',tool:'Write vokabeltrainer.html',ask:2,inp:0,txt:''}),
+     alt:['Es wird nichts angelegt?','Sagen Sie: „Lege die Datei vokabeltrainer.html in diesem Ordner an.“ Prüfen Sie, ob der richtige Ordner gewählt ist.','Fragt Claude bei jedem Schritt, ist das gewollt. Bestätigen Sie nur, was Sie verstehen. Später können Sie auf „Auto“ umstellen.','Für diese kleine App reicht im Workshop ein Auftrag. Größere Apps bauen Sie im Alltag Schritt für Schritt.']}},
  {h:'Testen und <em>Fehler melden.</em>',prompt:()=>BUG,plab:'PROMPT-MUSTER',pnote:'[Klammern] selbst ausfüllen',x:['Prüfliste',null,'test'],
-  C:{path:['Explorer','vokabeltrainer.html','Im Browser öffnen'],chk:1,
-     txt:'Öffnen Sie die Datei im Browser: im Datei-Explorer Ihres Rechners Doppelklick auf <b>vokabeltrainer.html</b>. Testen Sie mit der <b>Prüfliste</b> (Knopf unten). Fehler melden: Muster kopieren, einfügen, Teile in [Klammern] ersetzen.',
-     mock:()=>ide({files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],tab:'vokabeltrainer.html',fr:{'vokabeltrainer.html':1},code:['<!doctype html>','<html lang="de">','<head><meta charset="utf-8">','<title>Vokabeltrainer</title>','<style>…</style>','</head>','<body>','  <div id="karte">…</div>'],panel:{a:'Fertig. Öffne vokabeltrainer.html im Browser und sag mir, was nicht passt.',txt:'Ich teste die Datei im Browser. Ich habe auf „Gewusst“ geklickt …',inp:2}}),
+  C:{path:['Datei-Explorer','vokabeltrainer.html','Doppelklick'],chk:1,
+     txt:'Öffnen Sie die Datei im Browser: im Datei-Explorer Ihres Rechners Doppelklick auf <b>vokabeltrainer.html</b>. Testen Sie mit der <b>Prüfliste</b> (Knopf unten). Fehler melden: Muster kopieren, in die App einfügen, Teile in [Klammern] ersetzen.',
+     mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],fr:{'vokabeltrainer.html':1},u:'Der Plan passt. Baue jetzt …',a:'Fertig. Öffne vokabeltrainer.html im Browser und sag mir, was nicht passt.',inp:2,txt:'Ich teste die Datei im Browser. Ich habe auf „Gewusst“ geklickt …'}),
      alt:['Kein Fehler gefunden?','Gut so, weiter zum letzten Schritt. Oder lassen Sie selbst prüfen: „Alles funktioniert. Prüfe noch einmal Umdrehen, Nochmal, Gewusst und Neu starten.“','Immer nur einen Fehler pro Nachricht melden. Beispiel: „Ich habe auf ‚Gewusst‘ geklickt. Passiert ist: dieselbe Karte kommt wieder.“','Öffnet sich ein Editor statt des Browsers: Rechtsklick › Öffnen mit › Edge oder Chrome.']}},
  {h:'Prüfen <em>und teilen.</em>',prompt:()=>FINAL,plab:'PRÜFAUFTRAG',
-  C:{path:['Claude Code','Eingabefeld','Senden'],chk:1,
+  C:{path:['Eingabefeld','Senden'],chk:1,
      txt:'Die Datei liegt bereits in Ihrem Ordner. Lassen Sie prüfen, ob sie etwas aus dem Internet lädt, und testen Sie sie ohne WLAN. Zur Klasse am einfachsten über die Lernplattform.',
-     mock:()=>ide({files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],tab:'vokabeltrainer.html',code:['<!doctype html>','<html lang="de">','<head><meta charset="utf-8">','<title>Vokabeltrainer</title>','…'],panel:{u:'Prüfe vokabeltrainer.html: Lädt die Datei irgendetwas aus dem Internet?',a:'Nein. Alle Schriften, Skripte und Daten stehen in der Datei selbst.',inp:0,txt:''}}),
+     mock:()=>cc({folder:'vokabeltrainer',files:['wortliste.txt','CLAUDE.md','vokabeltrainer.html'],u:'Prüfe vokabeltrainer.html: Lädt die Datei irgendetwas aus dem Internet?',a:'Nein. Alle Schriften, Skripte und Daten stehen in der Datei selbst.',inp:0,txt:''}),
      alt:['Es werden Fundstellen gemeldet?','Lassen Sie diese Stellen ersetzen: „Entferne alle Einbindungen aus dem Internet. Die App muss offline laufen.“ Danach noch einmal prüfen.','Zur Klasse am einfachsten über die Lernplattform. Auf dem iPad läuft die Datei meist nur über die Lernplattform im Browser.','Die Datei weitergeben, nicht den Ordner mit CLAUDE.md. Vorher Datenschutz und Barrierefreiheit prüfen.']}}
 ];
 /* Prüfliste mit Soll-Ergebnissen (BAUANLEITUNG.md, kompakt) */
@@ -561,13 +540,13 @@ const DONE=[
  {ic:'test',t:'Selbst prüfen',s:'Inhalte, Bedienung und Barrierefreiheit testen, bevor die App in die Klasse geht.',e:'Die Verantwortung bleibt bei Ihnen, nicht bei der KI.'}
 ];
 const TOOLS={
- C:{n:'VS Code + Claude Code',url:'IDE · Visual Studio Code · ungeprüft',f:['Ein Ordner statt eines Projekts im Chat','CLAUDE.md legt die Regeln fest','Claude Code legt die Datei im Ordner an']}
+ C:{n:'Claude Code App',url:'Claude-Desktop-App · Code-Ansicht · ungeprüft',f:['Claude arbeitet direkt in Ihrem Ordner','CLAUDE.md legt die Regeln fest','Berechtigungen: Plan zum Planen, Manuell zum Bauen']}
 };
 
 /* ============ Aufbau ============ */
 const TOOL='C';
 
-$('gPick').innerHTML=['C'].map((k,i)=>`<div class="tile pick rise" data-t="${k}" style="--d:${.25+i*.12}s"><span class="grp">IDE-VARIANTE</span><h3>${TOOLS[k].n}</h3><div class="url">${TOOLS[k].url}</div><ul>${TOOLS[k].f.map(x=>`<li>${x}</li>`).join('')}</ul><div class="key">Klick oder <kbd>→</kbd></div></div>`).join('');
+$('gPick').innerHTML=['C'].map((k,i)=>`<div class="tile pick rise" data-t="${k}" style="--d:${.25+i*.12}s"><span class="grp">CODE-VARIANTE</span><h3>${TOOLS[k].n}</h3><div class="url">${TOOLS[k].url}</div><ul>${TOOLS[k].f.map(x=>`<li>${x}</li>`).join('')}</ul><div class="key">Klick oder <kbd>→</kbd></div></div>`).join('');
 [...$('gPick').children].forEach(el=>{el.onclick=()=>{setTool(el.dataset.t);go(cur+1)};el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')})});
 $('gDone').innerHTML=DONE.map((o,i)=>`<div class="tile rise c-green" style="--d:${.4+i*.15}s;cursor:default"><div class="ic">${svg(o.ic)}</div><h3 style="font-size:34px">${o.t}</h3><p style="font-size:22px">${o.s}</p><p style="margin-top:20px;font-size:20px;color:var(--acc2)">${o.e}</p></div>`).join('');
 
@@ -575,7 +554,7 @@ const STEP_PAGES=[...document.querySelectorAll('.page.step')];
 const HINT_CP='<b>Kopieren</b> › ins Zielfeld klicken › <kbd>Strg</kbd>+<kbd>V</kbd> &nbsp;·&nbsp; <kbd>→</kbd> weiter';
 STEP_PAGES.forEach((pg,i)=>{
  pg.dataset.hint=STEPS[i].prompt||STEPS[i].words?HINT_CP:'<kbd>→</kbd> weiter';
- pg.innerHTML=`<div class="head"><div class="kick rise">10 · MITBAUEN IN DER IDE · SCHRITT ${i+1} VON ${STEPS.length}</div><h1 class="rise" style="--d:.12s">${STEPS[i].h}</h1></div>
+ pg.innerHTML=`<div class="head"><div class="kick rise">10 · MITBAUEN MIT CLAUDE CODE · SCHRITT ${i+1} VON ${STEPS.length}</div><h1 class="rise" style="--d:.12s">${STEPS[i].h}</h1></div>
  <div class="mock rise" style="--d:.3s"></div><div class="guide rise" style="--d:.45s"></div>`;
 });
 const copyIc=svg('copy'),dlIc=svg('dl'),helpIc=svg('help');
@@ -583,8 +562,8 @@ const altBtn=(st='')=>`<button class="alt" data-alt${st}>${helpIc.replace('<svg'
 const xBtn=S=>S.x?`<button class="cp sec" data-x>${S.x[1]?copyIc:svg('test')}${S.x[0]}</button>`:'';
 function renderStep(i){
  const S=STEPS[i],o=S[TOOL],pg=STEP_PAGES[i];
- const m=pg.querySelector('.mock');m.className='mock rise ide';
- m.innerHTML=win('Visual Studio Code · vokabeltrainer',TOOL,o.mock(),o.chk);
+ const m=pg.querySelector('.mock');m.className='mock rise cl';
+ m.innerHTML=win('Claude · Desktop-App · Code',TOOL,o.mock(),o.chk);
  let box='';
  if(S.words)box=`<div class="gbox"><div class="lb">WORTLISTE · wortliste.txt<span>englisch;deutsch</span></div><pre>${WORDS}</pre>
   <div class="gbtn"><button class="cp" data-dl>${dlIc}Als .txt herunterladen</button><button class="cp sec" data-cp>${copyIc}Kopieren</button>${altBtn()}</div></div>`;
