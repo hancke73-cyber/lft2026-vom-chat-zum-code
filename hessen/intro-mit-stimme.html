@@ -219,7 +219,7 @@ D.code=lt=>{
   ly+=L*1.4;O.forEach(([at,s,c],i)=>{const q=rev(lt,at,.35);if(q>0)text(s,lx,ly+i*L,{size:ms,fam:'mono',color:c,alpha:q})});
   const ar=rev(lt,9.2,1);if(ar<=0)return;const ax=1130+(1-ar)*80,ay=430,aw=630,ah=490;
   panel(ax,ay,aw,ah,ar,'#f5f6f8');
-  text('Vokabeltrainer',ax+32,ay+52,{size:24,weight:700,color:'#18202b',alpha:ar});text('Blue Line 2 · Unit 4',ax+aw-32,ay+52,{size:16,color:'#566170',align:'right',alpha:ar});
+  text('Vokabeltrainer',ax+32,ay+52,{size:24,weight:700,color:'#18202b',alpha:ar});text('Englisch · Unit 4',ax+aw-32,ay+52,{size:16,color:'#566170',align:'right',alpha:ar});
   const pp=lerp(.35,.42,E.out(prog(lt,12.3,.8)));ctx.save();ctx.globalAlpha=SA*ar;ctx.fillStyle='#d9dee5';rr(ax+32,ay+76,aw-64,8,4);ctx.fill();ctx.fillStyle='#1f5fbf';rr(ax+32,ay+76,(aw-64)*pp,8,4);ctx.fill();ctx.restore();
   text('Lernstand '+Math.round(pp*100)+' %',ax+32,ay+112,{size:15,color:'#566170',alpha:ar});
   const fp=prog(lt,11,.6),sx=Math.abs(Math.cos(fp*Math.PI)),back=fp>.5;const cxx=ax+aw/2,cyy=ay+250,cw2=440,ch=190;

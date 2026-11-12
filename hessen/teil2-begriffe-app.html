@@ -293,15 +293,6 @@ a{text-decoration:underline;text-underline-offset:4px}
     </div>
   </section>
 
-  <!-- 4c · Prompt-Vorlagen -->
-  <section class="page" id="pTpl" data-hint="Vorlage anklicken &nbsp;·&nbsp; in der Karte: kopieren &nbsp;·&nbsp; &lt;kbd&gt;→&lt;/kbd&gt; weiter">
-    <div class="head">
-      <div class="kick rise">08 · DER WEG ZUR EIGENEN APP</div>
-      <h1 class="rise" style="--d:.12s">Vorlagen <em>zum Mitnehmen.</em></h1>
-    </div>
-    <div class="grid" id="gTpl" style="top:350px;grid-template-columns:repeat(3,1fr);grid-auto-rows:286px"></div>
-  </section>
-
   <!-- 5 · Jetzt Sie -->
   <section class="page" data-hint="&lt;kbd&gt;→&lt;/kbd&gt; weiter zu den Oberflächen &nbsp;·&nbsp; &lt;kbd&gt;←&lt;/kbd&gt; zurück &nbsp;·&nbsp; &lt;kbd&gt;Pos1&lt;/kbd&gt; zum Anfang">
     <div class="head">
@@ -309,8 +300,9 @@ a{text-decoration:underline;text-underline-offset:4px}
       <h1 class="rise" style="--d:.12s">Ihre App in <em>drei Sätzen.</em></h1>
       <div class="lead rise" style="--d:.25s">Bevor die KI eine Zeile schreibt: Beantworten Sie diese drei Fragen.</div>
     </div>
-    <div class="grid" style="top:470px;grid-template-columns:repeat(3,1fr);grid-auto-rows:330px" id="gYou"></div>
-    <a class="rise" href="teil2-oberflaechen.html" style="--d:1s;position:absolute;right:160px;top:860px;font:600 22px Arial,'Helvetica Neue',Helvetica,sans-serif;color:#14006E;background:var(--ink);border-radius:999px;padding:16px 32px;text-decoration:underline;text-underline-offset:4px">Weiter: Die Oberflächen →</a>
+    <div class="grid" style="top:470px;grid-template-columns:repeat(3,1fr);grid-auto-rows:300px" id="gYou"></div>
+    <div class="rise" style="--d:1.1s;position:absolute;left:160px;right:160px;top:795px;display:flex;align-items:center;gap:26px;border-left:8px solid #14006E;background:#F5E6D2;border-radius:12px;padding:18px 28px"><span class="chip" style="flex:none">SICHERHEIT</span><span style="font-size:24px;line-height:1.4;color:#14006E"><b>Wie sicher ist Ihre App?</b> Stecken Daten darin, die dort nicht hineingehören? Hat die App eine Anmeldung, und ist diese sicher?</span></div>
+    <a class="rise" href="teil2-oberflaechen.html" style="--d:1s;position:absolute;right:160px;top:915px;font:600 22px Arial,'Helvetica Neue',Helvetica,sans-serif;color:#14006E;background:var(--ink);border-radius:999px;padding:16px 32px;text-decoration:underline;text-underline-offset:4px">Weiter: Die Oberflächen →</a>
   </section>
 
   <div id="veil"></div>
@@ -454,31 +446,14 @@ const MORE=[
   d:'Alles, was man eingibt, geht an den Anbieter. Personenbezogene Daten von Lernenden, Noten oder Gutachten gehören nicht in ein KI-Werkzeug, das dafür nicht freigegeben ist.',
   b:'Statt echter Namen „Schüler A“, Beispieldaten oder anonymisierte Texte verwenden.',m:'Vorgaben von Land und Schulträger beachten. Im Zweifel: weglassen.'}
 ];
-const TPL=[
- {ic:'write',t:'Beschreiben',s:'Die Anforderung',n:2,
-  x:'Ich möchte eine kleine Web-App für <em>[Zielgruppe]</em>.\nZiel: <em>[Problem in einem Satz]</em>.\nSie soll können:\n- <em>…</em>\n- <em>…</em>\nSie soll ausdrücklich nicht: Anmeldung, Online-Speicherung, Schülerdaten.\nFertig ist sie, wenn <em>[prüfbares Kriterium]</em>.\nStell mir zuerst Rückfragen, bevor du planst.'},
- {ic:'md',t:'Projektanweisung',s:'Die Regeln des Projekts',n:3,
-  x:'# Projekt: <em>[Name]</em>\n## Zielgruppe\nKlasse <em>[x]</em>, <em>[Fach]</em>\n## Regeln\n- Alles in einer HTML-Datei, läuft offline\n- Keine Bibliotheken, Schriften oder Bilder aus dem Internet\n- Keine personenbezogenen Daten speichern\n- Einfache Sprache in der Oberfläche\n- Vor dem ersten Bauen und vor größeren Änderungen erst einen Plan zeigen'},
- {ic:'plan',t:'Planen',s:'Erst denken lassen',n:4,
-  x:'Plane zuerst, ändere noch nichts.\nZeig mir:\n- den Aufbau der Bildschirme\n- den Ablauf für die Lernenden\n- offene Fragen an mich\nIch gebe dir dann Rückmeldung.'},
- {ic:'build',t:'Bauen',s:'In kleinen Schritten',n:5,
-  x:'Setze jetzt nur Schritt <em>[n]</em> des Plans um.\nTeste ihn selbst.\nSag mir danach in zwei Sätzen, was ich prüfen soll.'},
- {ic:'test',t:'Fehler melden',s:'Beobachten statt reparieren',n:6,
-  x:'Ich teste <em>[die Vorschau / die Datei]</em>.\nIch habe <em>[was ich getan habe]</em>.\nPassiert ist <em>[was ich sehe]</em>.\nErwartet hatte ich <em>[was passieren soll]</em>.\nFinde die Ursache, behebe sie, teste, wenn du kannst, und sag mir in einem Satz, was du geändert hast.'},
- {ic:'share',t:'Verbessern & sichern',s:'Gutes wiederverwendbar machen',n:7,
-  x:'Prüfe die App auf Lesbarkeit, Bedienung per Tastatur und Darstellung auf dem Tablet.\nSchlage höchstens drei Verbesserungen vor.\nFasse danach als Skill zusammen, wie wir diese Art von App künftig bauen.'}
-];
-
 /* ============ Aufbau ============ */
 const $=id=>document.getElementById(id);
 function tileHTML(o,i){return `<div class="tile rise ${o.c||''}" style="--d:${.25+i*.06}s">${o.g?`<span class="grp">${o.g}</span>`:''}<div class="ic">${svg(o.ic)}</div><h3>${o.t}</h3><p>${o.s}</p></div>`}
 $('gTerms').innerHTML=TERMS.map(tileHTML).join('');
 $('gYou').innerHTML=YOU.map((o,i)=>`<div class="tile rise c-amber" style="--d:${.4+i*.15}s;cursor:default"><div class="ic">${svg(o.ic)}</div><h3 style="font-size:38px">${o.t}</h3><p style="font-size:22px">${o.s}</p><p style="margin-top:22px;font-size:21px;color:var(--acc2)">${o.e}</p></div>`).join('');
 $('gMore').innerHTML=MORE.map(tileHTML).join('');
-$('gTpl').innerHTML=TPL.map((o,i)=>`<div class="tile rise c-amber" style="--d:${.25+i*.08}s"><span class="grp">SCHRITT ${o.n}</span><div class="ic">${svg(o.ic)}</div><h3>${o.t}</h3><p>${o.s}</p><p class="mono" style="font-size:16px;color:var(--acc2);margin-top:14px">${o.x.replace(/<[^>]+>/g,'').split('\n')[0]}</p></div>`).join('');
 [...$('gMore').children].forEach((el,i)=>el.onclick=()=>openCard(el,termCard(MORE[i])));
-[...$('gTpl').children].forEach((el,i)=>el.onclick=()=>openCard(el,tplCard(TPL[i])));
-[...$('gMore').children,...$('gTpl').children].forEach(el=>el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')}));
+[...$('gMore').children].forEach(el=>el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')}));
 [...$('gTerms').children].forEach((el,i)=>el.onclick=()=>openCard(el,termCard(TERMS[i])));
 [...$('gTerms').children].forEach(el=>el.addEventListener('pointermove',e=>{const r=el.getBoundingClientRect();el.style.setProperty('--mx',(e.clientX-r.left)/r.width*100+'%');el.style.setProperty('--my',(e.clientY-r.top)/r.height*100+'%')}));
 
@@ -521,9 +496,6 @@ function svRun(mode){svT.forEach(clearTimeout);svT=[];const S=$('svs');if(!S)ret
   at(4800,()=>{job.textContent='setzt die drei Ergebnisse zusammen';res.classList.add('on')});
   at(5200,()=>cap.innerHTML='<b>Ergebnis:</b> Schneller, weil parallel. Der Haupt-Agent kennt nur die drei kurzen Ergebnisse und bleibt übersichtlich: Kontext ca. 20 % statt über 90 %.');
  }}
-function tplCard(o){return `<div class="fx"><div class="top"><div class="ic">${svg(o.ic)}</div><div><div class="kick">PROMPT-VORLAGE · SCHRITT ${o.n}</div><h2>${o.t}</h2></div></div>
- <pre>${o.x}</pre><div><button class="cp" onclick="copyTpl(this)">${svg('copy').replace('<svg','<svg style="width:18px;height:18px;vertical-align:-3px;margin-right:8px"')}Kopieren</button>
- <span style="margin-left:18px;color:var(--dim);font-size:18px">Gelbe Stellen in [Klammern] selbst ausfüllen</span></div></div>`}
 /* Kopiererfolg wirklich prüfen; bei Fehler Text markieren und Kopieren von Hand erklären */
 function copyTpl(b){const pre=b.closest('.fx').querySelector('pre'),t=pre.innerText;const show=(txt,ms)=>{b.classList.toggle('ok',txt.startsWith('Kopiert'));b.lastChild.textContent=txt;setTimeout(()=>{b.classList.remove('ok');b.lastChild.textContent='Kopieren'},ms)};const ok=()=>show('Kopiert ✓',1800);
  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,()=>fallback());else fallback();
@@ -566,7 +538,7 @@ const dSleep=(ms,tk)=>new Promise(r=>setTimeout(()=>r(tk===dTok),ms));
 function dLine(cls,html){const d=document.createElement('div');d.className=cls;d.innerHTML=html;const T=$('dTerm');T.appendChild(d);while(T.children.length>16)T.firstChild.remove();return d}
 function dTreeDraw(newIdx){$('dTree').innerHTML=dTree.map((l,i)=>`<div class="${i===newIdx?'new':''}">${l}</div>`).join('')}
 function dApp(mode){const A=$('dApp');
- if(mode==='sk'||!A.firstChild||!A.firstChild.classList)A.innerHTML='<div class="va sk"><h6>Vokabeltrainer</h6><small>Blue Line 2 · Unit 4</small><div class="fc"><div><span>the forest</span><span>der Wald</span></div></div><div class="bt"><i>Nochmal</i><i>Gewusst ✓</i></div><div class="pb"><b></b></div><div class="lt">Lernstand 0 / 40</div></div>';
+ if(mode==='sk'||!A.firstChild||!A.firstChild.classList)A.innerHTML='<div class="va sk"><h6>Vokabeltrainer</h6><small>Englisch · Unit 4</small><div class="fc"><div><span>the forest</span><span>der Wald</span></div></div><div class="bt"><i>Nochmal</i><i>Gewusst ✓</i></div><div class="pb"><b></b></div><div class="lt">Lernstand 0 / 40</div></div>';
  const v=A.firstChild;if(mode==='full'||mode==='flip'){v.classList.remove('sk');v.querySelector('.pb b').style.width='8%';v.querySelector('.lt').textContent='Lernstand 3 / 40'}
  if(mode==='flip'){setTimeout(()=>v.querySelector('.fc').classList.add('flip'),300);setTimeout(()=>{v.querySelector('.pb b').style.width='30%';v.querySelector('.lt').textContent='Lernstand 12 / 40'},900)}}
 async function dDo(a,tk,fast){const [k,x]=a;

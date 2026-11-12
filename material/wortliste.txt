@@ -1,75 +1,10 @@
-Wortliste (Englisch – Deutsch)
-English	Deutsch
-theatre	das Theater
-screen	die Leinwand; der Bildschirm
-singer	der Sänger
-also	auch
-dancer	Tänzer
-to chat	chatten; plaudern
-online	online
-actor	Schauspieler
-well	gut
-to breathe	atmen
-slowly	langsam
-over	über
-head	der Kopf
-to stand	stehen
-to speak, spoke	sprechen
-fast	schnell
-to use	benutzen; verwenden
-carefully	sorgfältig; vorsichtig
-to try	versuchen; probieren
-to answer	beantworten; antworten
-to practise	üben; trainieren
-any	irgendwelche
-arm	der Arm
-ear	das Ohr
-eye	das Auge
-leg	das Bein
-nose	die Nase
-shoulder	die Schulter
-finger	der Finger
-mouth	der Mund
-knee	das Knie
-toe	der Zeh
-to smell	riechen
-neck	der Hals; der Nacken; das Genick
-to shake, shook	schütteln; zittern
-to nod	nicken
-to smile	lächeln
-to shrug	mit den Achseln zucken; mit den Schultern zucken
-to clap	klatschen
-to wave	winken
-set	der Set; die Kulisse
-to direct	Regie führen bei; anweisen; leiten
-to check	überprüfen; kontrollieren
-script	das Drehbuch; das Skript
-to act	spielen; sich verhalten; handeln
-role	die Rolle
-to create	machen; schaffen; erschaffen
-lighting	die Beleuchtung
-clothes	die Kleider; die Kleidung
-coat	der Mantel; die Jacke
-shoe	der Schuh
-costume	das Kostüm
-to wear, wore	tragen; anhaben
-one(s)	Platzhalter für ein Nomen
-bigger	größer
-more colourful	bunter; farbiger; farbenfroher
-trousers	die Hose, die Hosen
-worse	schlimmer
-nicer	schöner; netter
-shirt	das Hemd; das Shirt
-better	besser
-like	wie
-model	das Model; das Modell; die Vorlage
-sweater	der Pullover
-more comfortable	bequemer; angenehmer
-most beautiful	schönste; hübscheste
-yours	deine / deiner / deins; Ihre / Ihrer / Ihres; eure / eurer / eures
-nicest	schönste; netteste
-to fit	passen
-mine	meine / meiner / meins
-the others	die anderen
-dress	das Kleid
-skirt	der Rock
+the forest;der Wald
+the river;der Fluss
+the mountain;der Berg
+the island;die Insel
+the weather;das Wetter
+the journey;die Reise
+the map;die Landkarte
+to climb;klettern
+to explore;erkunden
+dangerous;gefährlich

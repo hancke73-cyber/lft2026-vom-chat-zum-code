@@ -1,10 +1,10 @@
-# CLAUDE.md – Vokabeltrainer „Blue Line 2"
+# CLAUDE.md – Vokabeltrainer
 
 > Diese Datei liegt im Hauptordner des Projekts. Claude Code lädt sie bei **jeder** Sitzung automatisch.
 > Sie ist das Gedächtnis des Projekts: kurz, klar, nur das, was Claude wirklich wissen muss.
 
 ## Projekt
-Eine kleine Lern-App (eine HTML-Datei, läuft offline im Browser) zum Üben der Vokabeln aus Blue Line 2
+Eine kleine Lern-App (eine HTML-Datei, läuft offline im Browser) zum Üben von Vokabeln aus einer eigenen Wortliste
 (Englisch, Klasse 6, Haupt-/Realschule Hessen). Zielgruppe: Schülerinnen und Schüler, Niveau A1/A2.
 
 ## Ordnerstruktur

@@ -600,7 +600,7 @@ const dSleep=(ms,tk)=>new Promise(r=>setTimeout(()=>r(tk===dTok),ms));
 function dLine(cls,html){const d=document.createElement('div');d.className=cls;d.innerHTML=html;const T=$('dTerm');T.appendChild(d);while(T.children.length>16)T.firstChild.remove();return d}
 function dTreeDraw(newIdx){$('dTree').innerHTML=dTree.map((l,i)=>`<div class="${i===newIdx?'new':''}">${l}</div>`).join('')}
 function dApp(mode){const A=$('dApp');
- if(mode==='sk'||!A.firstChild||!A.firstChild.classList)A.innerHTML='<div class="va sk"><h6>Vokabeltrainer</h6><small>Blue Line 2 · Unit 4</small><div class="fc"><div><span>the forest</span><span>der Wald</span></div></div><div class="bt"><i>Nochmal</i><i>Gewusst ✓</i></div><div class="pb"><b></b></div><div class="lt">Lernstand 0 / 40</div></div>';
+ if(mode==='sk'||!A.firstChild||!A.firstChild.classList)A.innerHTML='<div class="va sk"><h6>Vokabeltrainer</h6><small>Englisch · Unit 4</small><div class="fc"><div><span>the forest</span><span>der Wald</span></div></div><div class="bt"><i>Nochmal</i><i>Gewusst ✓</i></div><div class="pb"><b></b></div><div class="lt">Lernstand 0 / 40</div></div>';
  const v=A.firstChild;if(mode==='full'||mode==='flip'){v.classList.remove('sk');v.querySelector('.pb b').style.width='8%';v.querySelector('.lt').textContent='Lernstand 3 / 40'}
  if(mode==='flip'){setTimeout(()=>v.querySelector('.fc').classList.add('flip'),300);setTimeout(()=>{v.querySelector('.pb b').style.width='30%';v.querySelector('.lt').textContent='Lernstand 12 / 40'},900)}}
 async function dDo(a,tk,fast){const [k,x]=a;
