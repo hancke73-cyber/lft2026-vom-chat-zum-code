@@ -1,0 +1,9 @@
+# Titel: Text 4 · Essen
+the apple;der Apfel
+the bread;das Brot
+the cheese;der Käse
+the water;das Wasser
+the breakfast;das Frühstück
+to cook;kochen
+to drink;trinken
+hungry;hungrig

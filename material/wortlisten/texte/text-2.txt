@@ -1,0 +1,9 @@
+# Titel: Text 2 · In der Schule
+the classroom;das Klassenzimmer
+the lesson;die Unterrichtsstunde|die Stunde
+the pencil;der Bleistift
+the ruler;das Lineal
+the homework;die Hausaufgaben
+to read;lesen
+to write;schreiben
+to learn;lernen

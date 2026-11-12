@@ -1,0 +1,12 @@
+# Titel: Text 1 · Unterwegs
+# Format: englisch;deutsch. Alternativen mit | trennen.
+the forest;der Wald
+the river;der Fluss
+the mountain;der Berg
+the island;die Insel
+the weather;das Wetter
+the journey;die Reise
+the map;die Landkarte|die Karte
+to climb;klettern
+to explore;erkunden
+dangerous;gefährlich

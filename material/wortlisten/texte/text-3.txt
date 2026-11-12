@@ -1,0 +1,9 @@
+# Titel: Text 3 · Freizeit
+the bicycle;das Fahrrad
+the swimming pool;das Schwimmbad
+the cinema;das Kino
+the music;die Musik
+the friend;der Freund|die Freundin
+to dance;tanzen
+to sing;singen
+to swim;schwimmen
