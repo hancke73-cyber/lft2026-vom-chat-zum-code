@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vokabeltrainer Englisch</title>
+<style>
+:root{
+  --bg:#f3f5fa; --ink:#111b33; --muted:#3d4863; --card:#ffffff; --line:#111b33;
+  --blue:#1a47a0; --green:#17653a; --amber:#7a3500; --red:#a11212;
+  --warnbg:#fff3c4; --infobg:#e3ecff; --badbg:#ffe0e0;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);color-scheme:light;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:1.25rem;line-height:1.45}
+[hidden]{display:none !important}
+main{max-width:46rem;margin:0 auto;padding:16px 16px 40px}
+h1{font-size:1.6rem;margin:4px 0 16px}
+h2{font-size:2rem;margin:0 0 8px}
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+.field{flex:1 1 16rem;min-width:0}
+.field label{display:block;font-weight:700;margin-bottom:4px}
+select{width:100%;min-height:60px;font:inherit;padding:8px 12px;color:var(--ink);background:#fff;
+  border:3px solid var(--line);border-radius:14px}
+.btn{font:inherit;font-weight:700;min-height:64px;padding:12px 22px;border-radius:16px;
+  border:3px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn.good{background:var(--green);border-color:var(--green);color:#fff}
+.btn.again{background:#fff;border-color:var(--amber);color:var(--amber)}
+.btn.wide{width:100%;min-height:76px;font-size:1.5rem}
+.btn.big{min-height:76px;font-size:1.4rem}
+:focus-visible{outline:4px solid #000;outline-offset:3px;box-shadow:0 0 0 7px #ffd23f}
+.msg{margin:0 0 12px;padding:10px 14px;border-radius:12px;border:2px solid var(--line);font-size:1.05rem}
+.msg.warn{background:var(--warnbg)}
+.msg.info{background:var(--infobg)}
+.msg.bad{background:var(--badbg);border-color:var(--red)}
+.prog-text{margin:8px 0 6px;font-weight:700;font-size:1.3rem}
+.bar{height:26px;background:#fff;border:3px solid var(--line);border-radius:14px;overflow:hidden}
+.bar>div{height:100%;width:0;background:var(--green);transition:width .25s}
+.card{margin:18px 0;min-height:15rem;background:var(--card);border:4px solid var(--line);border-radius:24px;
+  padding:20px 22px;display:flex;flex-direction:column;justify-content:center;text-align:center;cursor:pointer}
+.card .side{margin:0 0 10px;font-size:1.05rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.card .en{font-size:clamp(2rem,8vw,3.4rem);font-weight:800;line-height:1.2;overflow-wrap:anywhere}
+.card .de{font-size:clamp(1.8rem,7vw,3rem);font-weight:800;line-height:1.25;overflow-wrap:anywhere}
+.card .de+.de{margin-top:6px;padding-top:6px;border-top:2px dashed #8a94ab}
+.card .small{margin-top:14px;font-size:1.1rem;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.done{margin:18px 0;padding:26px 20px;text-align:center;background:#e6f6ec;border:4px solid var(--green);border-radius:24px}
+.done p{margin:0;font-size:1.3rem}
+.foot{margin-top:22px;display:flex;justify-content:center}
+.hint{margin:18px 0 0;text-align:center;color:var(--muted);font-size:1.05rem}
+.overlay{position:fixed;inset:0;background:rgba(17,27,51,.72);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+.dialog{background:#fff;border:4px solid var(--line);border-radius:22px;padding:22px;max-width:30rem;width:100%}
+.dialog h2{font-size:1.6rem}
+.dialog p{margin:0 0 18px}
+@media (prefers-reduced-motion:reduce){.bar>div{transition:none}.btn:active{transform:none}}
+@media (max-width:420px){main{padding:12px 12px 32px}.btn{padding:10px 12px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Vokabeltrainer Englisch</h1>
+
+  <div class="top">
+    <div class="field">
+      <label for="listSel">Liste</label>
+      <select id="listSel"></select>
+    </div>
+    <button type="button" id="loadBtn" class="btn">Eigene Liste laden</button>
+    <input type="file" id="fileIn" accept=".txt,text/plain" hidden>
+  </div>
+
+  <p id="notice" class="msg warn" role="status" hidden></p>
+  <p id="info" class="msg info" hidden></p>
+  <p id="err" class="msg bad" role="alert" hidden></p>
+
+  <p id="progText" class="prog-text"></p>
+  <div id="bar" class="bar" role="progressbar" aria-label="Fortschritt" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0"><div id="barFill"></div></div>
+
+  <section id="play" aria-label="Karteikarte">
+    <div id="card" class="card" aria-live="polite">
+      <p id="cardSide" class="side"></p>
+      <div id="cardBody"></div>
+    </div>
+    <button type="button" id="flipBtn" class="btn primary wide">Umdrehen</button>
+    <div id="judge" class="two" hidden>
+      <button type="button" id="againBtn" class="btn again big">Nochmal</button>
+      <button type="button" id="knownBtn" class="btn good big">Gewusst</button>
+    </div>
+  </section>
+
+  <section id="doneBox" class="done" hidden>
+    <h2>Geschafft!</h2>
+    <p id="doneText"></p>
+  </section>
+
+  <div class="foot"><button type="button" id="restartBtn" class="btn">Neu starten</button></div>
+  <p class="hint">Tastatur: Leertaste oder Enter = Umdrehen, Pfeil links = Nochmal, Pfeil rechts = Gewusst.</p>
+</main>
+
+<div id="dlg" class="overlay" hidden>
+  <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dlgTitle" aria-describedby="dlgText">
+    <h2 id="dlgTitle">Neu starten?</h2>
+    <p id="dlgText"></p>
+    <div class="two">
+      <button type="button" id="dlgNo" class="btn big">Abbrechen</button>
+      <button type="button" id="dlgYes" class="btn primary big">Ja, neu starten</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var KEY='vokabeltrainer-englisch-7';
+var EMBED=[{"id":"wortliste","file":"wortliste.txt","fallback":"Wortliste","text":"the forest;der Wald\nthe river;der Fluss\nthe mountain;der Berg\nthe island;die Insel\nthe weather;das Wetter\nthe journey;die Reise\nthe map;die Landkarte\nto climb;klettern\nto explore;erkunden\ndangerous;gefährlich"},{"id":"text-1","file":"wortlisten/text-1.txt","fallback":"text-1","text":"# Titel: Text 1 · Unterwegs\n# Format: englisch;deutsch. Alternativen mit | trennen.\nthe forest;der Wald\nthe river;der Fluss\nthe mountain;der Berg\nthe island;die Insel\nthe weather;das Wetter\nthe journey;die Reise\nthe map;die Landkarte|die Karte\nto climb;klettern\nto explore;erkunden\ndangerous;gefährlich\n"},{"id":"text-2","file":"wortlisten/text-2.txt","fallback":"text-2","text":"# Titel: Text 2 · In der Schule\nthe classroom;das Klassenzimmer\nthe lesson;die Unterrichtsstunde|die Stunde\nthe pencil;der Bleistift\nthe ruler;das Lineal\nthe homework;die Hausaufgaben\nto read;lesen\nto write;schreiben\nto learn;lernen\n"},{"id":"text-3","file":"wortlisten/text-3.txt","fallback":"text-3","text":"# Titel: Text 3 · Freizeit\nthe bicycle;das Fahrrad\nthe swimming pool;das Schwimmbad\nthe cinema;das Kino\nthe music;die Musik\nthe friend;der Freund|die Freundin\nto dance;tanzen\nto sing;singen\nto swim;schwimmen\n"},{"id":"text-4","file":"wortlisten/text-4.txt","fallback":"text-4","text":"# Titel: Text 4 · Essen\nthe apple;der Apfel\nthe bread;das Brot\nthe cheese;der Käse\nthe water;das Wasser\nthe breakfast;das Frühstück\nto cook;kochen\nto drink;trinken\nhungry;hungrig\n"}];
+
+function $(id){return document.getElementById(id);}
+var listSel=$('listSel'),loadBtn=$('loadBtn'),fileIn=$('fileIn'),notice=$('notice'),info=$('info'),err=$('err'),
+  progText=$('progText'),bar=$('bar'),barFill=$('barFill'),play=$('play'),card=$('card'),cardSide=$('cardSide'),
+  cardBody=$('cardBody'),flipBtn=$('flipBtn'),judge=$('judge'),againBtn=$('againBtn'),knownBtn=$('knownBtn'),
+  doneBox=$('doneBox'),doneText=$('doneText'),restartBtn=$('restartBtn'),dlg=$('dlg'),dlgText=$('dlgText'),
+  dlgNo=$('dlgNo'),dlgYes=$('dlgYes');
+
+/* ---------- Wortlisten lesen: englisch;deutsch, Alternativen mit | ---------- */
+function parseList(text,fallback){
+  text=String(text).replace(/^﻿/,'');
+  var title='',words=[],idx=new Map();
+  text.split(/\r\n|\r|\n/).forEach(function(raw){
+    var line=raw.trim();
+    if(!line)return;
+    if(line.charAt(0)==='#'){
+      var m=/^#\s*Titel\s*:\s*(.+)$/i.exec(line);
+      if(m&&!title)title=m[1].trim();
+      return;
+    }
+    var p=line.indexOf(';');
+    if(p<1)return;
+    var en=line.slice(0,p).trim();
+    var de=line.slice(p+1).split('|').map(function(s){return s.trim();}).filter(Boolean);
+    if(!en||!de.length)return;
+    var k=en.toLowerCase();
+    if(idx.has(k)){
+      var w=words[idx.get(k)];
+      de.forEach(function(d){if(w.de.indexOf(d)<0)w.de.push(d);});
+      return;
+    }
+    idx.set(k,words.length);
+    words.push({key:k,en:en,de:de});
+  });
+  return {title:title||fallback,words:words};
+}
+
+function shuffle(a){
+  a=a.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+/* ---------- Speicher (localStorage, immer in try/catch) ---------- */
+var store=null;
+try{
+  var s=window.localStorage;
+  s.setItem(KEY+'-probe','1');
+  s.removeItem(KEY+'-probe');
+  store=s;
+}catch(e){store=null;}
+var saved={};
+if(store){
+  try{
+    var raw=store.getItem(KEY);
+    var obj=raw?JSON.parse(raw):null;
+    if(obj&&typeof obj==='object'&&!Array.isArray(obj))saved=obj;
+  }catch(e){saved={};}
+}
+if(!saved.lists||typeof saved.lists!=='object')saved.lists={};
+
+/* ---------- Listen aufbauen ---------- */
+var lists=[];
+function makeList(id,title,words,own,sv){
+  var l={id:id,title:title,words:words,own:own,byKey:new Map(),known:new Set(),queue:[],flipped:false};
+  words.forEach(function(w){l.byKey.set(w.key,w);});
+  var keys=words.map(function(w){return w.key;});
+  if(sv&&Array.isArray(sv.known)&&Array.isArray(sv.queue)){
+    sv.known.forEach(function(k){if(l.byKey.has(k))l.known.add(k);});
+    var seen=new Set();
+    sv.queue.forEach(function(k){
+      if(l.byKey.has(k)&&!l.known.has(k)&&!seen.has(k)){seen.add(k);l.queue.push(k);}
+    });
+    var missing=keys.filter(function(k){return !l.known.has(k)&&!seen.has(k);});
+    l.queue=l.queue.concat(shuffle(missing));
+  }else{
+    l.queue=shuffle(keys);
+  }
+  return l;
+}
+EMBED.forEach(function(e){
+  var p=parseList(e.text,e.fallback);
+  if(p.words.length)lists.push(makeList(e.id,p.title,p.words,false,saved.lists[e.id]));
+});
+var current=lists[0];
+var lastEmbedded=current;
+if(saved.last){
+  lists.forEach(function(l){if(l.id===saved.last){current=l;lastEmbedded=l;}});
+}
+var storeFailed=!store;
+
+function save(){
+  if(!store)return;
+  try{
+    var out={v:1,last:lastEmbedded?lastEmbedded.id:'',lists:{}};
+    lists.forEach(function(l){
+      if(l.own)return;
+      out.lists[l.id]={known:Array.from(l.known),queue:l.queue.slice()};
+    });
+    store.setItem(KEY,JSON.stringify(out));
+  }catch(e){
+    store=null;storeFailed=true;
+    showNotice();
+  }
+}
+function showNotice(){
+  if(storeFailed){
+    notice.textContent='Dein Lernstand kann hier nicht gespeichert werden. Du kannst trotzdem üben. Wenn du die Seite schließt, ist der Stand weg.';
+    notice.hidden=false;
+  }
+}
+
+/* ---------- Anzeige ---------- */
+function div(cls,text){
+  var d=document.createElement('div');
+  d.className=cls;d.textContent=text;
+  return d;
+}
+function optionLabel(l){
+  return l.title+' ('+l.known.size+'/'+l.words.length+')';
+}
+function buildSelect(){
+  listSel.replaceChildren();
+  lists.forEach(function(l){
+    var o=document.createElement('option');
+    o.value=l.id;o.textContent=optionLabel(l);
+    listSel.appendChild(o);
+  });
+  listSel.value=current.id;
+}
+function render(){
+  var l=current,total=l.words.length,k=l.known.size,done=l.queue.length===0;
+  progText.textContent=k+'/'+total+' gewusst'+(done?'':' · noch '+l.queue.length+' offen');
+  bar.setAttribute('aria-valuemax',String(total));
+  bar.setAttribute('aria-valuenow',String(k));
+  bar.setAttribute('aria-valuetext',k+' von '+total+' gewusst');
+  barFill.style.width=(total?Math.round(100*k/total):0)+'%';
+  play.hidden=done;
+  doneBox.hidden=!done;
+  if(done){
+    doneText.textContent='Alle '+total+' Wörter gewusst. Gut gemacht!';
+  }else{
+    var w=l.byKey.get(l.queue[0]);
+    cardBody.replaceChildren();
+    if(!l.flipped){
+      cardSide.textContent='Englisch';
+      cardBody.appendChild(div('en',w.en));
+    }else{
+      cardSide.textContent='Deutsch';
+      w.de.forEach(function(d){cardBody.appendChild(div('de',d));});
+      cardBody.appendChild(div('small','Englisch: '+w.en));
+    }
+  }
+  flipBtn.hidden=l.flipped||done;
+  judge.hidden=!l.flipped||done;
+  restartBtn.className=done?'btn primary big':'btn';
+  info.hidden=!l.own;
+  if(l.own)info.textContent='Eigene Liste „'+l.title+'“: wird nur in diesem Fenster gelesen und nicht gespeichert.';
+  Array.prototype.forEach.call(listSel.options,function(o){
+    lists.forEach(function(x){if(x.id===o.value)o.textContent=optionLabel(x);});
+  });
+}
+function focusMain(){
+  var l=current;
+  if(l.queue.length===0)restartBtn.focus();
+  else if(l.flipped)knownBtn.focus();
+  else flipBtn.focus();
+}
+
+/* ---------- Aktionen ---------- */
+function flip(){
+  if(current.queue.length===0||current.flipped)return;
+  current.flipped=true;
+  render();focusMain();
+}
+function again(){
+  var l=current;
+  if(!l.flipped||l.queue.length===0)return;
+  if(l.queue.length>1)l.queue.push(l.queue.shift());
+  l.flipped=false;
+  save();render();focusMain();
+}
+function known(){
+  var l=current;
+  if(!l.flipped||l.queue.length===0)return;
+  l.known.add(l.queue.shift());
+  l.flipped=false;
+  save();render();focusMain();
+}
+function clearErr(){err.hidden=true;err.textContent='';}
+function showErr(t){err.textContent=t;err.hidden=false;}
+
+flipBtn.addEventListener('click',flip);
+card.addEventListener('click',flip);
+againBtn.addEventListener('click',again);
+knownBtn.addEventListener('click',known);
+
+listSel.addEventListener('change',function(){
+  var id=listSel.value;
+  lists.forEach(function(l){if(l.id===id){current=l;l.flipped=false;if(!l.own)lastEmbedded=l;}});
+  clearErr();save();render();
+});
+
+/* ---------- Neu starten mit Nachfrage ---------- */
+function dlgOpen(){return !dlg.hidden;}
+function openDlg(){
+  dlgText.textContent='Du beginnst bei 0/'+current.words.length+'. Der Lernstand dieser Liste geht verloren.';
+  dlg.hidden=false;
+  dlgNo.focus();
+}
+function closeDlg(){
+  dlg.hidden=true;
+  restartBtn.focus();
+}
+restartBtn.addEventListener('click',openDlg);
+dlgNo.addEventListener('click',closeDlg);
+dlgYes.addEventListener('click',function(){
+  var l=current;
+  l.known=new Set();
+  l.queue=shuffle(l.words.map(function(w){return w.key;}));
+  l.flipped=false;
+  save();render();
+  dlg.hidden=true;
+  focusMain();
+});
+
+/* ---------- Eigene Liste laden (nur lesen, nicht speichern) ---------- */
+function decode(buf){
+  try{return new TextDecoder('utf-8',{fatal:true}).decode(buf);}
+  catch(e){
+    try{return new TextDecoder('windows-1252').decode(buf);}catch(e2){return '';}
+  }
+}
+loadBtn.addEventListener('click',function(){fileIn.click();});
+fileIn.addEventListener('change',function(){
+  var f=fileIn.files&&fileIn.files[0];
+  if(!f)return;
+  clearErr();
+  if(typeof FileReader==='undefined'){showErr('Dieser Browser kann keine Dateien lesen.');return;}
+  if(f.size>1048576){showErr('Die Datei ist zu groß. Sie darf höchstens 1 MB haben.');fileIn.value='';return;}
+  var r=new FileReader();
+  r.onload=function(){
+    var text=decode(r.result);
+    var base=String(f.name||'Eigene Liste').replace(/\.[^.]*$/,'')||'Eigene Liste';
+    var p=parseList(text,base);
+    if(!p.words.length){
+      showErr('In der Datei wurden keine Wörter gefunden. Jede Zeile soll so aussehen: englisch;deutsch');
+      return;
+    }
+    var nl=makeList('eigene',p.title,p.words,true,null);
+    lists=lists.filter(function(l){return !l.own;});
+    lists.push(nl);
+    current=nl;
+    buildSelect();render();focusMain();
+  };
+  r.onerror=function(){showErr('Die Datei konnte nicht gelesen werden.');};
+  r.readAsArrayBuffer(f);
+  fileIn.value='';
+});
+
+/* ---------- Tastatur ---------- */
+document.addEventListener('keydown',function(e){
+  var t=e.target,tag=t&&t.tagName?String(t.tagName).toUpperCase():'';
+  if(dlgOpen()){
+    if(e.key==='Escape'){e.preventDefault();closeDlg();}
+    else if(e.key==='Tab'){
+      var first=dlgNo,last=dlgYes,a=document.activeElement;
+      if(e.shiftKey&&a===first){e.preventDefault();last.focus();}
+      else if(!e.shiftKey&&a===last){e.preventDefault();first.focus();}
+      else if(a!==first&&a!==last){e.preventDefault();first.focus();}
+    }
+    return;
+  }
+  if(tag==='SELECT'||tag==='INPUT'||tag==='TEXTAREA')return;
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+  var l=current;
+  if(l.queue.length===0)return;
+  if(!l.flipped){
+    if((e.key===' '||e.key==='Enter'||e.key==='Spacebar')&&tag!=='BUTTON'){e.preventDefault();flip();}
+  }else{
+    if(e.key==='ArrowLeft'){e.preventDefault();again();}
+    else if(e.key==='ArrowRight'){e.preventDefault();known();}
+  }
+});
+
+if(!lists.length){
+  showErr('Es sind keine Wortlisten eingebaut.');
+  flipBtn.hidden=true;
+}else{
+  buildSelect();render();showNotice();
+}
+})();
+</script>
+</body>
+</html>

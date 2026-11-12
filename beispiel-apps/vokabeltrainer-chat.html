@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vokabeltrainer Englisch</title>
+<style>
+:root{--bg:#f4f6fa;--fg:#14213d;--card:#ffffff;--line:#14213d;--pri:#0b4fa8;--pri-fg:#ffffff;--ok:#0b6b2e;--again:#8a3a00;--mute:#4a5568;--bar:#d5dbe6;--warn:#fff3cd;--warnfg:#4d3b00}
+@media (prefers-color-scheme:dark){:root{--bg:#101522;--fg:#f2f5fb;--card:#1b2336;--line:#f2f5fb;--pri:#7db3ff;--pri-fg:#06142e;--ok:#7fe0a0;--again:#ffb27a;--mute:#c3cbdb;--bar:#3a455e;--warn:#4d3b00;--warnfg:#fff3cd}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:20px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:8px 0 4px}
+h2{font-size:1.4rem;margin:8px 0}
+p{margin:8px 0}
+.sub{color:var(--mute);margin:0 0 12px}
+.notice{background:var(--warn);color:var(--warnfg);border:2px solid var(--warnfg);border-radius:12px;padding:10px 14px;margin:8px 0}
+.bar{height:20px;background:var(--bar);border-radius:10px;overflow:hidden;border:2px solid var(--line)}
+.bar>div{height:100%;width:0;background:var(--pri)}
+.stand{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;margin:12px 0 6px}
+button{font:inherit;font-weight:700;min-height:64px;min-width:64px;padding:12px 22px;border-radius:14px;border:3px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:5px solid #ff9f1a;outline-offset:3px}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.pri{background:var(--pri);color:var(--pri-fg)}
+button.ok{border-color:var(--ok);color:var(--ok)}
+button.again{border-color:var(--again);color:var(--again)}
+.big{width:100%;font-size:1.3rem}
+.card{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:240px;margin:14px 0;font-size:2.2rem;background:var(--card);border-radius:20px;text-align:center;gap:6px}
+.card small{font-size:1rem;font-weight:400;color:var(--mute)}
+.row{display:flex;gap:14px}
+.row>button{flex:1}
+.foot{margin-top:26px;display:flex;gap:12px;flex-wrap:wrap}
+.hint{color:var(--mute);font-size:.95rem;margin-top:12px}
+.done{text-align:center;padding:20px 8px}
+.done .star{font-size:3rem}
+[hidden]{display:none!important}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.dlg{background:var(--card);color:var(--fg);border:3px solid var(--line);border-radius:18px;padding:20px;max-width:480px;width:100%}
+.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+@media (max-width:480px){body{font-size:18px}.card{font-size:1.9rem;min-height:200px}.row{flex-direction:column}}
+</style>
+</head>
+<body>
+<main>
+<h1>Vokabeltrainer Englisch</h1>
+<p class="sub">Klasse 7</p>
+<div id="storeNote" class="notice" role="status" hidden>Dein Lernstand wird auf diesem Gerät nicht gespeichert. Üben geht trotzdem.</div>
+
+<div class="stand"><span id="standText">0/0 gewusst</span></div>
+<div class="bar" role="progressbar" id="bar" aria-label="Lernstand" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><div id="barFill"></div></div>
+
+<section id="sStart">
+  <p id="startText">Übe die Wörter mit Karteikarten.</p>
+  <button id="btnStart" class="pri big" type="button">Üben</button>
+</section>
+
+<section id="sPractice" hidden>
+  <div id="card" class="card" role="group" aria-label="Karteikarte"><small id="cardLang">Englisch</small><span id="cardWord"></span></div>
+  <button id="btnFlip" class="pri big" type="button">Umdrehen</button>
+  <div class="row" style="margin-top:14px">
+    <button id="btnAgain" class="again" type="button" disabled>Nochmal</button>
+    <button id="btnKnown" class="ok" type="button" disabled>Gewusst ✓</button>
+  </div>
+  <p class="hint">Tastatur: Leertaste = Umdrehen, Pfeil links oder 1 = Nochmal, Pfeil rechts oder 2 = Gewusst.</p>
+</section>
+
+<section id="sDone" class="done" hidden>
+  <div class="star" aria-hidden="true">★</div>
+  <h2>Geschafft!</h2>
+  <p>Du hast alle Wörter gewusst.</p>
+</section>
+
+<div class="foot">
+  <button id="btnHome" type="button" hidden>Zur Startseite</button>
+  <button id="btnRestart" type="button">Neu starten</button>
+</div>
+<div id="live" class="sr" aria-live="polite"></div>
+</main>
+
+<div id="confirm" class="overlay" hidden>
+  <div class="dlg" role="alertdialog" aria-modal="true" aria-labelledby="cTitle">
+    <h2 id="cTitle">Neu starten?</h2>
+    <p>Dann beginnst du wieder bei 0. Dein Lernstand wird gelöscht.</p>
+    <div class="row">
+      <button id="btnCancel" class="pri" type="button">Abbrechen</button>
+      <button id="btnYes" type="button">Ja, neu starten</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+var KEY='vokabeltrainer-englisch-7';
+var WORDS=('the forest;der Wald\n'+
+'the river;der Fluss\n'+
+'the mountain;der Berg\n'+
+'the island;die Insel\n'+
+'the weather;das Wetter\n'+
+'the journey;die Reise\n'+
+'the map;die Landkarte\n'+
+'to climb;klettern\n'+
+'to explore;erkunden\n'+
+'dangerous;gefährlich').split('\n').map(function(l){var p=l.split(';');return {en:p[0].trim(),de:p[1].trim()};});
+var N=WORDS.length;
+var $=function(id){return document.getElementById(id);};
+
+var S={known:[],queue:[],flipped:false,screen:'start',confirm:false,canStore:true,prevScreen:'start'};
+
+/* ---------- Speichern ---------- */
+function store(){
+  try{return window.localStorage||null;}catch(e){return null;}
+}
+function save(){
+  var ls=store();
+  if(!ls){S.canStore=false;return;}
+  try{ls.setItem(KEY,JSON.stringify({known:S.known,queue:S.queue}));}catch(e){S.canStore=false;}
+}
+function clearSaved(){
+  var ls=store();
+  if(!ls){return;}
+  try{ls.removeItem(KEY);}catch(e){S.canStore=false;}
+}
+function validIdx(i){return typeof i==='number'&&isFinite(i)&&i>=0&&i<N&&Math.floor(i)===i;}
+function uniq(a){var o=[];a.forEach(function(x){if(o.indexOf(x)<0)o.push(x);});return o;}
+function load(){
+  var ls=store();
+  if(!ls){S.canStore=false;return;}
+  var raw=null;
+  try{raw=ls.getItem(KEY);}catch(e){S.canStore=false;return;}
+  if(!raw)return;
+  try{
+    var d=JSON.parse(raw);
+    if(!d||!Array.isArray(d.known))return;
+    var known=uniq(d.known.filter(validIdx));
+    var queue=Array.isArray(d.queue)?uniq(d.queue.filter(validIdx)).filter(function(i){return known.indexOf(i)<0;}):[];
+    /* Queue immer aus den nicht gewussten Karten aufbauen, gespeicherte Reihenfolge zuerst */
+    WORDS.forEach(function(w,i){if(known.indexOf(i)<0&&queue.indexOf(i)<0)queue.push(i);});
+    S.known=known;S.queue=queue;
+  }catch(e){/* kaputte Daten: ignorieren, frisch starten */}
+}
+
+/* ---------- Kartenlogik ---------- */
+function shuffle(a){
+  for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+  return a;
+}
+function freshQueue(){
+  var q=[];WORDS.forEach(function(w,i){if(S.known.indexOf(i)<0)q.push(i);});
+  S.queue=shuffle(q);
+}
+function allKnown(){return S.known.length>=N;}
+function flip(){
+  if(S.screen!=='practice'||S.flipped||!S.queue.length)return;
+  S.flipped=true;render('flip');
+}
+function knew(){
+  if(S.screen!=='practice'||!S.flipped||!S.queue.length)return;
+  var c=S.queue.shift();
+  if(S.known.indexOf(c)<0)S.known.push(c);
+  S.flipped=false;
+  if(S.queue.length===0||allKnown()){S.queue=[];S.screen='done';}
+  save();render('next');
+}
+function again(){
+  if(S.screen!=='practice'||!S.flipped||!S.queue.length)return;
+  S.queue.push(S.queue.shift());
+  S.flipped=false;
+  save();render('next');
+}
+function startPractice(){
+  if(allKnown()){S.screen='done';render();return;}
+  if(!S.queue.length)freshQueue();
+  S.flipped=false;S.screen='practice';render('next');
+}
+function restart(){
+  S.known=[];S.flipped=false;S.confirm=false;
+  clearSaved();
+  freshQueue();
+  S.screen='start';save();render('home');
+}
+function openConfirm(){S.prevScreen=S.screen;S.confirm=true;render('confirm');}
+function cancelConfirm(){S.confirm=false;render('unconfirm');}
+function home(){S.flipped=false;S.screen='start';render('home');}
+
+/* ---------- Anzeige ---------- */
+function show(id,on){$(id).hidden=!on;}
+function render(focusWhat){
+  var k=S.known.length;
+  $('standText').textContent=k+'/'+N+' gewusst';
+  $('barFill').style.width=Math.round(k/N*100)+'%';
+  $('bar').setAttribute('aria-valuemax',String(N));
+  $('bar').setAttribute('aria-valuenow',String(k));
+  show('storeNote',!S.canStore);
+  show('sStart',S.screen==='start');
+  show('sPractice',S.screen==='practice');
+  show('sDone',S.screen==='done');
+  show('btnHome',S.screen==='practice');
+  show('confirm',S.confirm);
+  if(S.screen==='start'){
+    $('btnStart').textContent=k>0?'Weiter üben':'Üben';
+    $('startText').textContent=k>0?('Du hast '+k+' von '+N+' Wörtern gewusst. Mach weiter!'):'Übe die Wörter mit Karteikarten.';
+  }
+  if(S.screen==='practice'&&S.queue.length){
+    var w=WORDS[S.queue[0]];
+    $('cardLang').textContent=S.flipped?'Deutsch':'Englisch';
+    $('cardWord').textContent=S.flipped?w.de:w.en;
+    $('btnFlip').disabled=S.flipped;
+    $('btnAgain').disabled=!S.flipped;
+    $('btnKnown').disabled=!S.flipped;
+    $('live').textContent=(S.flipped?'Deutsch: ':'Englisch: ')+(S.flipped?w.de:w.en);
+  }
+  if(S.screen==='done'){$('live').textContent='Geschafft! Du hast alle Wörter gewusst.';}
+  /* Fokus setzen */
+  try{
+    if(S.confirm){$('btnCancel').focus();}
+    else if(focusWhat==='flip'){$('btnKnown').focus();}
+    else if(focusWhat==='next'||focusWhat==='unconfirm'||focusWhat==='home'){
+      if(S.screen==='practice')$('btnFlip').focus();
+      else if(S.screen==='start')$('btnStart').focus();
+      else $('btnRestart').focus();
+    }
+  }catch(e){}
+}
+
+/* ---------- Ereignisse ---------- */
+function onKey(e){
+  if(e.ctrlKey||e.altKey||e.metaKey)return;
+  var key=e.key;
+  if(S.confirm){
+    if(key==='Escape'){e.preventDefault();cancelConfirm();}
+    return;
+  }
+  if(S.screen!=='practice')return;
+  var onBtn=e.target&&e.target.tagName==='BUTTON';
+  if(key===' '||key==='Spacebar'||key==='Enter'){
+    if(onBtn)return; /* Knopf löst selbst aus */
+    e.preventDefault();flip();return;
+  }
+  if(key==='ArrowLeft'||key==='1'){e.preventDefault();again();return;}
+  if(key==='ArrowRight'||key==='2'){e.preventDefault();knew();return;}
+}
+function init(){
+  load();
+  if(S.queue.length===0)freshQueue();
+  if(allKnown())S.screen='done';
+  $('btnStart').addEventListener('click',startPractice);
+  $('btnFlip').addEventListener('click',flip);
+  $('btnKnown').addEventListener('click',knew);
+  $('btnAgain').addEventListener('click',again);
+  $('btnHome').addEventListener('click',home);
+  $('btnRestart').addEventListener('click',openConfirm);
+  $('btnCancel').addEventListener('click',cancelConfirm);
+  $('btnYes').addEventListener('click',restart);
+  document.addEventListener('keydown',onKey);
+  render();
+}
+window.__vt={S:S,WORDS:WORDS,flip:flip,knew:knew,again:again,startPractice:startPractice,restart:restart,openConfirm:openConfirm,cancelConfirm:cancelConfirm,home:home,onKey:onKey};
+init();
+})();
+</script>
+</body>
+</html>
