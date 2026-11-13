@@ -1,7 +1,8 @@
-# CLAUDE.md – Vokabeltrainer
+# AGENTS.md / CLAUDE.md – Vokabeltrainer
 
-> Diese Datei liegt im Hauptordner des Projekts. Claude Code lädt sie bei **jeder** Sitzung automatisch.
-> Sie ist das Gedächtnis des Projekts: kurz, klar, nur das, was Claude wirklich wissen muss.
+> Diese Datei liegt im Hauptordner des Projekts. KI-Werkzeuge mit Ordnerzugriff laden sie bei **jeder** Sitzung automatisch.
+> Je nach Werkzeug heißt sie anders: **AGENTS.md** (z. B. Codex) oder **CLAUDE.md** (Claude Code). Der Inhalt bleibt gleich.
+> Sie ist das Gedächtnis des Projekts: kurz, klar, nur das, was die KI wirklich wissen muss.
 
 ## Projekt
 Eine kleine Lern-App (eine HTML-Datei, läuft offline im Browser) zum Üben von Vokabeln aus einer eigenen Wortliste
@@ -11,7 +12,7 @@ Eine kleine Lern-App (eine HTML-Datei, läuft offline im Browser) zum Üben von 
 - `daten/vokabeln.json` – die Vokabeln (Felder: unit, p, en, de)
 - `app/vokabeltrainer.html` – die App (HTML, CSS und JavaScript in einer Datei)
 - `spezifikation/` – Spezifikationen je Funktion (Level 3)
-- `.claude/skills/`, `.claude/rules/`, `.claude/agents/` – wiederverwendbare Bausteine (Level 4/5)
+- Ordner für wiederverwendbare Bausteine (Skills, Regeln, Agenten), je nach Werkzeug mit eigenem Namen, z. B. `.claude/skills/` (Level 4/5)
 
 ## Pädagogische Haltung (verbindlich)
 - Fehler werden **ermutigend erklärt, nicht bloßgestellt** („Fast! Richtig ist: …", nie „Falsch!").
