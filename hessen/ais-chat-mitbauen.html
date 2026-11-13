@@ -52,6 +52,7 @@ textarea#code{display:block;width:100%;height:110px;resize:vertical;border:2px s
 .msg.ok{color:#0F5132}.msg.err{color:var(--rot)}
 .prev{border:2px solid var(--blau);border-top:0;border-radius:0 0 8px 8px;background:#fff;position:relative}
 iframe#vorschau-frame{display:block;width:100%;height:clamp(440px,calc(100vh - 420px),900px);border:0;background:#fff}
+.prev.empty{border-color:transparent}
 .prev.full{position:fixed;inset:0;z-index:50;border:0;border-radius:0;display:flex;flex-direction:column}
 .prev.full iframe#vorschau-frame{height:auto;flex:1;min-height:0}
 .prev .close{display:none}
@@ -109,7 +110,7 @@ footer{background:var(--blau10);border-top:2px solid var(--blau);padding:14px 16
 (function(){
  var $=function(i){return document.getElementById(i)};
  var code=$('code'),frame=$('vorschau-frame'),msg=$('msg'),fname=$('fname'),prev=$('prev'),timer=null;
- var EMPTY='<!doctype html><meta charset="utf-8"><body style="margin:0;display:grid;place-items:center;height:100vh;font:18px Arial,sans-serif;color:#5A5A5F;background:#fff"><p style="max-width:28em;text-align:center">Hier erscheint Ihre App, sobald Sie links den HTML-Code einfügen.</p></body>';
+ var EMPTY='<!doctype html><meta charset="utf-8"><html style="height:100%"><body style="margin:0;height:100%;display:flex;align-items:center;justify-content:center;font:20px Arial,sans-serif;color:#5A5A5F;background:#fff"><p style="margin:0;text-align:center">Hier erscheint Ihre App.</p></body>';
  function say(t,c){msg.textContent=t||'';msg.className='msg'+(c?' '+c:'')}
  function clean(s){ // Code-Zaun aus dem Chat entfernen, falls mitkopiert
   s=s.replace(/^\s*```[a-z]*\s*\n/i,'').replace(/\n\s*```\s*$/,'');return s}
@@ -119,8 +120,8 @@ footer{background:var(--blau10);border-top:2px solid var(--blau);padding:14px 16
   return '<meta charset="utf-8">\n'+s}
  function show(){
   var v=clean(code.value);
-  if(!v.trim()){frame.srcdoc=EMPTY;say('');return}
-  frame.srcdoc=v;
+  if(!v.trim()){frame.srcdoc=EMPTY;prev.classList.add('empty');say('');return}
+  prev.classList.remove('empty');frame.srcdoc=v;
   say(/<(html|body|div|script|p|h1|canvas|style)\b/i.test(v)?'Vorschau aktualisiert.':'Das sieht nicht nach HTML aus. Haben Sie den ganzen Code aus dem Codeblock kopiert?',/<(html|body|div|script|p|h1|canvas|style)\b/i.test(v)?'ok':'err')}
  function later(){clearTimeout(timer);timer=setTimeout(show,450)}
  code.addEventListener('input',later);
@@ -145,7 +146,7 @@ footer{background:var(--blau10);border-top:2px solid var(--blau);padding:14px 16
   function ok(){b.textContent='Kopiert ✓';setTimeout(function(){b.textContent='Kopieren'},1800)}
   if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(ok,function(){sel()});else sel();
   function sel(){var r=document.createRange();r.selectNodeContents($('pr-text'));var s=getSelection();s.removeAllRanges();s.addRange(r);try{document.execCommand('copy');ok()}catch(e){b.textContent='Markiert, Strg+C'}}};
- frame.srcdoc=EMPTY;
+ frame.srcdoc=EMPTY;prev.classList.add('empty');
 })();
 </script>
 </body></html>
