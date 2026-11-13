@@ -128,6 +128,7 @@ Fehler werden ermutigend erklärt, nie bloßgestellt.</textarea>
   <legend>Dein fertiger Prompt</legend>
   <div class="row">
    <button class="primary" id="copy">Prompt kopieren</button>
+   <button id="savemd" title="Für KI-Werkzeuge, die Dateien annehmen (Büroklammer)">Als .md speichern</button>
    <button id="reset">Formular leeren</button>
    <span id="copied" class="ok" role="status" hidden>Kopiert!</span>
   </div>
@@ -229,6 +230,7 @@ function fill(ex){IDS.forEach(i=>{$(i).value=ex[i]!==undefined?ex[i]:(i==="quali
 document.addEventListener("input",refresh);document.addEventListener("change",refresh);
 $("reset").onclick=()=>{if(confirm("Alle Felder leeren?")){fill({})}};
 $("copy").onclick=async()=>{const t=$("out").value;try{await navigator.clipboard.writeText(t)}catch(e){$("out").select();document.execCommand("copy")}$("copied").hidden=false;setTimeout(()=>$("copied").hidden=true,2500)};
+$("savemd").onclick=()=>{const t=$("out").value;if(!t.trim())return;let n=($("name")&&$("name").value||"app").trim().toLowerCase().replace(/[^a-z0-9äöüß]+/g,"-").replace(/^-+|-+$/g,"")||"app";const b=new Blob([t+"\n"],{type:"text/markdown;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="prompt-"+n+".md";document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
 load();refresh();
 </script>
 </body>

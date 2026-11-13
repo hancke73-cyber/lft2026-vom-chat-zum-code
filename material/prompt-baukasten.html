@@ -89,6 +89,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px soli
   <legend>7 · Dein fertiger Prompt</legend>
   <div class="row">
    <button class="primary" id="copy">Prompt kopieren</button>
+   <button id="savemd" title="Für KI-Werkzeuge, die Dateien annehmen (Büroklammer)">Als .md speichern</button>
    <button id="all">Alle Funktionen ankreuzen</button>
    <button id="reset">Formular zurücksetzen</button>
    <span id="copied" class="ok" role="status" hidden>Kopiert!</span>
@@ -217,6 +218,7 @@ $("copy").onclick=async()=>{
   try{await navigator.clipboard.writeText(t)}catch(e){$("out").select();document.execCommand("copy")}
   $("copied").hidden=false;setTimeout(()=>$("copied").hidden=true,2500);
 };
+$("savemd").onclick=()=>{const t=$("out").value;if(!t.trim())return;let n=($("name")&&$("name").value||"app").trim().toLowerCase().replace(/[^a-z0-9äöüß]+/g,"-").replace(/^-+|-+$/g,"")||"app";const b=new Blob([t+"\n"],{type:"text/markdown;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="prompt-"+n+".md";document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(a.href),1000);};
 load();refresh();
 </script>
 </body>
